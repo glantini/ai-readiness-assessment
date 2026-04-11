@@ -21,7 +21,6 @@ import {
 
 import {
   layer2Questions,
-  LAYER2_SECTION_WEIGHTS,
   YESNO_SCORES,
   type YesNoValue,
 } from './questions/layer2'
