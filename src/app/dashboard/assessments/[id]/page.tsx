@@ -1,12 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import {
-  calculateLayer1Scores,
-  calculateLayer2Scores,
-  saveScoresToReport,
-} from '@/lib/scoring'
+import { RecalculateButton } from './RecalculateButton'
 import type {
   Assessment,
   Layer1Scores,
@@ -67,26 +62,6 @@ function barColor(score: number): string {
   if (score >= 3.1) return 'bg-yellow-600'
   if (score >= 2.1) return 'bg-orange-600'
   return 'bg-red-600'
-}
-
-// ─── Server action: recalculate scores ───────────────────────────────────────
-
-async function recalculate(formData: FormData) {
-  'use server'
-  const assessmentId = formData.get('assessmentId') as string
-  const usesSalesforce = formData.get('usesSalesforce') === 'true'
-
-  try {
-    const [layer1, layer2] = await Promise.all([
-      calculateLayer1Scores(assessmentId),
-      usesSalesforce ? calculateLayer2Scores(assessmentId) : Promise.resolve(null),
-    ])
-    await saveScoresToReport(assessmentId, layer1, layer2)
-  } catch (err) {
-    console.error('[scoring] Recalculation failed', assessmentId, err)
-  }
-
-  revalidatePath(`/dashboard/assessments/${assessmentId}`)
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -256,7 +231,6 @@ export default async function AssessmentDetailPage({
                 status={a.status}
                 assessmentId={a.id}
                 usesSalesforce={!!a.uses_salesforce}
-                recalculate={recalculate}
               />
             ) : (
               <>
@@ -450,12 +424,10 @@ function NoScoresNotice({
   status,
   assessmentId,
   usesSalesforce,
-  recalculate,
 }: {
   status: string
   assessmentId: string
   usesSalesforce: boolean
-  recalculate: (fd: FormData) => Promise<void>
 }) {
   if (status !== 'completed') {
     return (
@@ -468,19 +440,10 @@ function NoScoresNotice({
   return (
     <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm">
       <p className="font-medium text-amber-800">Scores not yet calculated</p>
-      <p className="mt-1 text-amber-700">
+      <p className="mt-1 mb-3 text-amber-700">
         Scoring may have failed during completion. Click below to recalculate.
       </p>
-      <form action={recalculate} className="mt-3">
-        <input type="hidden" name="assessmentId" value={assessmentId} />
-        <input type="hidden" name="usesSalesforce" value={String(usesSalesforce)} />
-        <button
-          type="submit"
-          className="rounded-md bg-amber-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-800"
-        >
-          Recalculate Scores
-        </button>
-      </form>
+      <RecalculateButton assessmentId={assessmentId} usesSalesforce={usesSalesforce} />
     </div>
   )
 }

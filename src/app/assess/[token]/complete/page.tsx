@@ -22,14 +22,25 @@ export default async function CompletePage({
 
   if (error || !assessment) notFound()
 
-  // Mark the assessment as completed and trigger scoring (idempotent on repeat visits)
+  // Mark completed if not already
   if (assessment.status !== 'completed') {
     await supabase
       .from('assessments')
       .update({ status: 'completed' })
       .eq('id', assessment.id)
+  }
 
-    // Calculate and persist scores — non-fatal if this fails
+  // Calculate and persist scores when:
+  //  a) This is the first time the page is loaded (just marked completed), OR
+  //  b) The assessment was already completed but scoring failed on the first attempt
+  // We check the reports table so repeat visits don't re-score unnecessarily.
+  const { data: existingReport } = await supabase
+    .from('reports')
+    .select('layer1_scores')
+    .eq('assessment_id', assessment.id)
+    .maybeSingle()
+
+  if (!existingReport?.layer1_scores) {
     try {
       const [layer1, layer2] = await Promise.all([
         calculateLayer1Scores(assessment.id),
