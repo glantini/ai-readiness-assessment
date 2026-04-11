@@ -104,7 +104,7 @@ export default async function AssessmentDetailPage({
       supabase.from('assessments').select('*').eq('id', params.id).single(),
       supabase
         .from('reports')
-        .select('layer1_scores, layer2_scores, product_scores, overall_tier')
+        .select('layer1_scores, layer2_scores, product_scores, overall_tier, ai_narrative_json, report_status')
         .eq('assessment_id', params.id)
         .single(),
     ])
@@ -119,6 +119,8 @@ export default async function AssessmentDetailPage({
   const productScores = report?.product_scores as ProductScore[] | null
 
   const hasScores = !!layer1Scores
+  const hasNarrative = !!report?.ai_narrative_json
+  const reportStatus = report?.report_status as string | null
   const showAgentforce = !!a.uses_salesforce
 
   // ── Full name helpers ────────────────────────────────────────────────────
@@ -159,17 +161,27 @@ export default async function AssessmentDetailPage({
             )}
           </div>
 
-          {/* Generate Report button (Session 8) */}
-          {a.status === 'completed' && (
-            <Link
-              href={`/api/reports/${a.id}/generate`}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Generate Report
-            </Link>
+          {/* Report button */}
+          {a.status === 'completed' && hasScores && (
+            <div className="flex items-center gap-2">
+              {reportStatus === 'approved' && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800">
+                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Approved
+                </span>
+              )}
+              <Link
+                href={`/dashboard/assessments/${a.id}/report`}
+                className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {hasNarrative ? 'View Report' : 'Generate Report'}
+              </Link>
+            </div>
           )}
         </div>
 

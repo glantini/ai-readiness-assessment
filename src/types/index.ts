@@ -153,10 +153,72 @@ export interface Report {
   assessment_id: string
   layer1_scores: Layer1Scores | null
   layer2_scores: Layer2Scores | null
+  product_scores: ProductScore[] | null
   overall_tier: ReadinessTier | null
+  ai_narrative_json: ReportNarrative | null
+  agentforce_narrative_json: AgentforceNarrative | null
+  report_status: ReportStatus | null
   generated_at: string
   pdf_url: string | null
 }
+
+// ─── Report Narrative Types ───────────────────────────────────────────────────
+
+export interface QuickWin {
+  action: string
+  effort: 'Low' | 'Medium' | 'High'
+  impact: 'Low' | 'Medium' | 'High'
+  timeline: string
+}
+
+export interface CategoryNarrative {
+  summary: string
+  recommendations: [string, string]
+}
+
+export interface ReportNarrative {
+  executiveSummary: string
+  criticalGap: {
+    area: string
+    finding: string
+    recommendation: string
+  }
+  quickWins: QuickWin[]
+  categories: {
+    AIStrategy: CategoryNarrative
+    PeopleAndCulture: CategoryNarrative
+    DataFoundation: CategoryNarrative
+    ProcessReadiness: CategoryNarrative
+    RiskAndGovernance: CategoryNarrative
+    AIAgentGovernance: CategoryNarrative
+  }
+}
+
+export interface AgentRecommendation {
+  agentName: string
+  readinessTier: string
+  timeline: string
+  conditions: [string, string]
+  expectedOutcome: string
+}
+
+export interface AgentforceNarrative {
+  agentforceExecutiveSummary: string
+  editionFlag: string | null
+  dataCloudFlag: {
+    required: boolean
+    reason: string
+    phase: string
+  }
+  agentRecommendations: Record<string, AgentRecommendation>
+  implementationRoadmap: {
+    phase1: { title: string; duration: string; actions: [string, string, string] }
+    phase2: { title: string; duration: string; agent: string; outcome: string }
+    phase3: { title: string; duration: string; expansion: string }
+  }
+}
+
+export type ReportStatus = 'draft' | 'approved'
 
 // ─── Profile dropdowns (for form rendering) ──────────────────────────────────
 

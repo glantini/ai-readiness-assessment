@@ -93,6 +93,12 @@ CREATE TABLE IF NOT EXISTS reports (
   product_scores jsonb,
   overall_tier   text,
 
+  -- AI narrative (populated after /api/reports/[id]/generate)
+  ai_narrative_json         jsonb,
+  agentforce_narrative_json jsonb,
+  report_status             text DEFAULT 'draft'
+    CHECK (report_status IN ('draft', 'approved')),
+
   generated_at  timestamptz DEFAULT now() NOT NULL,
   pdf_url       text   -- populated after PDF generation via /api/reports/[id]/pdf
 );
