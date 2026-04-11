@@ -81,7 +81,7 @@ export default async function AssessIntroPage({
           <p className="mt-1 text-sm text-gray-500">{assessment.company_name}</p>
         )}
         <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-          This assessment is designed to help us understand your organization's current
+          This assessment is designed to help us understand your organization&apos;s current
           AI readiness and identify the most impactful opportunities with Salesforce Agentforce.
           Your answers will be used to generate a tailored readiness report.
         </p>
