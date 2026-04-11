@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useReducer, useRef, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { approveReport } from '@/app/actions/generateReport'
 import { extractPartialSummary } from '@/lib/reportGeneration'
@@ -238,13 +238,11 @@ function ScoreBar({ score }: { score: number }) {
 // ─── Section card (category findings) ────────────────────────────────────────
 
 function CategoryCard({
-  key: _key,
   label,
   score,
   narrative,
   onChange,
 }: {
-  key: string
   label: string
   score: number | undefined
   narrative: CategoryNarrative
