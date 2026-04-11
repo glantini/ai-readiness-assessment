@@ -1,5 +1,10 @@
 import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
+import {
+  calculateLayer1Scores,
+  calculateLayer2Scores,
+  saveScoresToReport,
+} from '@/lib/scoring'
 
 export default async function CompletePage({
   params,
@@ -11,18 +16,31 @@ export default async function CompletePage({
   // Verify the token is valid
   const { data: assessment, error } = await supabase
     .from('assessments')
-    .select('id, status, contact_first_name, company_name')
+    .select('id, status, contact_first_name, company_name, uses_salesforce')
     .eq('token', params.token)
     .single()
 
   if (error || !assessment) notFound()
 
-  // Mark the assessment as completed (idempotent — safe to run on repeated visits)
+  // Mark the assessment as completed and trigger scoring (idempotent on repeat visits)
   if (assessment.status !== 'completed') {
     await supabase
       .from('assessments')
       .update({ status: 'completed' })
       .eq('id', assessment.id)
+
+    // Calculate and persist scores — non-fatal if this fails
+    try {
+      const [layer1, layer2] = await Promise.all([
+        calculateLayer1Scores(assessment.id),
+        assessment.uses_salesforce
+          ? calculateLayer2Scores(assessment.id)
+          : Promise.resolve(null),
+      ])
+      await saveScoresToReport(assessment.id, layer1, layer2)
+    } catch (err) {
+      console.error('[scoring] Failed to score assessment', assessment.id, err)
+    }
   }
 
   const firstName = assessment.contact_first_name ?? 'there'

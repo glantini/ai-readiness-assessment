@@ -101,49 +101,51 @@ export interface Response {
 // ─── Scoring ──────────────────────────────────────────────────────────────────
 
 export type ReadinessTier =
-  | 'AI-Ready'
-  | 'AI-Capable'
-  | 'AI-Building'
-  | 'AI-Emerging'
+  | 'Leading'
+  | 'Scaling'
+  | 'Building'
+  | 'Exploring'
 
 export type AgentforceTier =
-  | 'Agentforce-Ready'
-  | 'Agentforce-Capable'
-  | 'Agentforce-Building'
-  | 'Agentforce-Emerging'
+  | 'Ready to Deploy'
+  | 'Nearly Ready'
+  | 'Getting Ready'
+  | 'Not Ready'
 
 export type EditionGateResult = 'supported' | 'limited' | 'unsupported'
 
 export interface CategoryScore {
   category: string
-  raw: number       // 0–100
-  weighted: number  // raw × weight
+  raw: number       // 1–5 average
+  weighted: number  // raw × weight (contribution to overall)
   weight: number
 }
 
 export interface Layer1Scores {
   categories: CategoryScore[]
-  overall: number  // 0–100
+  overall: number  // 1–5 weighted average
   tier: ReadinessTier
 }
 
 export interface SectionScore {
   section: Layer2Section
-  raw: number       // 0–100
+  raw: number       // 1–5 average (yes→5, partial→3, no→1)
   applicable: boolean
 }
 
 export interface ProductScore {
   cloud: SalesforceCloud | 'Overall'
-  score: number  // 0–100
+  score: number  // 1–5
   tier: AgentforceTier
 }
 
 export interface Layer2Scores {
   sections: SectionScore[]
   productScores: ProductScore[]
-  overall: number  // 0–100
+  overall: number  // 1–5 weighted average (Agentforce Readiness Index)
   tier: AgentforceTier
+  /** true when edition is Essentials or Professional (index capped at 2.5) */
+  edition_flag: boolean
 }
 
 export interface Report {

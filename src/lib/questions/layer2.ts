@@ -13,9 +13,9 @@ import type { Question, Layer2Section, SalesforceCloud } from '@/types'
  *   MarketingCloud ( 8 q) — shown only when MarketingCloud is an active cloud
  *
  * Section weights (used in calculateLayer2Scores):
- *   CorePrereqs    35%
- *   DataCloud      15%
- *   Cloud-specific 50% (split evenly across applicable clouds)
+ *   CorePrereqs    30%
+ *   DataCloud      25%
+ *   Cloud-specific 45% (split evenly across applicable clouds)
  */
 
 export type YesNoValue = 'yes' | 'partial' | 'no'
@@ -27,11 +27,11 @@ export const YESNO_SCORES: Record<YesNoValue, number> = {
 }
 
 export const LAYER2_SECTION_WEIGHTS: Record<Layer2Section, number> = {
-  CorePrereqs: 0.35,
-  DataCloud: 0.15,
-  SalesCloud: 0.50 / 3,     // weight shared across applicable product clouds
-  ServiceCloud: 0.50 / 3,
-  MarketingCloud: 0.50 / 3,
+  CorePrereqs: 0.30,
+  DataCloud: 0.25,
+  SalesCloud: 0.45 / 3,     // 45% split evenly across applicable product clouds
+  ServiceCloud: 0.45 / 3,
+  MarketingCloud: 0.45 / 3,
 }
 
 export const layer2Questions: Question[] = [

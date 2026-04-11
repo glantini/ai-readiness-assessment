@@ -8,11 +8,11 @@ import type { Question } from '@/types'
  *
  * Categories and weights:
  *   AI Strategy         20%
- *   People & Culture    15%
+ *   People & Culture    20%
  *   Data Foundation     20%
- *   Process Readiness   15%
- *   Risk & Governance   15%
- *   AI Agent Governance 15%
+ *   Process Readiness   20%
+ *   Risk & Governance   10%
+ *   AI Agent Governance 10%
  */
 
 export type Layer1Category =
@@ -25,11 +25,11 @@ export type Layer1Category =
 
 export const LAYER1_CATEGORY_WEIGHTS: Record<Layer1Category, number> = {
   'AI Strategy': 0.20,
-  'People & Culture': 0.15,
+  'People & Culture': 0.20,
   'Data Foundation': 0.20,
-  'Process Readiness': 0.15,
-  'Risk & Governance': 0.15,
-  'AI Agent Governance': 0.15,
+  'Process Readiness': 0.20,
+  'Risk & Governance': 0.10,
+  'AI Agent Governance': 0.10,
 }
 
 export const SCALE_LABELS = {
