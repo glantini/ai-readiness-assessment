@@ -21,17 +21,25 @@ export default async function ReportPage({
 }) {
   const supabase = createClient()
 
-  const [{ data: assessment, error: aErr }, { data: report }] =
-    await Promise.all([
-      supabase.from('assessments').select('*').eq('id', params.id).single(),
-      supabase
-        .from('reports')
-        .select(
-          'layer1_scores, layer2_scores, product_scores, overall_tier, ai_narrative_json, agentforce_narrative_json, report_status',
-        )
-        .eq('assessment_id', params.id)
-        .single(),
-    ])
+  // Split queries: scores use only confirmed columns; narrative columns are added
+  // by migration 001 and gracefully return null until that migration runs.
+  const [
+    { data: assessment, error: aErr },
+    { data: report },
+    { data: narrativeRow },
+  ] = await Promise.all([
+    supabase.from('assessments').select('*').eq('id', params.id).single(),
+    supabase
+      .from('reports')
+      .select('layer1_scores, layer2_scores, product_scores, overall_tier')
+      .eq('assessment_id', params.id)
+      .single(),
+    supabase
+      .from('reports')
+      .select('ai_narrative_json, agentforce_narrative_json, report_status')
+      .eq('assessment_id', params.id)
+      .maybeSingle(),
+  ])
 
   if (aErr || !assessment) notFound()
 
@@ -39,9 +47,15 @@ export default async function ReportPage({
   const fullName =
     [a.contact_first_name, a.contact_last_name].filter(Boolean).join(' ') || '—'
 
-  const narrative = report?.ai_narrative_json as ReportNarrative | null
-  const agentforceNarrative = report?.agentforce_narrative_json as AgentforceNarrative | null
-  const reportStatus = (report?.report_status ?? null) as ReportStatus | null
+  type NarrativeRow = {
+    ai_narrative_json?: ReportNarrative | null
+    agentforce_narrative_json?: AgentforceNarrative | null
+    report_status?: ReportStatus | null
+  }
+  const nr = narrativeRow as NarrativeRow | null
+  const narrative = nr?.ai_narrative_json ?? null
+  const agentforceNarrative = nr?.agentforce_narrative_json ?? null
+  const reportStatus = nr?.report_status ?? null
   const l1 = report?.layer1_scores as Layer1Scores | null
   const l2 = report?.layer2_scores as Layer2Scores | null
   const productScores = report?.product_scores as ProductScore[] | null

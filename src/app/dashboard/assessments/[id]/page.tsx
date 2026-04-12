@@ -75,16 +75,25 @@ export default async function AssessmentDetailPage({
 }) {
   const supabase = createClient()
 
-  // Fetch assessment and existing report in parallel
-  const [{ data: assessment, error: aErr }, { data: report }] =
-    await Promise.all([
-      supabase.from('assessments').select('*').eq('id', params.id).single(),
-      supabase
-        .from('reports')
-        .select('layer1_scores, layer2_scores, product_scores, overall_tier, ai_narrative_json, report_status')
-        .eq('assessment_id', params.id)
-        .single(),
-    ])
+  // Split queries: scores use only confirmed columns; narrative columns are added
+  // by migration 001 and gracefully return null until that migration runs.
+  const [
+    { data: assessment, error: aErr },
+    { data: report },
+    { data: narrativeRow },
+  ] = await Promise.all([
+    supabase.from('assessments').select('*').eq('id', params.id).single(),
+    supabase
+      .from('reports')
+      .select('layer1_scores, layer2_scores, product_scores, overall_tier')
+      .eq('assessment_id', params.id)
+      .single(),
+    supabase
+      .from('reports')
+      .select('ai_narrative_json, report_status')
+      .eq('assessment_id', params.id)
+      .maybeSingle(),
+  ])
 
   if (aErr || !assessment) notFound()
 
@@ -95,8 +104,8 @@ export default async function AssessmentDetailPage({
   const productScores = report?.product_scores as ProductScore[] | null
 
   const hasScores = !!layer1Scores
-  const hasNarrative = !!report?.ai_narrative_json
-  const reportStatus = report?.report_status as string | null
+  const hasNarrative = !!(narrativeRow as { ai_narrative_json?: unknown } | null)?.ai_narrative_json
+  const reportStatus = ((narrativeRow as { report_status?: string } | null)?.report_status) ?? null
   const showAgentforce = !!a.uses_salesforce
 
   // ── Full name helpers ────────────────────────────────────────────────────

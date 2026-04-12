@@ -148,6 +148,7 @@ export interface Layer2Scores {
   edition_flag: boolean
 }
 
+/** Columns confirmed in Supabase reports table */
 export interface Report {
   id: string
   assessment_id: string
@@ -155,11 +156,15 @@ export interface Report {
   layer2_scores: Layer2Scores | null
   product_scores: ProductScore[] | null
   overall_tier: ReadinessTier | null
+  generated_at: string
+  pdf_url: string | null
+}
+
+/** Columns added by migration 001 (run supabase/migrations/001_add_narrative_columns.sql) */
+export interface ReportNarrativeRow {
   ai_narrative_json: ReportNarrative | null
   agentforce_narrative_json: AgentforceNarrative | null
   report_status: ReportStatus | null
-  generated_at: string
-  pdf_url: string | null
 }
 
 // ─── Report Narrative Types ───────────────────────────────────────────────────

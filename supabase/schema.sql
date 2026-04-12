@@ -93,14 +93,15 @@ CREATE TABLE IF NOT EXISTS reports (
   product_scores jsonb,
   overall_tier   text,
 
-  -- AI narrative (populated after /api/reports/[id]/generate)
+  generated_at  timestamptz DEFAULT now() NOT NULL,
+  pdf_url       text,   -- populated after PDF generation via /api/reports/[id]/pdf
+
+  -- AI narrative columns — added by migration 001_add_narrative_columns.sql
+  -- Run: ALTER TABLE reports ADD COLUMN IF NOT EXISTS ai_narrative_json jsonb, ...
   ai_narrative_json         jsonb,
   agentforce_narrative_json jsonb,
   report_status             text DEFAULT 'draft'
-    CHECK (report_status IN ('draft', 'approved')),
-
-  generated_at  timestamptz DEFAULT now() NOT NULL,
-  pdf_url       text   -- populated after PDF generation via /api/reports/[id]/pdf
+    CHECK (report_status IN ('draft', 'approved'))
 );
 
 -- ─── Row Level Security ───────────────────────────────────────────────────────
