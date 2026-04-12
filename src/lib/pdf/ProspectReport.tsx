@@ -138,6 +138,24 @@ const AGENTFORCE_SIDEBARS: Record<string, string> = {
   MarketingCloud: 'What Can an AI Marketing Agent Do? Agentforce for Marketing automates audience segmentation, campaign optimization, and personalized journey triggers based on real-time customer behavior. Marketing teams using AI agents report higher engagement rates and significantly reduced time spent on manual campaign management.',
 }
 
+// "Why It Matters" closing lines for educational sidebars
+const SIDEBAR_CLOSING: Record<string, string> = {
+  AIStrategy: 'Organizations without a defined AI strategy spend 3x longer evaluating tools than deploying them.',
+  PeopleAndCulture: 'The #1 reason AI initiatives stall is not technology — it is people. Change readiness determines deployment speed.',
+  DataFoundation: 'An AI system trained on incomplete data doesn\'t just underperform — it actively misleads. Clean data is not a nice-to-have, it is a prerequisite.',
+  ProcessReadiness: 'AI agents follow rules. If your processes are undocumented, your agents will automate the chaos, not fix it.',
+  RiskAndGovernance: 'The cost of an AI incident — reputational, regulatory, or operational — far exceeds the cost of a governance framework built before deployment.',
+  AIAgentGovernance: 'An agent without an owner is a liability without a name. Accountability must be established before autonomy is granted.',
+}
+
+const AGENTFORCE_CLOSING: Record<string, string> = {
+  CorePrereqs: 'A Salesforce org that is not ready for automation will not become ready by adding agents. Prerequisites exist for a reason.',
+  DataCloud: 'Agentforce agents are only as intelligent as the data they can access. A unified data layer is not optional — it is the foundation.',
+  SalesCloud: 'An SDR Agent working from incomplete CRM data will follow up on the wrong leads, miss the right ones, and erode rep trust in the tool within weeks.',
+  ServiceCloud: 'A Service Agent deployed without a Knowledge Base is not an agent — it is an expensive escalation machine.',
+  MarketingCloud: 'AI-powered personalization requires clean, consented, segmented data. Without it, automation scales irrelevance, not engagement.',
+}
+
 // Category accent colors for sidebar borders
 const CATEGORY_ACCENT: Record<string, string> = {
   AIStrategy: '#1d4ed8',
@@ -673,6 +691,22 @@ export function ProspectReport({
           revenue, efficiency, and talent retention.
         </Text>
 
+        {/* ── Pull Quote ── */}
+        <View style={{
+          borderLeftWidth: 4,
+          borderLeftColor: '#EA580C',
+          paddingLeft: 16,
+          paddingVertical: 10,
+          marginBottom: 20,
+        }}>
+          <Text style={{ fontSize: 14, fontStyle: 'italic', lineHeight: 1.6, color: COLORS.gray800 }}>
+            &quot;Most AI projects don&apos;t fail because the technology doesn&apos;t work. They fail because the organization wasn&apos;t ready for it.&quot;
+          </Text>
+          <Text style={{ fontSize: 8, letterSpacing: 1.5, color: COLORS.gray400, marginTop: 6 }}>
+            — IMG AI READINESS RESEARCH, 2026
+          </Text>
+        </View>
+
         {/* ── Divider ── */}
         <View style={{ borderBottomWidth: 1, borderBottomColor: COLORS.gray200, marginBottom: 16 }} />
 
@@ -963,6 +997,11 @@ export function ProspectReport({
                 <Text style={{ fontSize: 10, lineHeight: 1.5, color: COLORS.gray700 }}>
                   {sidebar}
                 </Text>
+                {SIDEBAR_CLOSING[key] && (
+                  <Text style={{ fontSize: 9, lineHeight: 1.5, color: COLORS.gray500, fontStyle: 'italic', marginTop: 6 }}>
+                    {SIDEBAR_CLOSING[key]}
+                  </Text>
+                )}
               </View>
             )}
 
@@ -1022,6 +1061,58 @@ export function ProspectReport({
             <Text style={s.sectionLabel}>AGENTFORCE READINESS</Text>
             <Text style={s.sectionTitle}>Agentforce Executive Summary</Text>
 
+            {/* Stage-Gate Deployment Model callout */}
+            <View style={{
+              backgroundColor: '#FFF7ED',
+              borderLeftWidth: 4,
+              borderLeftColor: '#EA580C',
+              borderRadius: 6,
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              marginBottom: 16,
+            }}>
+              <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 10 }}>
+                The IMG Agentforce Deployment Model
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                {/* VALIDATE */}
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#EA580C', marginBottom: 4 }}>
+                    VALIDATE
+                  </Text>
+                  <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
+                    Confirm your Salesforce foundation meets Agentforce prerequisites — edition, data completeness, automation maturity, and trust layer readiness.
+                  </Text>
+                </View>
+                {/* Arrow */}
+                <Text style={{ fontSize: 16, color: COLORS.gray400, paddingHorizontal: 6, paddingTop: 2 }}>
+                  {'\u2192'}
+                </Text>
+                {/* PILOT */}
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#EA580C', marginBottom: 4 }}>
+                    PILOT
+                  </Text>
+                  <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
+                    Deploy one agent in a controlled environment with defined success metrics, a named owner, and a documented escalation path.
+                  </Text>
+                </View>
+                {/* Arrow */}
+                <Text style={{ fontSize: 16, color: COLORS.gray400, paddingHorizontal: 6, paddingTop: 2 }}>
+                  {'\u2192'}
+                </Text>
+                {/* SCALE */}
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#EA580C', marginBottom: 4 }}>
+                    SCALE
+                  </Text>
+                  <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
+                    Expand based on measured outcomes — task success rate, time saved, CSAT improvement — not assumption or vendor pressure.
+                  </Text>
+                </View>
+              </View>
+            </View>
+
             {/* Agentforce Core Prerequisites sidebar */}
             <View style={{
               backgroundColor: COLORS.gray50,
@@ -1033,6 +1124,9 @@ export function ProspectReport({
             }}>
               <Text style={{ fontSize: 10, lineHeight: 1.5, color: COLORS.gray700 }}>
                 {AGENTFORCE_SIDEBARS.CorePrereqs}
+              </Text>
+              <Text style={{ fontSize: 9, lineHeight: 1.5, color: COLORS.gray500, fontStyle: 'italic', marginTop: 6 }}>
+                {AGENTFORCE_CLOSING.CorePrereqs}
               </Text>
             </View>
 
@@ -1108,6 +1202,11 @@ export function ProspectReport({
                         <Text style={{ fontSize: 9, lineHeight: 1.4, color: COLORS.gray700 }}>
                           {cloudSidebar}
                         </Text>
+                        {AGENTFORCE_CLOSING[cloud] && (
+                          <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500, fontStyle: 'italic', marginTop: 5 }}>
+                            {AGENTFORCE_CLOSING[cloud]}
+                          </Text>
+                        )}
                       </View>
                     )}
 
@@ -1231,11 +1330,12 @@ export function ProspectReport({
         <Text style={s.sectionLabel}>NEXT STEPS</Text>
         <Text style={s.sectionTitle}>Moving Forward</Text>
 
+        <Text style={[s.bodyText, { marginBottom: 10 }]}>
+          Your scores are not a verdict — they are a starting point. Every gap identified in this report is an opportunity to build the foundation that makes AI work for your business. The organizations that move deliberately, with the right implementation partner, consistently outperform those that move fast without direction.
+        </Text>
+
         <Text style={[s.bodyText, { marginBottom: 16 }]}>
-          This report provides a snapshot of where {companyName} stands today. The
-          recommendations above are designed to be actionable — whether you start
-          with quick wins or invest in longer-term foundation work, every step
-          moves your organization closer to AI-driven operations.
+          IMG works with organizations at every stage of AI readiness — from foundation-building to full Agentforce deployment. Your Salesforce AE can connect you with an IMG specialist to review this report and build a deployment plan tailored to your timeline and goals.
         </Text>
 
         <View style={s.ctaBox}>
