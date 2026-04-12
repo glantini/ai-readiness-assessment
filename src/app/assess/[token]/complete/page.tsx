@@ -36,11 +36,11 @@ export default async function CompletePage({
   // We check the reports table so repeat visits don't re-score unnecessarily.
   const { data: existingReport } = await supabase
     .from('reports')
-    .select('ai_overall_score')
+    .select('layer1_scores')
     .eq('assessment_id', assessment.id)
     .maybeSingle()
 
-  if (!existingReport?.ai_overall_score) {
+  if (!existingReport?.layer1_scores) {
     try {
       const [layer1, layer2] = await Promise.all([
         calculateLayer1Scores(assessment.id),

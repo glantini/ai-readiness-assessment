@@ -1,11 +1,8 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { getLayer1Tier, getLayer2Tier } from '@/lib/scoring'
 import type {
   Assessment,
-  CategoryScore,
-  SectionScore,
   Layer1Scores,
   Layer2Scores,
   ProductScore,
@@ -30,7 +27,7 @@ export default async function ReportPage({
       supabase
         .from('reports')
         .select(
-          'ai_overall_score, ai_category_scores, agentforce_index, agentforce_section_scores, agentforce_product_scores, edition_flag, ai_narrative_json, agentforce_narrative_json, report_status',
+          'layer1_scores, layer2_scores, product_scores, overall_tier, ai_narrative_json, agentforce_narrative_json, report_status',
         )
         .eq('assessment_id', params.id)
         .single(),
@@ -45,26 +42,9 @@ export default async function ReportPage({
   const narrative = report?.ai_narrative_json as ReportNarrative | null
   const agentforceNarrative = report?.agentforce_narrative_json as AgentforceNarrative | null
   const reportStatus = (report?.report_status ?? null) as ReportStatus | null
-
-  const l1: Layer1Scores | null = report?.ai_overall_score != null
-    ? {
-        overall: report.ai_overall_score as number,
-        categories: (report.ai_category_scores ?? []) as CategoryScore[],
-        tier: getLayer1Tier(report.ai_overall_score as number),
-      }
-    : null
-
-  const l2: Layer2Scores | null = report?.agentforce_index != null
-    ? {
-        overall: report.agentforce_index as number,
-        sections: (report.agentforce_section_scores ?? []) as SectionScore[],
-        productScores: (report.agentforce_product_scores ?? []) as ProductScore[],
-        edition_flag: (report.edition_flag ?? false) as boolean,
-        tier: getLayer2Tier(report.agentforce_index as number),
-      }
-    : null
-
-  const productScores: ProductScore[] | null = (report?.agentforce_product_scores ?? null) as ProductScore[] | null
+  const l1 = report?.layer1_scores as Layer1Scores | null
+  const l2 = report?.layer2_scores as Layer2Scores | null
+  const productScores = (report?.product_scores ?? report?.layer2_scores?.productScores ?? null) as ProductScore[] | null
 
   const hasScores = !!l1
 

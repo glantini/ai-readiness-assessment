@@ -331,12 +331,10 @@ export async function saveScoresToReport(
   const { error } = await supabase.from('reports').upsert(
     {
       assessment_id: assessmentId,
-      ai_overall_score: layer1.overall,
-      ai_category_scores: layer1.categories,
-      agentforce_index: layer2?.overall ?? null,
-      agentforce_section_scores: layer2?.sections ?? null,
-      agentforce_product_scores: layer2?.productScores ?? null,
-      edition_flag: layer2?.edition_flag ?? null,
+      layer1_scores: layer1,
+      layer2_scores: layer2 ?? null,
+      product_scores: layer2?.productScores ?? null,
+      overall_tier: layer1.tier,
       generated_at: new Date().toISOString(),
     },
     { onConflict: 'assessment_id' },
