@@ -146,8 +146,8 @@ export default async function AssessmentDetailPage({
             )}
           </div>
 
-          {/* Report button */}
-          {a.status === 'completed' && hasScores && (
+          {/* Report + recalculate buttons */}
+          {a.status === 'completed' && (
             <div className="flex items-center gap-2">
               {reportStatus === 'approved' && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800">
@@ -157,15 +157,18 @@ export default async function AssessmentDetailPage({
                   Approved
                 </span>
               )}
-              <Link
-                href={`/dashboard/assessments/${a.id}/report`}
-                className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                {hasNarrative ? 'View Report' : 'Generate Report'}
-              </Link>
+              <RecalculateButton assessmentId={a.id} usesSalesforce={!!a.uses_salesforce} />
+              {hasScores && (
+                <Link
+                  href={`/dashboard/assessments/${a.id}/report`}
+                  className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  {hasNarrative ? 'View Report' : 'Generate Report'}
+                </Link>
+              )}
             </div>
           )}
         </div>
