@@ -215,14 +215,15 @@ BLOCK 1 (required for all respondents):
   ],
   "categories": {
     "AIStrategy": {
+      "context": "1–2 sentence personalized introduction explaining what this category measures and why it matters for this specific company.",
       "summary": "2–3 sentences on what this company's AI Strategy score reveals. Be specific to their industry and motivation.",
       "recommendations": ["Specific recommendation 1", "Specific recommendation 2"]
     },
-    "PeopleAndCulture": { "summary": "...", "recommendations": ["...", "..."] },
-    "DataFoundation": { "summary": "...", "recommendations": ["...", "..."] },
-    "ProcessReadiness": { "summary": "...", "recommendations": ["...", "..."] },
-    "RiskAndGovernance": { "summary": "...", "recommendations": ["...", "..."] },
-    "AIAgentGovernance": { "summary": "...", "recommendations": ["...", "..."] }
+    "PeopleAndCulture": { "context": "...", "summary": "...", "recommendations": ["...", "..."] },
+    "DataFoundation": { "context": "...", "summary": "...", "recommendations": ["...", "..."] },
+    "ProcessReadiness": { "context": "...", "summary": "...", "recommendations": ["...", "..."] },
+    "RiskAndGovernance": { "context": "...", "summary": "...", "recommendations": ["...", "..."] },
+    "AIAgentGovernance": { "context": "...", "summary": "...", "recommendations": ["...", "..."] }
   }
 }
 \`\`\`

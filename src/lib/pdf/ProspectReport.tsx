@@ -4,13 +4,14 @@
  * Pages:
  *   1   Cover (company, respondent, AE, score badges)
  *   2   Understanding AI in 2026 (intro, glossary, why this matters)
- *   3   Executive Summary
- *   4   Critical Gap
- *   5-10 Category Findings (one per page)
- *  11   Quick Wins vs Long-Term Investments
- *  12-14 Agentforce section (Salesforce only)
- *  15   Phased Implementation Roadmap (Salesforce only)
- *  16   Next Steps
+ *   3   Executive Summary + Operations Snapshot callout
+ *   4   Score Summary — "Your AI Readiness at a Glance" (bar charts, benchmarks, methodology)
+ *   5   Critical Gap
+ *   6-11 Category Findings (one per page, with sidebars + context + benchmarks)
+ *  12   Quick Wins vs Long-Term Investments
+ *  13-15 Agentforce section (Salesforce only)
+ *  16   Phased Implementation Roadmap (Salesforce only)
+ *  17   Next Steps
  */
 
 import React from 'react'
@@ -81,6 +82,70 @@ function layer2TierColor(tier: string): string {
     case 'Getting Ready': return COLORS.gettingReady
     default: return COLORS.notReady
   }
+}
+
+function tierFromScore(score: number): string {
+  if (score >= 4.1) return 'Leading'
+  if (score >= 3.1) return 'Scaling'
+  if (score >= 2.1) return 'Building'
+  return 'Exploring'
+}
+
+// ─── Industry Benchmarks ────────────────────────────────────────────────────
+
+const INDUSTRY_BENCHMARKS: Record<string, Record<string, number>> = {
+  'Professional Services': { 'AI Strategy': 2.6, 'People & Culture': 2.9, 'Data Foundation': 2.8, 'Process Readiness': 2.7, 'Risk & Governance': 2.5, 'AI Agent Governance': 2.3 },
+  'Consulting': { 'AI Strategy': 2.6, 'People & Culture': 2.9, 'Data Foundation': 2.8, 'Process Readiness': 2.7, 'Risk & Governance': 2.5, 'AI Agent Governance': 2.3 },
+  'Legal': { 'AI Strategy': 2.6, 'People & Culture': 2.9, 'Data Foundation': 2.8, 'Process Readiness': 2.7, 'Risk & Governance': 2.5, 'AI Agent Governance': 2.3 },
+  'Healthcare': { 'AI Strategy': 2.4, 'People & Culture': 2.7, 'Data Foundation': 2.8, 'Process Readiness': 2.5, 'Risk & Governance': 2.9, 'AI Agent Governance': 2.2 },
+  'Life Sciences': { 'AI Strategy': 2.4, 'People & Culture': 2.7, 'Data Foundation': 2.8, 'Process Readiness': 2.5, 'Risk & Governance': 2.9, 'AI Agent Governance': 2.2 },
+  'Biotechnology': { 'AI Strategy': 2.4, 'People & Culture': 2.7, 'Data Foundation': 2.8, 'Process Readiness': 2.5, 'Risk & Governance': 2.9, 'AI Agent Governance': 2.2 },
+  'Banking & Financial Services': { 'AI Strategy': 3.2, 'People & Culture': 3.0, 'Data Foundation': 3.3, 'Process Readiness': 3.1, 'Risk & Governance': 3.4, 'AI Agent Governance': 2.8 },
+  'Insurance': { 'AI Strategy': 3.2, 'People & Culture': 3.0, 'Data Foundation': 3.3, 'Process Readiness': 3.1, 'Risk & Governance': 3.4, 'AI Agent Governance': 2.8 },
+  'Manufacturing': { 'AI Strategy': 2.3, 'People & Culture': 2.4, 'Data Foundation': 2.5, 'Process Readiness': 2.7, 'Risk & Governance': 2.3, 'AI Agent Governance': 2.1 },
+  'Technology': { 'AI Strategy': 3.5, 'People & Culture': 3.4, 'Data Foundation': 3.5, 'Process Readiness': 3.3, 'Risk & Governance': 3.2, 'AI Agent Governance': 3.0 },
+  'Telecommunications': { 'AI Strategy': 3.5, 'People & Culture': 3.4, 'Data Foundation': 3.5, 'Process Readiness': 3.3, 'Risk & Governance': 3.2, 'AI Agent Governance': 3.0 },
+  'Retail': { 'AI Strategy': 2.4, 'People & Culture': 2.5, 'Data Foundation': 2.6, 'Process Readiness': 2.5, 'Risk & Governance': 2.3, 'AI Agent Governance': 2.1 },
+  'Consumer Goods': { 'AI Strategy': 2.4, 'People & Culture': 2.5, 'Data Foundation': 2.6, 'Process Readiness': 2.5, 'Risk & Governance': 2.3, 'AI Agent Governance': 2.1 },
+  'Real Estate': { 'AI Strategy': 2.2, 'People & Culture': 2.3, 'Data Foundation': 2.2, 'Process Readiness': 2.4, 'Risk & Governance': 2.1, 'AI Agent Governance': 2.0 },
+  'Construction': { 'AI Strategy': 2.2, 'People & Culture': 2.3, 'Data Foundation': 2.2, 'Process Readiness': 2.4, 'Risk & Governance': 2.1, 'AI Agent Governance': 2.0 },
+  'Education': { 'AI Strategy': 2.1, 'People & Culture': 2.3, 'Data Foundation': 2.2, 'Process Readiness': 2.2, 'Risk & Governance': 2.3, 'AI Agent Governance': 1.9 },
+  'Non-Profit': { 'AI Strategy': 2.0, 'People & Culture': 2.2, 'Data Foundation': 2.1, 'Process Readiness': 2.1, 'Risk & Governance': 2.2, 'AI Agent Governance': 1.8 },
+  'Other': { 'AI Strategy': 2.4, 'People & Culture': 2.5, 'Data Foundation': 2.4, 'Process Readiness': 2.4, 'Risk & Governance': 2.3, 'AI Agent Governance': 2.1 },
+}
+
+function getIndustryBenchmarks(industry: string | null): Record<string, number> | null {
+  if (!industry) return INDUSTRY_BENCHMARKS['Other']
+  return INDUSTRY_BENCHMARKS[industry] ?? INDUSTRY_BENCHMARKS['Other']
+}
+
+// ─── Educational Sidebars ───────────────────────────────────────────────────
+
+const EDUCATIONAL_SIDEBARS: Record<string, string> = {
+  AIStrategy: 'What is an AI Strategy? An AI strategy is a deliberate plan that aligns artificial intelligence investments with business outcomes. Companies with a defined AI strategy are 2.3x more likely to report measurable ROI from AI initiatives within 18 months.',
+  PeopleAndCulture: 'AI Adoption is a People Problem First: The most sophisticated AI tools fail without organizational readiness. Companies that invest in AI literacy, change management, and dedicated ownership before deploying technology see 3x higher adoption rates and significantly faster time to value.',
+  DataFoundation: 'Why Data Quality Matters for AI: AI models are only as reliable as the data they learn from. Before deploying any AI agent or automation, organizations need accessible, accurate, and governed data. Poor data quality is the #1 reason AI projects fail in their first year.',
+  ProcessReadiness: 'AI Augments Process \u2014 It Doesn\u2019t Replace It: The most successful AI deployments start with well-documented, repeatable processes. AI agents work best when they have clear rules to follow and defined outcomes to optimize for.',
+  RiskAndGovernance: 'The Cost of Moving Fast Without Guardrails: Organizations that deploy AI without governance frameworks face regulatory exposure, reputational risk, and model failures that erode trust. A lightweight governance policy takes weeks to build and can prevent months of remediation.',
+  AIAgentGovernance: 'What Makes an Agent Trustworthy: An AI agent that acts autonomously on behalf of your business needs the same controls as any employee \u2014 defined scope, audit trails, escalation paths, and performance accountability. Without these, agents create liability, not leverage.',
+}
+
+const AGENTFORCE_SIDEBARS: Record<string, string> = {
+  CorePrereqs: 'Why Prerequisites Matter Before Deploying Agentforce: Agentforce agents operate directly inside your Salesforce org \u2014 reading records, triggering automations, and taking action on behalf of your team. Without a strong CRM foundation, clean data, and governance guardrails already in place, agents will amplify existing problems rather than solve them.',
+  DataCloud: 'What is Salesforce Data Cloud? Data Cloud is Salesforce\u2019s real-time data platform that unifies customer data from every source \u2014 CRM, website, support, marketing, and third-party systems \u2014 into a single customer profile. It\u2019s the data foundation that makes Agentforce agents smarter and more personalized.',
+  SalesCloud: 'What Can an AI Sales Agent Do? Agentforce SDR Agent can autonomously qualify inbound leads, follow up on open opportunities, and surface next best actions for your sales team \u2014 all within Salesforce. The result is faster response times, consistent follow-through, and reps focused on closing rather than admin.',
+  ServiceCloud: 'What Can an AI Service Agent Do? Agentforce Service Agent handles routine customer inquiries autonomously across chat, email, and messaging channels \u2014 resolving cases without human intervention and escalating complex issues with full context already captured. Companies deploying service agents report 30\u201340% reduction in handle time.',
+  MarketingCloud: 'What Can an AI Marketing Agent Do? Agentforce for Marketing automates audience segmentation, campaign optimization, and personalized journey triggers based on real-time customer behavior. Marketing teams using AI agents report higher engagement rates and significantly reduced time spent on manual campaign management.',
+}
+
+// Category accent colors for sidebar borders
+const CATEGORY_ACCENT: Record<string, string> = {
+  AIStrategy: '#1d4ed8',
+  PeopleAndCulture: '#7c3aed',
+  DataFoundation: '#0891b2',
+  ProcessReadiness: '#059669',
+  RiskAndGovernance: '#d97706',
+  AIAgentGovernance: '#dc2626',
 }
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -424,6 +489,51 @@ function TierBadge({ tier, color }: { tier: string; color: string }) {
   )
 }
 
+/** Horizontal bar with optional benchmark marker for Score Summary page */
+function HorizontalBar({
+  label,
+  score,
+  benchmark,
+  barWidth = 340,
+}: {
+  label: string
+  score: number
+  benchmark?: number
+  barWidth?: number
+}) {
+  const fillWidth = (score / 5) * barWidth
+  const tier = tierFromScore(score)
+  const color = layer1TierColor(tier)
+  const benchmarkPos = benchmark ? (benchmark / 5) * barWidth : 0
+
+  return (
+    <View style={{ marginBottom: 10 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+        <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: COLORS.gray800 }}>{label}</Text>
+        <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color }}>{score.toFixed(1)}/5</Text>
+      </View>
+      <View style={{ width: barWidth, height: 12, backgroundColor: COLORS.gray200, borderRadius: 6, position: 'relative' }}>
+        <View style={{ width: fillWidth, height: 12, backgroundColor: color, borderRadius: 6 }} />
+        {benchmark != null && benchmark > 0 && (
+          <View style={{
+            position: 'absolute',
+            left: benchmarkPos - 1,
+            top: -2,
+            width: 2,
+            height: 16,
+            backgroundColor: COLORS.gray700,
+          }} />
+        )}
+      </View>
+      {benchmark != null && benchmark > 0 && (
+        <Text style={{ fontSize: 7, color: COLORS.gray400, marginTop: 1 }}>
+          Industry avg: {benchmark.toFixed(1)}
+        </Text>
+      )}
+    </View>
+  )
+}
+
 // ─── Category labels ─────────────────────────────────────────────────────────
 
 const CATEGORY_KEYS = [
@@ -459,6 +569,9 @@ export interface ProspectReportProps {
   productScores: ProductScore[] | null
   narrative: ReportNarrative
   agentforceNarrative: AgentforceNarrative | null
+  checkedSymptoms?: string[]
+  layer1QuestionCount?: number
+  layer2QuestionCount?: number
 }
 
 // ─── Document ────────────────────────────────────────────────────────────────
@@ -470,6 +583,9 @@ export function ProspectReport({
   productScores,
   narrative,
   agentforceNarrative,
+  checkedSymptoms = [],
+  layer1QuestionCount = 0,
+  layer2QuestionCount = 0,
 }: ProspectReportProps) {
   const isSalesforce = !!assessment.uses_salesforce
   const companyName = assessment.company_name ?? 'Your Company'
@@ -486,6 +602,8 @@ export function ProspectReport({
   })
   const activeClouds = assessment.salesforce_clouds ?? []
   const productClouds = activeClouds.filter((c) => c !== 'DataCloud')
+  const benchmarks = getIndustryBenchmarks(assessment.company_industry)
+  const industryLabel = assessment.company_industry ?? 'Other'
 
   return (
     <Document>
@@ -603,13 +721,40 @@ export function ProspectReport({
         <PageFooter companyName={companyName} />
       </Page>
 
-      {/* ── PAGE 3: Executive Summary ──────────────────────────────────── */}
+      {/* ── PAGE 3: Executive Summary + Operations Snapshot ──────────── */}
       <Page size="LETTER" style={s.page}>
         <Text style={s.sectionLabel}>EXECUTIVE SUMMARY</Text>
-        <Text style={s.sectionTitle}>Your AI Readiness at a Glance</Text>
+        <Text style={s.sectionTitle}>Executive Summary</Text>
         <Text style={s.bodyText}>{narrative.executiveSummary}</Text>
 
-        <View style={{ marginTop: 24 }}>
+        {/* ── Operations Snapshot Callout ── */}
+        <View style={{
+          backgroundColor: '#EFF6FF',
+          borderLeftWidth: 4,
+          borderLeftColor: '#3B82F6',
+          borderRadius: 6,
+          padding: 16,
+          marginTop: 20,
+          marginBottom: 20,
+        }}>
+          <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 10 }}>
+            You told us your organization is experiencing:
+          </Text>
+          {checkedSymptoms.length > 0 ? (
+            checkedSymptoms.map((symptom, i) => (
+              <View key={i} style={{ flexDirection: 'row', marginBottom: 4, paddingLeft: 4 }}>
+                <Text style={{ fontSize: 10, color: '#16A34A', marginRight: 6 }}>{'\u2713'}</Text>
+                <Text style={{ fontSize: 9, lineHeight: 1.5, color: COLORS.gray700, flex: 1 }}>{symptom}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={{ fontSize: 9, color: COLORS.gray500, fontStyle: 'italic', paddingLeft: 4 }}>
+              No operational symptoms were flagged
+            </Text>
+          )}
+        </View>
+
+        <View style={{ marginTop: 4 }}>
           <Text style={[s.bodyText, { fontFamily: 'Helvetica-Bold', marginBottom: 8 }]}>
             Stated Motivation
           </Text>
@@ -635,7 +780,136 @@ export function ProspectReport({
         <PageFooter companyName={companyName} />
       </Page>
 
-      {/* ── PAGE 3: Critical Gap ───────────────────────────────────────── */}
+      {/* ── PAGE 4: Score Summary — "Your AI Readiness at a Glance" ──── */}
+      <Page size="LETTER" style={s.page}>
+        <Text style={s.sectionLabel}>SCORE SUMMARY</Text>
+        <Text style={s.sectionTitle}>Your AI Readiness at a Glance</Text>
+
+        {/* Overall score prominently displayed */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+          <View style={{
+            backgroundColor: COLORS.gray100,
+            borderRadius: 8,
+            padding: 14,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 10,
+          }}>
+            <Text style={{ fontSize: 24, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>
+              {l1Scores.overall.toFixed(1)}/5
+            </Text>
+            <TierBadge tier={l1Scores.tier} color={layer1TierColor(l1Scores.tier)} />
+          </View>
+          <Text style={{ fontSize: 10, color: COLORS.gray500 }}>Overall AI Maturity</Text>
+        </View>
+
+        {/* Section A: General AI Maturity bars */}
+        <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 12 }}>
+          General AI Maturity
+        </Text>
+
+        {l1Scores.categories.map((cat) => (
+          <HorizontalBar
+            key={cat.category}
+            label={cat.category}
+            score={cat.raw}
+            benchmark={benchmarks?.[cat.category]}
+            barWidth={340}
+          />
+        ))}
+
+        {/* Tier legend */}
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 8, marginBottom: 20 }}>
+          {[
+            { label: 'Exploring (1-2)', color: COLORS.exploring },
+            { label: 'Building (2.1-3)', color: COLORS.building },
+            { label: 'Scaling (3.1-4)', color: COLORS.scaling },
+            { label: 'Leading (4.1-5)', color: COLORS.leading },
+          ].map((t) => (
+            <View key={t.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: t.color }} />
+              <Text style={{ fontSize: 7, color: COLORS.gray500 }}>{t.label}</Text>
+            </View>
+          ))}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+            <View style={{ width: 8, height: 2, backgroundColor: COLORS.gray700 }} />
+            <Text style={{ fontSize: 7, color: COLORS.gray500 }}>Industry Avg</Text>
+          </View>
+        </View>
+
+        {/* Section B: Agentforce Readiness (Salesforce only) */}
+        {isSalesforce && l2Scores && (
+          <>
+            <View style={{ borderBottomWidth: 1, borderBottomColor: COLORS.gray200, marginBottom: 16 }} />
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>
+                Agentforce Readiness
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={{ fontSize: 14, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>
+                  {l2Scores.overall.toFixed(1)}/5
+                </Text>
+                <TierBadge tier={l2Scores.tier} color={layer2TierColor(l2Scores.tier)} />
+              </View>
+            </View>
+
+            {l2Scores.edition_flag && (
+              <View style={{ backgroundColor: COLORS.amberLight, borderRadius: 4, padding: 8, marginBottom: 12 }}>
+                <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.amberDark }}>
+                  Edition flag: {assessment.salesforce_edition} — scores capped at 2.5
+                </Text>
+              </View>
+            )}
+
+            {/* Per-product agent scores */}
+            {(productScores ?? []).filter(p => p.cloud !== 'Overall').map((ps) => (
+              <View key={ps.cloud} style={{ marginBottom: 8 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+                  <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: COLORS.gray800 }}>
+                    {ps.cloud === 'SalesCloud' ? 'Sales Agent' : ps.cloud === 'ServiceCloud' ? 'Service Agent' : ps.cloud === 'MarketingCloud' ? 'Marketing Agent' : ps.cloud}
+                  </Text>
+                  <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: layer2TierColor(ps.tier) }}>
+                    {ps.score.toFixed(1)}/5
+                  </Text>
+                </View>
+                <View style={{ width: 340, height: 10, backgroundColor: COLORS.gray200, borderRadius: 5 }}>
+                  <View style={{ width: (ps.score / 5) * 340, height: 10, backgroundColor: layer2TierColor(ps.tier), borderRadius: 5 }} />
+                </View>
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* Assessment Methodology Note */}
+        <View style={{
+          backgroundColor: COLORS.gray50,
+          borderRadius: 6,
+          padding: 14,
+          marginTop: 20,
+        }}>
+          <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 6 }}>
+            About This Assessment
+          </Text>
+          <Text style={{ fontSize: 9, lineHeight: 1.6, color: COLORS.gray700 }}>
+            This report is based on {layer1QuestionCount} scored responses across 6 dimensions of AI readiness
+            {isSalesforce && layer2QuestionCount > 0
+              ? `, plus ${layer2QuestionCount} Agentforce-specific questions across ${(activeClouds.filter(c => c !== 'DataCloud').length || 0) + 2} sections`
+              : ''
+            }. Each question was scored on a 1–5 scale:{'\n\n'}
+            1 = No awareness or capability{'\n'}
+            2 = Early / ad hoc{'\n'}
+            3 = In development / inconsistent{'\n'}
+            4 = Mostly in place{'\n'}
+            5 = Fully implemented / leading practice{'\n\n'}
+            Category scores represent the average of all responses within that dimension. The Overall AI Maturity score is a weighted composite: AI Strategy (20%), People and Culture (20%), Data Foundation (20%), Process Readiness (20%), Risk and Governance (10%), AI Agent Governance (10%). Industry benchmarks reflect aggregate data from assessments conducted across similar organizations.
+          </Text>
+        </View>
+
+        <PageFooter companyName={companyName} />
+      </Page>
+
+      {/* ── PAGE 5: Critical Gap ───────────────────────────────────────── */}
       <Page size="LETTER" style={s.page}>
         <Text style={s.sectionLabel}>CRITICAL GAP ANALYSIS</Text>
         <Text style={s.sectionTitle}>Priority Action Required</Text>
@@ -655,22 +929,49 @@ export function ProspectReport({
         <PageFooter companyName={companyName} />
       </Page>
 
-      {/* ── PAGES 4-9: Category Findings (one per page) ────────────────── */}
+      {/* ── PAGES 6-11: Category Findings (one per page) ──────────────── */}
       {CATEGORY_KEYS.map((key) => {
         const catNarrative = narrative.categories[key]
         if (!catNarrative) return null
         const label = CATEGORY_LABELS[key] ?? key
         const l1Cat = l1Scores.categories.find((c) => c.category === label)
         const score = l1Cat?.raw ?? 0
-        const tier =
-          score >= 4.1 ? 'Leading'
-          : score >= 3.1 ? 'Scaling'
-          : score >= 2.1 ? 'Building'
-          : 'Exploring'
+        const tier = tierFromScore(score)
+        const benchmarkScore = benchmarks?.[label]
+        const accentColor = CATEGORY_ACCENT[key] ?? COLORS.primary
+        const sidebar = EDUCATIONAL_SIDEBARS[key]
+
+        const diff = benchmarkScore != null ? score - benchmarkScore : null
+        const diffLabel = diff != null
+          ? `${Math.abs(diff).toFixed(1)} ${diff >= 0 ? 'above' : 'below'} average`
+          : null
 
         return (
           <Page key={key} size="LETTER" style={s.page}>
             <Text style={s.sectionLabel}>CATEGORY ASSESSMENT</Text>
+
+            {/* Educational Sidebar */}
+            {sidebar && (
+              <View style={{
+                backgroundColor: COLORS.gray50,
+                borderLeftWidth: 3,
+                borderLeftColor: accentColor,
+                borderRadius: 4,
+                padding: 10,
+                marginBottom: 14,
+              }}>
+                <Text style={{ fontSize: 10, lineHeight: 1.5, color: COLORS.gray700 }}>
+                  {sidebar}
+                </Text>
+              </View>
+            )}
+
+            {/* Context Paragraph */}
+            {catNarrative.context && (
+              <Text style={{ fontSize: 10, lineHeight: 1.6, color: COLORS.gray500, marginBottom: 14 }}>
+                {catNarrative.context}
+              </Text>
+            )}
 
             <View style={s.categoryHeader}>
               <Text style={s.categoryName}>{label}</Text>
@@ -680,6 +981,13 @@ export function ProspectReport({
                 <TierBadge tier={tier} color={layer1TierColor(tier)} />
               </View>
             </View>
+
+            {/* Industry Benchmark comparison */}
+            {benchmarkScore != null && diffLabel && (
+              <Text style={{ fontSize: 9, color: COLORS.gray400, marginBottom: 14 }}>
+                Industry Average ({industryLabel}): {benchmarkScore.toFixed(1)} — You scored {diffLabel}
+              </Text>
+            )}
 
             <Text style={[s.bodyText, { marginBottom: 20 }]}>{catNarrative.summary}</Text>
 
@@ -696,7 +1004,7 @@ export function ProspectReport({
         )
       })}
 
-      {/* ── PAGE 10: Quick Wins vs Long-Term Investments ────────────────── */}
+      {/* ── PAGE 12: Quick Wins vs Long-Term Investments ───────────────── */}
       <Page size="LETTER" style={s.page}>
         <Text style={s.sectionLabel}>PRIORITIZATION MATRIX</Text>
         <Text style={s.sectionTitle}>Quick Wins vs Long-Term Investments</Text>
@@ -706,13 +1014,27 @@ export function ProspectReport({
         <PageFooter companyName={companyName} />
       </Page>
 
-      {/* ── PAGES 11-13: Agentforce Section (Salesforce only) ──────────── */}
+      {/* ── PAGES 13-15: Agentforce Section (Salesforce only) ─────────── */}
       {isSalesforce && agentforceNarrative && l2Scores && (
         <>
           {/* Agentforce Executive Summary */}
           <Page size="LETTER" style={s.page}>
             <Text style={s.sectionLabel}>AGENTFORCE READINESS</Text>
             <Text style={s.sectionTitle}>Agentforce Executive Summary</Text>
+
+            {/* Agentforce Core Prerequisites sidebar */}
+            <View style={{
+              backgroundColor: COLORS.gray50,
+              borderLeftWidth: 3,
+              borderLeftColor: '#0891b2',
+              borderRadius: 4,
+              padding: 10,
+              marginBottom: 14,
+            }}>
+              <Text style={{ fontSize: 10, lineHeight: 1.5, color: COLORS.gray700 }}>
+                {AGENTFORCE_SIDEBARS.CorePrereqs}
+              </Text>
+            </View>
 
             <View style={{ flexDirection: 'row', gap: 12, marginBottom: 20 }}>
               <View style={[s.badge, { backgroundColor: COLORS.gray100 }]}>
@@ -769,44 +1091,64 @@ export function ProspectReport({
                 const ps = (productScores ?? []).find((p) => p.cloud === cloud)
                 if (!rec) return null
 
+                const cloudSidebar = AGENTFORCE_SIDEBARS[cloud]
+
                 return (
-                  <View key={cloud} style={s.agentCard}>
-                    <View style={s.agentCardHeader}>
-                      <View>
-                        <Text style={{ fontSize: 8, letterSpacing: 1, color: COLORS.gray400 }}>
-                          {CLOUD_LABELS[cloud] ?? cloud}
-                        </Text>
-                        <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginTop: 2 }}>
-                          {rec.agentName}
+                  <View key={cloud}>
+                    {/* Per-cloud educational sidebar */}
+                    {cloudSidebar && (
+                      <View style={{
+                        backgroundColor: COLORS.gray50,
+                        borderLeftWidth: 3,
+                        borderLeftColor: '#7c3aed',
+                        borderRadius: 4,
+                        padding: 8,
+                        marginBottom: 8,
+                      }}>
+                        <Text style={{ fontSize: 9, lineHeight: 1.4, color: COLORS.gray700 }}>
+                          {cloudSidebar}
                         </Text>
                       </View>
-                      {ps && (
-                        <TierBadge tier={ps.tier} color={layer2TierColor(ps.tier)} />
-                      )}
-                    </View>
+                    )}
 
-                    <View style={{ flexDirection: 'row', gap: 24, marginBottom: 6 }}>
-                      <Text style={{ fontSize: 9, color: COLORS.gray500 }}>
-                        <Text style={{ fontFamily: 'Helvetica-Bold' }}>Timeline: </Text>
-                        {rec.timeline}
+                    <View style={s.agentCard}>
+                      <View style={s.agentCardHeader}>
+                        <View>
+                          <Text style={{ fontSize: 8, letterSpacing: 1, color: COLORS.gray400 }}>
+                            {CLOUD_LABELS[cloud] ?? cloud}
+                          </Text>
+                          <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginTop: 2 }}>
+                            {rec.agentName}
+                          </Text>
+                        </View>
+                        {ps && (
+                          <TierBadge tier={ps.tier} color={layer2TierColor(ps.tier)} />
+                        )}
+                      </View>
+
+                      <View style={{ flexDirection: 'row', gap: 24, marginBottom: 6 }}>
+                        <Text style={{ fontSize: 9, color: COLORS.gray500 }}>
+                          <Text style={{ fontFamily: 'Helvetica-Bold' }}>Timeline: </Text>
+                          {rec.timeline}
+                        </Text>
+                      </View>
+
+                      <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, marginBottom: 4 }}>
+                        Prerequisites:
+                      </Text>
+                      {rec.conditions.map((cond, i) => (
+                        <Text key={i} style={{ fontSize: 9, color: COLORS.gray700, marginBottom: 2, paddingLeft: 8 }}>
+                          {'\u2022'} {cond}
+                        </Text>
+                      ))}
+
+                      <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, marginTop: 6, marginBottom: 2 }}>
+                        Expected Outcome:
+                      </Text>
+                      <Text style={{ fontSize: 9, color: COLORS.gray700 }}>
+                        {rec.expectedOutcome}
                       </Text>
                     </View>
-
-                    <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, marginBottom: 4 }}>
-                      Prerequisites:
-                    </Text>
-                    {rec.conditions.map((cond, i) => (
-                      <Text key={i} style={{ fontSize: 9, color: COLORS.gray700, marginBottom: 2, paddingLeft: 8 }}>
-                        {'\u2022'} {cond}
-                      </Text>
-                    ))}
-
-                    <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, marginTop: 6, marginBottom: 2 }}>
-                      Expected Outcome:
-                    </Text>
-                    <Text style={{ fontSize: 9, color: COLORS.gray700 }}>
-                      {rec.expectedOutcome}
-                    </Text>
                   </View>
                 )
               })}

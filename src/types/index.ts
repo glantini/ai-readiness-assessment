@@ -177,6 +177,7 @@ export interface QuickWin {
 }
 
 export interface CategoryNarrative {
+  context?: string
   summary: string
   recommendations: [string, string]
 }

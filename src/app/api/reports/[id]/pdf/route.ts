@@ -47,6 +47,8 @@ export async function GET(
     { data: assessment, error: aErr },
     { data: report, error: rErr },
     { data: snapshotRows },
+    { data: layer1Rows },
+    { data: layer2Rows },
   ] = await Promise.all([
     supabase.from('assessments').select('*').eq('id', assessmentId).single(),
     supabase
@@ -61,6 +63,16 @@ export async function GET(
       .select('question_id, value')
       .eq('assessment_id', assessmentId)
       .eq('layer', 'snapshot'),
+    supabase
+      .from('responses')
+      .select('question_id')
+      .eq('assessment_id', assessmentId)
+      .eq('layer', 'layer1'),
+    supabase
+      .from('responses')
+      .select('question_id')
+      .eq('assessment_id', assessmentId)
+      .eq('layer', 'layer2'),
   ])
 
   if (aErr || !assessment) {
@@ -114,6 +126,13 @@ export async function GET(
     buffer = await renderToBuffer(aeDoc as unknown as React.ReactElement)
     filename = `AE-Intelligence-${companySlug}.pdf`
   } else {
+    // Build snapshot symptoms for prospect report
+    const prospectSnapshotMap: Record<string, boolean> = {}
+    for (const row of snapshotRows ?? []) {
+      prospectSnapshotMap[row.question_id] = row.value === true
+    }
+    const prospectSymptoms = getCheckedSymptoms(prospectSnapshotMap)
+
     const reportDoc = ProspectReport({
       assessment: a,
       l1Scores: l1,
@@ -121,6 +140,9 @@ export async function GET(
       productScores: ps,
       narrative,
       agentforceNarrative: afNarrative,
+      checkedSymptoms: prospectSymptoms,
+      layer1QuestionCount: layer1Rows?.length ?? 0,
+      layer2QuestionCount: layer2Rows?.length ?? 0,
     })
     buffer = await renderToBuffer(reportDoc as unknown as React.ReactElement)
     filename = `AI-Readiness-Report-${companySlug}.pdf`

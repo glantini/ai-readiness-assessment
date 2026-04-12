@@ -148,17 +148,9 @@ export default async function DashboardPage() {
                       {/* AI Maturity */}
                       <td className="px-6 py-4">
                         {l1 ? (
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-sm font-semibold text-gray-900">
-                              {l1.overall.toFixed(1)}
-                            </span>
-                            <span
-                              className="text-xs font-semibold"
-                              style={{ color: MATURITY_TIER_COLOR[l1.tier] }}
-                            >
-                              {l1.tier}
-                            </span>
-                          </div>
+                          <span className="text-sm font-semibold text-gray-900">
+                            {l1.overall.toFixed(1)}
+                          </span>
                         ) : (
                           <span className="text-xs text-gray-400">Not scored</span>
                         )}
@@ -168,17 +160,9 @@ export default async function DashboardPage() {
                       <td className="px-6 py-4">
                         {a.uses_salesforce ? (
                           l2 ? (
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-sm font-semibold text-gray-900">
-                                {l2.overall.toFixed(1)}
-                              </span>
-                              <span
-                                className="text-xs font-semibold"
-                                style={{ color: AGENTFORCE_TIER_COLOR[l2.tier] }}
-                              >
-                                {l2.tier}
-                              </span>
-                            </div>
+                            <span className="text-sm font-semibold text-gray-900">
+                              {l2.overall.toFixed(1)}
+                            </span>
                           ) : (
                             <span className="text-xs text-gray-400">Pending</span>
                           )
