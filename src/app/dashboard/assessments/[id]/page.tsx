@@ -1,15 +1,20 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { getLayer1Tier, getLayer2Tier } from '@/lib/scoring'
 import { RecalculateButton } from './RecalculateButton'
 import type {
   Assessment,
+  CategoryScore,
+  SectionScore,
   Layer1Scores,
   Layer2Scores,
   ProductScore,
   ReadinessTier,
   AgentforceTier,
 } from '@/types'
+
+export const dynamic = 'force-dynamic'
 
 // ─── Tier display config ──────────────────────────────────────────────────────
 
@@ -79,7 +84,7 @@ export default async function AssessmentDetailPage({
       supabase.from('assessments').select('*').eq('id', params.id).single(),
       supabase
         .from('reports')
-        .select('layer1_scores, layer2_scores, product_scores, overall_tier, ai_narrative_json, report_status')
+        .select('ai_overall_score, ai_category_scores, agentforce_index, agentforce_section_scores, agentforce_product_scores, edition_flag, ai_narrative_json, report_status')
         .eq('assessment_id', params.id)
         .single(),
     ])
@@ -88,10 +93,26 @@ export default async function AssessmentDetailPage({
 
   const a = assessment as Assessment
 
-  // Typed score data from the report row
-  const layer1Scores = report?.layer1_scores as Layer1Scores | null
-  const layer2ScoresRaw = report?.layer2_scores as Omit<Layer2Scores, 'productScores'> | null
-  const productScores = report?.product_scores as ProductScore[] | null
+  // Reconstruct typed score objects from individual DB columns
+  const layer1Scores: Layer1Scores | null = report?.ai_overall_score != null
+    ? {
+        overall: report.ai_overall_score as number,
+        categories: (report.ai_category_scores ?? []) as CategoryScore[],
+        tier: getLayer1Tier(report.ai_overall_score as number),
+      }
+    : null
+
+  const layer2ScoresRaw: Layer2Scores | null = report?.agentforce_index != null
+    ? {
+        overall: report.agentforce_index as number,
+        sections: (report.agentforce_section_scores ?? []) as SectionScore[],
+        productScores: (report.agentforce_product_scores ?? []) as ProductScore[],
+        edition_flag: (report.edition_flag ?? false) as boolean,
+        tier: getLayer2Tier(report.agentforce_index as number),
+      }
+    : null
+
+  const productScores: ProductScore[] | null = (report?.agentforce_product_scores ?? null) as ProductScore[] | null
 
   const hasScores = !!layer1Scores
   const hasNarrative = !!report?.ai_narrative_json

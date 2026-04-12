@@ -74,6 +74,14 @@ function scoreToTier<T>(score: number, tiers: { min: number; tier: T }[]): T {
   return tiers[tiers.length - 1].tier
 }
 
+export function getLayer1Tier(score: number): ReadinessTier {
+  return scoreToTier(score, LAYER1_TIERS)
+}
+
+export function getLayer2Tier(score: number): AgentforceTier {
+  return scoreToTier(score, LAYER2_TIERS)
+}
+
 /** Round to 2 decimal places */
 function r2(value: number): number {
   return Math.round(value * 100) / 100
@@ -323,17 +331,12 @@ export async function saveScoresToReport(
   const { error } = await supabase.from('reports').upsert(
     {
       assessment_id: assessmentId,
-      layer1_scores: layer1,
-      layer2_scores: layer2
-        ? {
-            sections: layer2.sections,
-            overall: layer2.overall,
-            tier: layer2.tier,
-            edition_flag: layer2.edition_flag,
-          }
-        : null,
-      product_scores: layer2?.productScores ?? null,
-      overall_tier: layer1.tier,
+      ai_overall_score: layer1.overall,
+      ai_category_scores: layer1.categories,
+      agentforce_index: layer2?.overall ?? null,
+      agentforce_section_scores: layer2?.sections ?? null,
+      agentforce_product_scores: layer2?.productScores ?? null,
+      edition_flag: layer2?.edition_flag ?? null,
       generated_at: new Date().toISOString(),
     },
     { onConflict: 'assessment_id' },

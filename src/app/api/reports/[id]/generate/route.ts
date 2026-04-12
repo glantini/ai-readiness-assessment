@@ -14,6 +14,7 @@
 import { NextRequest } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { getLayer1Tier, getLayer2Tier } from '@/lib/scoring'
 import {
   REPORT_SYSTEM_PROMPT,
   buildReportPrompt,
@@ -21,7 +22,7 @@ import {
   getCheckedSymptoms,
   parseNarrativeBlocks,
 } from '@/lib/reportGeneration'
-import type { Assessment, Layer1Scores, Layer2Scores, ProductScore } from '@/types'
+import type { Assessment, CategoryScore, SectionScore, Layer1Scores, Layer2Scores, ProductScore } from '@/types'
 
 export async function POST(
   _request: NextRequest,
@@ -52,7 +53,7 @@ export async function POST(
     supabase.from('assessments').select('*').eq('id', assessmentId).single(),
     supabase
       .from('reports')
-      .select('layer1_scores, layer2_scores, product_scores')
+      .select('ai_overall_score, ai_category_scores, agentforce_index, agentforce_section_scores, agentforce_product_scores, edition_flag')
       .eq('assessment_id', assessmentId)
       .single(),
     supabase
@@ -74,7 +75,7 @@ export async function POST(
     )
   }
 
-  if (!report?.layer1_scores) {
+  if (!report?.ai_overall_score) {
     return new Response(
       JSON.stringify({ error: 'Scores not yet calculated. Run scoring first.' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } },
@@ -83,9 +84,24 @@ export async function POST(
 
   // Build prompt from fetched data
   const a = assessment as Assessment
-  const l1 = report.layer1_scores as Layer1Scores
-  const l2 = report.layer2_scores as Layer2Scores | null
-  const productScores = report.product_scores as ProductScore[] | null
+
+  const l1: Layer1Scores = {
+    overall: report.ai_overall_score as number,
+    categories: (report.ai_category_scores ?? []) as CategoryScore[],
+    tier: getLayer1Tier(report.ai_overall_score as number),
+  }
+
+  const l2: Layer2Scores | null = report.agentforce_index != null
+    ? {
+        overall: report.agentforce_index as number,
+        sections: (report.agentforce_section_scores ?? []) as SectionScore[],
+        productScores: (report.agentforce_product_scores ?? []) as ProductScore[],
+        edition_flag: (report.edition_flag ?? false) as boolean,
+        tier: getLayer2Tier(report.agentforce_index as number),
+      }
+    : null
+
+  const productScores: ProductScore[] | null = (report.agentforce_product_scores ?? null) as ProductScore[] | null
 
   const snapshotMap: Record<string, boolean> = {}
   for (const row of snapshotRows ?? []) {
