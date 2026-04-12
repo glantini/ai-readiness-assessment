@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { CopyTokenUrl } from './CopyTokenUrl'
+import type { Layer1Scores, Layer2Scores } from '@/types'
 
 const STATUS_LABEL: Record<string, string> = {
   pending:     'Sent',
@@ -14,15 +15,42 @@ const STATUS_CLASS: Record<string, string> = {
   completed:   'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20',
 }
 
+const MATURITY_TIER_COLOR: Record<string, string> = {
+  Exploring: '#DC2626',
+  Building:  '#EA580C',
+  Scaling:   '#CA8A04',
+  Leading:   '#16A34A',
+}
+
+const AGENTFORCE_TIER_COLOR: Record<string, string> = {
+  'Not Ready':        '#DC2626',
+  'Getting Ready':    '#EA580C',
+  'Nearly Ready':     '#CA8A04',
+  'Ready to Deploy':  '#16A34A',
+}
+
 export default async function DashboardPage() {
   const supabase = createClient()
 
   const { data: assessments, error } = await supabase
     .from('assessments')
     .select(
-      'id, token, status, contact_first_name, contact_last_name, contact_email, company_name, ae_name, created_at'
+      'id, token, status, contact_first_name, contact_last_name, contact_email, company_name, ae_name, uses_salesforce, created_at'
     )
     .order('created_at', { ascending: false })
+
+  // Fetch reports for all assessments in one query
+  const assessmentIds = assessments?.map((a) => a.id) ?? []
+  const { data: reports } = assessmentIds.length
+    ? await supabase
+        .from('reports')
+        .select('assessment_id, layer1_scores, layer2_scores')
+        .in('assessment_id', assessmentIds)
+    : { data: [] }
+
+  const reportsByAssessment = new Map(
+    (reports ?? []).map((r) => [r.assessment_id, r])
+  )
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,7 +96,7 @@ export default async function DashboardPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {['Contact', 'Company', 'AE', 'Status', 'Token URL', 'Created', ''].map((col) => (
+                  {['Contact', 'Company', 'AE', 'Status', 'AI Maturity', 'Agentforce', 'Token URL', 'Created', ''].map((col) => (
                     <th
                       key={col}
                       scope="col"
@@ -91,6 +119,10 @@ export default async function DashboardPage() {
                     year: 'numeric',
                   })
 
+                  const report = reportsByAssessment.get(a.id)
+                  const l1 = report?.layer1_scores as Layer1Scores | null
+                  const l2 = report?.layer2_scores as Layer2Scores | null
+
                   return (
                     <tr key={a.id} className="transition-colors hover:bg-gray-50">
                       <td className="px-6 py-4">
@@ -112,6 +144,49 @@ export default async function DashboardPage() {
                           {statusLabel}
                         </span>
                       </td>
+
+                      {/* AI Maturity */}
+                      <td className="px-6 py-4">
+                        {l1 ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900">
+                              {l1.overall.toFixed(1)}
+                            </span>
+                            <span
+                              className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                              style={{ backgroundColor: MATURITY_TIER_COLOR[l1.tier] }}
+                            >
+                              {l1.tier}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">Not scored</span>
+                        )}
+                      </td>
+
+                      {/* Agentforce Readiness */}
+                      <td className="px-6 py-4">
+                        {a.uses_salesforce ? (
+                          l2 ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-gray-900">
+                                {l2.overall.toFixed(1)}
+                              </span>
+                              <span
+                                className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                                style={{ backgroundColor: AGENTFORCE_TIER_COLOR[l2.tier] }}
+                              >
+                                {l2.tier}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">Pending</span>
+                          )
+                        ) : (
+                          <span className="text-xs text-gray-300">—</span>
+                        )}
+                      </td>
+
                       <td className="px-6 py-4">
                         <CopyTokenUrl token={a.token} />
                       </td>
