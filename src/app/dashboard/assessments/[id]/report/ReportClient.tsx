@@ -14,6 +14,7 @@ import type {
   ReportStatus,
   QuickWin,
   CategoryNarrative,
+  RichRecommendation,
 } from '@/types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -235,6 +236,18 @@ function ScoreBar({ score }: { score: number }) {
   )
 }
 
+// ─── Rich recommendation type guard ─────────────────────────────────────────
+
+/**
+ * Checks if a recommendation is a rich object (new format) vs a plain string (legacy).
+ * Existing reports in Supabase use the legacy string format; new reports use the rich format.
+ */
+function isRichRecommendation(
+  rec: string | RichRecommendation,
+): rec is RichRecommendation {
+  return typeof rec === 'object' && rec !== null && 'action' in rec
+}
+
 // ─── Section card (category findings) ────────────────────────────────────────
 
 function CategoryCard({
@@ -248,6 +261,9 @@ function CategoryCard({
   narrative: CategoryNarrative
   onChange: (updated: CategoryNarrative) => void
 }) {
+  const recs = narrative.recommendations
+  const isRichFormat = recs.length > 0 && isRichRecommendation(recs[0])
+
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
@@ -276,24 +292,74 @@ function CategoryCard({
 
       <div>
         <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">Recommendations</p>
-        <ol className="space-y-1.5">
-          {narrative.recommendations.map((rec, i) => (
-            <li key={i} className="flex gap-2">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
-                {i + 1}
-              </span>
-              <EditableBlock
-                value={rec}
-                onChange={(v) => {
-                  const recs = [...narrative.recommendations] as [string, string]
-                  recs[i] = v
-                  onChange({ ...narrative, recommendations: recs })
-                }}
-                className="flex-1 text-sm text-gray-700"
-              />
-            </li>
-          ))}
-        </ol>
+
+        {isRichFormat ? (
+          <div className="space-y-0">
+            {(recs as RichRecommendation[]).map((rec, i) => (
+              <div key={i}>
+                {i > 0 && (
+                  <div className="my-4 border-t border-gray-100" />
+                )}
+                <div className="flex gap-2">
+                  <span className="mt-0.5 shrink-0 text-xs font-bold text-gray-400">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div className="flex-1 space-y-2">
+                    <EditableBlock
+                      value={rec.action}
+                      onChange={(v) => {
+                        const updated = [...recs] as [RichRecommendation, RichRecommendation]
+                        updated[i] = { ...rec, action: v }
+                        onChange({ ...narrative, recommendations: updated })
+                      }}
+                      className="text-[15px] font-bold text-gray-900"
+                    />
+                    <EditableBlock
+                      value={rec.howTo}
+                      onChange={(v) => {
+                        const updated = [...recs] as [RichRecommendation, RichRecommendation]
+                        updated[i] = { ...rec, howTo: v }
+                        onChange({ ...narrative, recommendations: updated })
+                      }}
+                      multiline
+                      className="text-sm text-gray-500"
+                    />
+                    <EditableBlock
+                      value={rec.whyItMatters}
+                      onChange={(v) => {
+                        const updated = [...recs] as [RichRecommendation, RichRecommendation]
+                        updated[i] = { ...rec, whyItMatters: v }
+                        onChange({ ...narrative, recommendations: updated })
+                      }}
+                      multiline
+                      className="text-xs italic text-[#EA580C]"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Legacy string format for existing reports */
+          <ol className="space-y-1.5">
+            {(recs as string[]).map((rec, i) => (
+              <li key={i} className="flex gap-2">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                  {i + 1}
+                </span>
+                <EditableBlock
+                  value={rec}
+                  onChange={(v) => {
+                    const updated = [...recs] as [string, string]
+                    updated[i] = v
+                    onChange({ ...narrative, recommendations: updated })
+                  }}
+                  className="flex-1 text-sm text-gray-700"
+                />
+              </li>
+            ))}
+          </ol>
+        )}
       </div>
     </div>
   )

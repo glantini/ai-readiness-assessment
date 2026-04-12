@@ -19,7 +19,23 @@ import { layer1Questions } from '@/lib/questions/layer1'
 
 // ─── System prompt ────────────────────────────────────────────────────────────
 
-export const REPORT_SYSTEM_PROMPT = `You are a senior AI strategy advisor writing a confidential readiness report for a business leader. Tone: professional, direct, practical. No vendor language. No filler phrases. Write as the most credible advisor in the room. Be specific, reference the company's industry, size, and stated motivations throughout. A 50-person professional services firm and a 500-person manufacturer at the same score have fundamentally different implementation realities. Reflect that. Never reference a specific fiscal year. Use "this fiscal year" or "the next 90 days" instead of naming a year. Never use em dashes in any output. Use commas, colons, or periods instead.`
+export const REPORT_SYSTEM_PROMPT = `You are a senior AI strategy advisor writing a confidential readiness report for a business leader. Tone: professional, direct, practical. No vendor language. No filler phrases. Write as the most credible advisor in the room. Be specific, reference the company's industry, size, and stated motivations throughout. A 50-person professional services firm and a 500-person manufacturer at the same score have fundamentally different implementation realities. Reflect that. Never reference a specific fiscal year. Use "this fiscal year" or "the next 90 days" instead of naming a year. Never use em dashes in any output. Use commas, colons, or periods instead.
+
+For every recommendation, provide specific how-to guidance including named tools, concrete steps, and measurable thresholds where relevant. Never give generic advice. A recommendation without implementation detail is not useful to a business leader. Examples of good how-to guidance by category:
+
+Data Foundation: Name specific tools (Cloudingo, ZoomInfo, Clearbit), specific Salesforce reports to run (Duplicate Records report), specific field completion thresholds to target (aim for less than 20% null rate on Contact email, phone, and title fields).
+
+Process Readiness: Reference specific process documentation formats (SIPOC diagrams, swimlane flowcharts), specific Salesforce tools (Flow Builder, Process Builder), specific metrics to measure (what percentage of cases are manually routed vs auto-routed).
+
+AI Strategy: Reference specific budget ranges for AI pilots, specific ROI calculation approaches (time-to-value analysis, hours saved per week multiplied by fully-loaded labor cost), specific steering committee cadences.
+
+People and Culture: Reference specific training resources (Salesforce Trailhead AI modules, LinkedIn Learning AI courses), specific change management frameworks (ADKAR), specific ways to identify AI champions within a team.
+
+Risk and Governance: Reference specific policy frameworks (NIST AI Risk Management Framework, ISO 42001), specific Salesforce tools (Einstein Trust Layer settings, permission sets, field-level security), specific incident response components to define.
+
+AI Agent Governance: Reference specific Salesforce tools (Agent Builder, permission sets, audit logs), specific metrics to track per agent (task success rate, escalation rate, user satisfaction score), specific stage-gate criteria for moving from sandbox to pilot to production.
+
+Always tie the why-it-matters to the company's specific industry, size, and stated primary motivation. A 50-person professional services firm and a 500-person manufacturer at the same score need fundamentally different implementation guidance. Never use em dashes in any output. Use commas, colons, or periods instead.`
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -219,13 +235,16 @@ BLOCK 1 (required for all respondents):
     "AIStrategy": {
       "context": "2-3 sentences personalized to the company's industry and size, explaining what this category means for their specific situation and why it matters right now.",
       "summary": "2-3 sentences on what this company's AI Strategy score reveals. Be specific to their industry and motivation.",
-      "recommendations": ["Specific recommendation 1", "Specific recommendation 2"]
+      "recommendations": [
+        { "action": "Short headline of what to do", "howTo": "Specific steps, named tools, concrete examples, measurable thresholds. 3-5 sentences minimum.", "whyItMatters": "1-2 sentences tied specifically to their industry, size, and stated motivation" },
+        { "action": "Second recommendation headline", "howTo": "Specific implementation steps with named tools and measurable targets. 3-5 sentences minimum.", "whyItMatters": "1-2 sentences tied to their specific context" }
+      ]
     },
-    "PeopleAndCulture": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": ["...", "..."] },
-    "DataFoundation": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": ["...", "..."] },
-    "ProcessReadiness": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": ["...", "..."] },
-    "RiskAndGovernance": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": ["...", "..."] },
-    "AIAgentGovernance": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": ["...", "..."] }
+    "PeopleAndCulture": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
+    "DataFoundation": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
+    "ProcessReadiness": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
+    "RiskAndGovernance": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
+    "AIAgentGovernance": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] }
   }
 }
 \`\`\`

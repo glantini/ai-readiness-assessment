@@ -396,17 +396,21 @@ export function AEIntelligenceDoc({
                 {cat.raw.toFixed(1)}/5
               </Text>
               <Text style={{ fontSize: 8, color: C.gray700, flex: 1 }}>
-                {narrative.categories[
-                  Object.keys(narrative.categories).find(
-                    (k) =>
-                      (k === 'AIStrategy' && cat.category === 'AI Strategy') ||
-                      (k === 'PeopleAndCulture' && cat.category === 'People & Culture') ||
-                      (k === 'DataFoundation' && cat.category === 'Data Foundation') ||
-                      (k === 'ProcessReadiness' && cat.category === 'Process Readiness') ||
-                      (k === 'RiskAndGovernance' && cat.category === 'Risk & Governance') ||
-                      (k === 'AIAgentGovernance' && cat.category === 'AI Agent Governance'),
-                  ) as keyof typeof narrative.categories
-                ]?.recommendations[0] ?? ''}
+                {(() => {
+                  const rec = narrative.categories[
+                    Object.keys(narrative.categories).find(
+                      (k) =>
+                        (k === 'AIStrategy' && cat.category === 'AI Strategy') ||
+                        (k === 'PeopleAndCulture' && cat.category === 'People & Culture') ||
+                        (k === 'DataFoundation' && cat.category === 'Data Foundation') ||
+                        (k === 'ProcessReadiness' && cat.category === 'Process Readiness') ||
+                        (k === 'RiskAndGovernance' && cat.category === 'Risk & Governance') ||
+                        (k === 'AIAgentGovernance' && cat.category === 'AI Agent Governance'),
+                    ) as keyof typeof narrative.categories
+                  ]?.recommendations[0]
+                  if (!rec) return ''
+                  return typeof rec === 'string' ? rec : rec.action
+                })()}
               </Text>
             </View>
           ))}

@@ -176,10 +176,25 @@ export interface QuickWin {
   timeline: string
 }
 
+/**
+ * Rich recommendation object with action, how-to, and why-it-matters.
+ * New reports generated after the rich-recommendation update use this format.
+ */
+export interface RichRecommendation {
+  action: string
+  howTo: string
+  whyItMatters: string
+}
+
+/**
+ * Category narrative for report output.
+ * recommendations may be a legacy [string, string] tuple (existing reports)
+ * or a [RichRecommendation, RichRecommendation] tuple (new reports).
+ */
 export interface CategoryNarrative {
   context?: string
   summary: string
-  recommendations: [string, string]
+  recommendations: [string, string] | [RichRecommendation, RichRecommendation]
 }
 
 export interface ReportNarrative {

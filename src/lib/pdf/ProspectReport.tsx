@@ -30,6 +30,7 @@ import type {
   ReportNarrative,
   AgentforceNarrative,
   QuickWin,
+  RichRecommendation,
 } from '@/types'
 
 // ─── Colors ──────────────────────────────────────────────────────────────────
@@ -1085,12 +1086,41 @@ export function ProspectReport({
             <Text style={[s.bodyText, { marginBottom: 20 }]}>{catNarrative.summary}</Text>
 
             <Text style={[s.sectionLabel, { marginBottom: 12 }]}>RECOMMENDATIONS</Text>
-            {catNarrative.recommendations.map((rec, i) => (
-              <View key={i} style={s.recItem}>
-                <Text style={s.recNumber}>{i + 1}</Text>
-                <Text style={[s.bodyText, { flex: 1 }]}>{rec}</Text>
-              </View>
-            ))}
+            {catNarrative.recommendations.map((rec, i) => {
+              // Rich format: object with action/howTo/whyItMatters (new reports)
+              // Legacy format: plain string (existing reports in Supabase)
+              const isRich = typeof rec === 'object' && rec !== null && 'action' in rec
+              const richRec = isRich ? (rec as RichRecommendation) : null
+
+              return (
+                <View key={i} wrap={false}>
+                  {i > 0 && (
+                    <View style={{ borderBottomWidth: 1, borderBottomColor: COLORS.gray200, marginVertical: 10 }} />
+                  )}
+                  {richRec ? (
+                    <View style={{ marginBottom: 8 }}>
+                      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 4 }}>
+                        <Text style={s.recNumber}>{String(i + 1).padStart(2, '0')}</Text>
+                        <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, flex: 1 }}>
+                          {richRec.action}
+                        </Text>
+                      </View>
+                      <Text style={{ fontSize: 10, lineHeight: 1.6, color: COLORS.gray500, paddingLeft: 26, marginBottom: 6 }}>
+                        {richRec.howTo}
+                      </Text>
+                      <Text style={{ fontSize: 9, fontStyle: 'italic', color: '#EA580C', paddingLeft: 34 }}>
+                        {richRec.whyItMatters}
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={s.recItem}>
+                      <Text style={s.recNumber}>{i + 1}</Text>
+                      <Text style={[s.bodyText, { flex: 1 }]}>{rec as string}</Text>
+                    </View>
+                  )}
+                </View>
+              )
+            })}
 
             <PageFooter companyName={companyName} />
           </Page>
