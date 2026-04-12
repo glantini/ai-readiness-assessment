@@ -566,6 +566,18 @@ export function ReportClient({
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {reportStatus === 'approved' && (
+            <a
+              href={`/api/reports/${assessmentId}/pdf`}
+              download
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2" />
+              </svg>
+              Download Report
+            </a>
+          )}
           <button
             onClick={() => {
               setStreamText('')

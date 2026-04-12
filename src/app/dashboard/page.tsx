@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { CopyTokenUrl } from './CopyTokenUrl'
 
 const STATUS_LABEL: Record<string, string> = {
   pending:     'Sent',
@@ -67,7 +68,7 @@ export default async function DashboardPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {['Contact', 'Company', 'AE', 'Status', 'Created', ''].map((col) => (
+                  {['Contact', 'Company', 'AE', 'Status', 'Token URL', 'Created', ''].map((col) => (
                     <th
                       key={col}
                       scope="col"
@@ -110,6 +111,9 @@ export default async function DashboardPage() {
                         >
                           {statusLabel}
                         </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <CopyTokenUrl token={a.token} />
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">{created}</td>
                       <td className="px-6 py-4 text-right">
