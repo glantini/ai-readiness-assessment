@@ -865,31 +865,60 @@ export function ProspectReport({
           General AI Maturity
         </Text>
 
-        {l1Scores.categories.map((cat) => (
-          <HorizontalBar
-            key={cat.category}
-            label={cat.category}
-            score={cat.raw}
-            benchmark={benchmarks?.[cat.category]}
-            barWidth={340}
-          />
-        ))}
+        {l1Scores.categories.map((cat) => {
+          const score = cat.raw
+          const benchmark = benchmarks?.[cat.category]
+          const tierColor =
+            score >= 4.1 ? COLORS.leading
+            : score >= 3.1 ? COLORS.scaling
+            : score >= 2.1 ? COLORS.building
+            : COLORS.exploring
+          const scoreBarWidth = (score / 5) * 200
+          const benchmarkPos = benchmark ? (benchmark / 5) * 200 : 0
+
+          return (
+            <View key={cat.category} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+              {/* Category label */}
+              <Text style={{ width: 110, fontSize: 9, color: '#374151' }}>{cat.category}</Text>
+
+              {/* Bar track */}
+              <View style={{ width: 200, height: 12, backgroundColor: '#F3F4F6', borderRadius: 6, position: 'relative', marginHorizontal: 8 }}>
+                {/* Score fill */}
+                <View style={{ height: 12, width: scoreBarWidth, backgroundColor: tierColor, borderRadius: 6 }} />
+                {/* Benchmark marker */}
+                {benchmark != null && benchmark > 0 && (
+                  <View style={{ position: 'absolute', left: benchmarkPos, top: 0, width: 2, height: 12, backgroundColor: '#6B7280' }} />
+                )}
+              </View>
+
+              {/* Score number */}
+              <Text style={{ width: 24, fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#111827', textAlign: 'right' }}>
+                {score.toFixed(1)}
+              </Text>
+
+              {/* Benchmark number */}
+              <Text style={{ width: 28, fontSize: 8, color: '#9CA3AF', textAlign: 'right' }}>
+                {benchmark ? benchmark.toFixed(1) : ''}
+              </Text>
+            </View>
+          )
+        })}
 
         {/* Tier legend */}
-        <View style={{ flexDirection: 'row', gap: 14, marginTop: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 10, marginBottom: 20, flexWrap: 'wrap' }}>
           {[
-            { label: 'Exploring (1-2)', color: COLORS.exploring },
-            { label: 'Building (2.1-3)', color: COLORS.building },
-            { label: 'Scaling (3.1-4)', color: COLORS.scaling },
-            { label: 'Leading (4.1-5)', color: COLORS.leading },
+            { label: 'Exploring', color: '#DC2626' },
+            { label: 'Building', color: '#EA580C' },
+            { label: 'Scaling', color: '#CA8A04' },
+            { label: 'Leading', color: '#16A34A' },
           ].map((t) => (
             <View key={t.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <View style={{ width: 12, height: 10, borderRadius: 2, backgroundColor: t.color }} />
+              <View style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: t.color }} />
               <Text style={{ fontSize: 8, color: COLORS.gray700 }}>{t.label}</Text>
             </View>
           ))}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <View style={{ width: 12, height: 3, backgroundColor: COLORS.gray800, borderRadius: 1 }} />
+            <View style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: '#6B7280' }} />
             <Text style={{ fontSize: 8, color: COLORS.gray700 }}>Industry Avg</Text>
           </View>
         </View>
@@ -1464,82 +1493,82 @@ function QuickWinsGrid({ quickWins }: { quickWins: QuickWin[] }) {
 
   return (
     <View>
-      {/* Axis label */}
-      <Text style={{ fontSize: 7, color: COLORS.gray400, marginBottom: 4, textAlign: 'center' }}>
-        {'\u2191'} HIGH IMPACT
-      </Text>
+      {/* Y axis label */}
+      <Text style={{ fontSize: 8, color: '#9CA3AF', marginBottom: 4 }}>HIGH IMPACT</Text>
 
-      <View style={[s.gridRow, { marginBottom: 8 }]}>
-        {/* Quick Wins (Low Effort, High Impact) */}
-        <View style={[s.gridCell, { backgroundColor: COLORS.greenLight }]}>
-          <Text style={[s.gridLabel, { color: COLORS.greenDark }]}>Quick Wins</Text>
-          <Text style={s.gridSubtitle}>Low Effort / High Impact</Text>
-          {topQuickWins.map((w, i) => (
-            <View key={i} style={{ marginBottom: 6 }}>
-              <Text style={[s.gridItem, { fontFamily: 'Helvetica-Bold' }]}>
-                {'\u2022'} {w.action}
-              </Text>
-              <Text style={{ fontSize: 7, color: COLORS.gray500, paddingLeft: 16 }}>
-                {w.timeline}
-              </Text>
-            </View>
-          ))}
-          {topQuickWins.length === 0 && (
-            <Text style={{ fontSize: 8, color: COLORS.gray400, fontStyle: 'italic' }}>No items</Text>
-          )}
+      {/* Outer container */}
+      <View style={{ border: '0.5pt solid #E5E7EB', borderRadius: 4 }}>
+        {/* Top row */}
+        <View style={{ flexDirection: 'row' }}>
+          {/* Quick Wins (Low Effort, High Impact) */}
+          <View style={{ flex: 1, borderRight: '0.5pt solid #E5E7EB', borderBottom: '0.5pt solid #E5E7EB', padding: 12, backgroundColor: COLORS.greenLight, minHeight: 120 }}>
+            <Text style={[s.gridLabel, { color: COLORS.greenDark }]}>Quick Wins</Text>
+            <Text style={s.gridSubtitle}>Low Effort / High Impact</Text>
+            {topQuickWins.map((w, i) => (
+              <View key={i} style={{ marginBottom: 6 }}>
+                <Text style={[s.gridItem, { fontFamily: 'Helvetica-Bold' }]}>
+                  {w.action}
+                </Text>
+                <Text style={{ fontSize: 7, color: COLORS.gray500, paddingLeft: 8 }}>
+                  {w.timeline}
+                </Text>
+              </View>
+            ))}
+            {topQuickWins.length === 0 && (
+              <Text style={{ fontSize: 8, color: COLORS.gray400, fontStyle: 'italic' }}>No items</Text>
+            )}
+          </View>
+
+          {/* Strategic Bets (High Effort, High Impact) */}
+          <View style={{ flex: 1, borderBottom: '0.5pt solid #E5E7EB', padding: 12, backgroundColor: COLORS.blueLight, minHeight: 120 }}>
+            <Text style={[s.gridLabel, { color: COLORS.blueDark }]}>Strategic Bets</Text>
+            <Text style={s.gridSubtitle}>High Effort / High Impact</Text>
+            {topStrategic.map((w, i) => (
+              <View key={i} style={{ marginBottom: 6 }}>
+                <Text style={[s.gridItem, { fontFamily: 'Helvetica-Bold' }]}>
+                  {w.action}
+                </Text>
+                <Text style={{ fontSize: 7, color: COLORS.gray500, paddingLeft: 8 }}>
+                  {w.timeline}
+                </Text>
+              </View>
+            ))}
+            {topStrategic.length === 0 && (
+              <Text style={{ fontSize: 8, color: COLORS.gray400, fontStyle: 'italic' }}>No items</Text>
+            )}
+          </View>
         </View>
 
-        {/* Strategic Bets (High Effort, High Impact) */}
-        <View style={[s.gridCell, { backgroundColor: COLORS.blueLight }]}>
-          <Text style={[s.gridLabel, { color: COLORS.blueDark }]}>Strategic Bets</Text>
-          <Text style={s.gridSubtitle}>High Effort / High Impact</Text>
-          {topStrategic.map((w, i) => (
-            <View key={i} style={{ marginBottom: 6 }}>
-              <Text style={[s.gridItem, { fontFamily: 'Helvetica-Bold' }]}>
-                {'\u2022'} {w.action}
-              </Text>
-              <Text style={{ fontSize: 7, color: COLORS.gray500, paddingLeft: 16 }}>
-                {w.timeline}
-              </Text>
-            </View>
-          ))}
-          {topStrategic.length === 0 && (
-            <Text style={{ fontSize: 8, color: COLORS.gray400, fontStyle: 'italic' }}>No items</Text>
-          )}
+        {/* Bottom row */}
+        <View style={{ flexDirection: 'row' }}>
+          {/* Fill-Ins (Low Effort, Low Impact) */}
+          <View style={{ flex: 1, borderRight: '0.5pt solid #E5E7EB', padding: 12, backgroundColor: COLORS.gray50, minHeight: 120 }}>
+            <Text style={[s.gridLabel, { color: COLORS.gray700 }]}>Fill-Ins</Text>
+            <Text style={s.gridSubtitle}>Low Effort / Low Impact</Text>
+            {fillInItems.map((w, i) => (
+              <Text key={i} style={s.gridItem}>{w.action}</Text>
+            ))}
+            {fillInItems.length === 0 && (
+              <Text style={{ fontSize: 8, color: COLORS.gray400, fontStyle: 'italic' }}>No items</Text>
+            )}
+          </View>
+
+          {/* Deprioritize (High Effort, Low Impact) */}
+          <View style={{ flex: 1, padding: 12, backgroundColor: COLORS.redLight, minHeight: 120 }}>
+            <Text style={[s.gridLabel, { color: COLORS.redDark }]}>Deprioritize</Text>
+            <Text style={s.gridSubtitle}>High Effort / Low Impact</Text>
+            {deprioritizeItems.map((w, i) => (
+              <Text key={i} style={s.gridItem}>{w.action}</Text>
+            ))}
+            {deprioritizeItems.length === 0 && (
+              <Text style={{ fontSize: 8, color: COLORS.gray400, fontStyle: 'italic' }}>No items</Text>
+            )}
+          </View>
         </View>
       </View>
 
-      <View style={s.gridRow}>
-        {/* Fill-Ins (Low Effort, Low Impact) */}
-        <View style={[s.gridCell, { backgroundColor: COLORS.gray50 }]}>
-          <Text style={[s.gridLabel, { color: COLORS.gray700 }]}>Fill-Ins</Text>
-          <Text style={s.gridSubtitle}>Low Effort / Low Impact</Text>
-          {fillInItems.map((w, i) => (
-            <Text key={i} style={s.gridItem}>{'\u2022'} {w.action}</Text>
-          ))}
-          {fillInItems.length === 0 && (
-            <Text style={{ fontSize: 8, color: COLORS.gray400, fontStyle: 'italic' }}>No items</Text>
-          )}
-        </View>
-
-        {/* Deprioritize (High Effort, Low Impact) */}
-        <View style={[s.gridCell, { backgroundColor: COLORS.redLight }]}>
-          <Text style={[s.gridLabel, { color: COLORS.redDark }]}>Deprioritize</Text>
-          <Text style={s.gridSubtitle}>High Effort / Low Impact</Text>
-          {deprioritizeItems.map((w, i) => (
-            <Text key={i} style={s.gridItem}>{'\u2022'} {w.action}</Text>
-          ))}
-          {deprioritizeItems.length === 0 && (
-            <Text style={{ fontSize: 8, color: COLORS.gray400, fontStyle: 'italic' }}>No items</Text>
-          )}
-        </View>
-      </View>
-
-      {/* Axis label */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-        <Text style={{ fontSize: 7, color: COLORS.gray400 }}>{'\u2190'} LOW EFFORT</Text>
-        <Text style={{ fontSize: 7, color: COLORS.gray400 }}>HIGH EFFORT {'\u2192'}</Text>
-      </View>
+      {/* X axis label */}
+      <Text style={{ fontSize: 8, color: '#9CA3AF', marginTop: 4, textAlign: 'center' }}>LOW EFFORT / HIGH EFFORT</Text>
     </View>
   )
 }
