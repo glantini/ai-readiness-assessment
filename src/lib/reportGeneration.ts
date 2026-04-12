@@ -19,7 +19,7 @@ import { layer1Questions } from '@/lib/questions/layer1'
 
 // ─── System prompt ────────────────────────────────────────────────────────────
 
-export const REPORT_SYSTEM_PROMPT = `You are a senior AI strategy advisor writing a confidential readiness report for a business leader. Tone: professional, direct, practical. No vendor language. No filler phrases. Write as the most credible advisor in the room. Be specific — reference the company's industry, size, and stated motivations throughout. A 50-person professional services firm and a 500-person manufacturer at the same score have fundamentally different implementation realities. Reflect that.`
+export const REPORT_SYSTEM_PROMPT = `You are a senior AI strategy advisor writing a confidential readiness report for a business leader. Tone: professional, direct, practical. No vendor language. No filler phrases. Write as the most credible advisor in the room. Be specific, reference the company's industry, size, and stated motivations throughout. A 50-person professional services firm and a 500-person manufacturer at the same score have fundamentally different implementation realities. Reflect that. Never reference a specific fiscal year. Use "this fiscal year" or "the next 90 days" instead of naming a year. Never use em dashes in any output. Use commas, colons, or periods instead.`
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -98,7 +98,7 @@ export function buildReportPrompt(
     const productLines =
       (productScores ?? []).length > 0
         ? (productScores ?? [])
-            .map((p) => `  - ${p.cloud}: ${p.score.toFixed(1)}/5 — ${p.tier}`)
+            .map((p) => `  - ${p.cloud}: ${p.score.toFixed(1)}/5, ${p.tier}`)
             .join('\n')
         : '  No product clouds selected'
 
@@ -109,7 +109,7 @@ SALESFORCE CONTEXT:
 - Active Clouds: ${activeClouds.length > 0 ? activeClouds.join(', ') : 'None specified'}
 
 AGENTFORCE READINESS (Layer 2):
-- Overall: ${l2.overall.toFixed(1)}/5 — ${l2.tier}${l2.edition_flag ? ' ⚠️ Edition cap applied (capped at 2.5 due to edition)' : ''}
+- Overall: ${l2.overall.toFixed(1)}/5, ${l2.tier}${l2.edition_flag ? ' ⚠️ Edition cap applied (capped at 2.5 due to edition)' : ''}
 Section scores:
 ${sectionLines}
 
@@ -118,7 +118,7 @@ ${productLines}`
   }
 
   // ── Block 2 schema example (dynamic per active product clouds) ────────────
-  let block2Template = 'BLOCK 2: Not required — client does not use Salesforce.'
+  let block2Template = 'BLOCK 2: Not required, client does not use Salesforce.'
   if (isSalesforce) {
     const agentRecs = productClouds
       .map((c) => {
@@ -139,7 +139,7 @@ ${productLines}`
         ? '"Specific, direct note about this edition constraint and the upgrade path required"'
         : 'null'
 
-    block2Template = `BLOCK 2 (required — this client uses Salesforce):
+    block2Template = `BLOCK 2 (required, this client uses Salesforce):
 \`\`\`json
 {
   "agentforceExecutiveSummary": "3–4 sentence Agentforce-specific executive summary grounded in this company's specific scores and clouds",
@@ -186,7 +186,7 @@ OPERATIONS SNAPSHOT (self-identified pain points):
 ${snapshotText}
 
 AI MATURITY SCORES (Layer 1):
-- Overall: ${l1.overall.toFixed(1)}/5 — ${l1.tier}
+- Overall: ${l1.overall.toFixed(1)}/5, ${l1.tier}
 Category scores:
 ${catScoreLines}
 
@@ -205,8 +205,10 @@ BLOCK 1 (required for all respondents):
   "executiveSummary": "3–4 sentence executive summary. Specific to this company, industry, and motivation. No generic phrases.",
   "criticalGap": {
     "area": "The single category or capability most urgently blocking AI progress",
-    "finding": "2–3 sentence specific finding about what is weak or missing and why it matters for this company",
-    "recommendation": "The one concrete action leadership should take first to close this gap"
+    "finding": "2-3 sentence specific finding about what is weak or missing and why it matters for this company",
+    "recommendation": "The one concrete action leadership should take first to close this gap",
+    "impactIfUnaddressed": "2-3 sentences describing the specific business consequences if this gap is not closed in the next 6-12 months. Reference their industry and competitive landscape.",
+    "immediateNextStep": "One concrete, specific action the prospect can take this week to begin closing this gap. Make it actionable and time-bound."
   },
   "quickWins": [
     { "action": "Specific action this company can take in the near term", "effort": "Low", "impact": "High", "timeline": "2–4 weeks" },
@@ -215,15 +217,15 @@ BLOCK 1 (required for all respondents):
   ],
   "categories": {
     "AIStrategy": {
-      "context": "1–2 sentence personalized introduction explaining what this category measures and why it matters for this specific company.",
-      "summary": "2–3 sentences on what this company's AI Strategy score reveals. Be specific to their industry and motivation.",
+      "context": "2-3 sentences personalized to the company's industry and size, explaining what this category means for their specific situation and why it matters right now.",
+      "summary": "2-3 sentences on what this company's AI Strategy score reveals. Be specific to their industry and motivation.",
       "recommendations": ["Specific recommendation 1", "Specific recommendation 2"]
     },
-    "PeopleAndCulture": { "context": "...", "summary": "...", "recommendations": ["...", "..."] },
-    "DataFoundation": { "context": "...", "summary": "...", "recommendations": ["...", "..."] },
-    "ProcessReadiness": { "context": "...", "summary": "...", "recommendations": ["...", "..."] },
-    "RiskAndGovernance": { "context": "...", "summary": "...", "recommendations": ["...", "..."] },
-    "AIAgentGovernance": { "context": "...", "summary": "...", "recommendations": ["...", "..."] }
+    "PeopleAndCulture": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": ["...", "..."] },
+    "DataFoundation": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": ["...", "..."] },
+    "ProcessReadiness": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": ["...", "..."] },
+    "RiskAndGovernance": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": ["...", "..."] },
+    "AIAgentGovernance": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": ["...", "..."] }
   }
 }
 \`\`\`

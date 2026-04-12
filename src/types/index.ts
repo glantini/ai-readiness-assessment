@@ -188,6 +188,8 @@ export interface ReportNarrative {
     area: string
     finding: string
     recommendation: string
+    impactIfUnaddressed?: string
+    immediateNextStep?: string
   }
   quickWins: QuickWin[]
   categories: {

@@ -1,11 +1,11 @@
 /**
- * ProspectReport — Full React-PDF document for the prospect-facing AI Readiness Report.
+ * ProspectReport: Full React-PDF document for the prospect-facing AI Readiness Report.
  *
  * Pages:
  *   1   Cover (company, respondent, AE, score badges)
- *   2   Understanding AI in 2026 (intro, glossary, why this matters)
+ *   2   Understanding AI Today (intro, glossary, why this matters)
  *   3   Executive Summary + Operations Snapshot callout
- *   4   Score Summary — "Your AI Readiness at a Glance" (bar charts, benchmarks, methodology)
+ *   4   Score Summary, "Your AI Readiness at a Glance" (bar charts, benchmarks, methodology)
  *   5   Critical Gap
  *   6-11 Category Findings (one per page, with sidebars + context + benchmarks)
  *  12   Quick Wins vs Long-Term Investments
@@ -125,34 +125,34 @@ const EDUCATIONAL_SIDEBARS: Record<string, string> = {
   AIStrategy: 'What is an AI Strategy? An AI strategy is a deliberate plan that aligns artificial intelligence investments with business outcomes. Companies with a defined AI strategy are 2.3x more likely to report measurable ROI from AI initiatives within 18 months.',
   PeopleAndCulture: 'AI Adoption is a People Problem First: The most sophisticated AI tools fail without organizational readiness. Companies that invest in AI literacy, change management, and dedicated ownership before deploying technology see 3x higher adoption rates and significantly faster time to value.',
   DataFoundation: 'Why Data Quality Matters for AI: AI models are only as reliable as the data they learn from. Before deploying any AI agent or automation, organizations need accessible, accurate, and governed data. Poor data quality is the #1 reason AI projects fail in their first year.',
-  ProcessReadiness: 'AI Augments Process \u2014 It Doesn\u2019t Replace It: The most successful AI deployments start with well-documented, repeatable processes. AI agents work best when they have clear rules to follow and defined outcomes to optimize for.',
+  ProcessReadiness: 'AI Augments Process, It Does Not Replace It: The most successful AI deployments start with well-documented, repeatable processes. AI agents work best when they have clear rules to follow and defined outcomes to optimize for.',
   RiskAndGovernance: 'The Cost of Moving Fast Without Guardrails: Organizations that deploy AI without governance frameworks face regulatory exposure, reputational risk, and model failures that erode trust. A lightweight governance policy takes weeks to build and can prevent months of remediation.',
-  AIAgentGovernance: 'What Makes an Agent Trustworthy: An AI agent that acts autonomously on behalf of your business needs the same controls as any employee \u2014 defined scope, audit trails, escalation paths, and performance accountability. Without these, agents create liability, not leverage.',
+  AIAgentGovernance: 'What Makes an Agent Trustworthy: An AI agent that acts autonomously on behalf of your business needs the same controls as any employee: defined scope, audit trails, escalation paths, and performance accountability. Without these, agents create liability, not leverage.',
 }
 
 const AGENTFORCE_SIDEBARS: Record<string, string> = {
-  CorePrereqs: 'Why Prerequisites Matter Before Deploying Agentforce: Agentforce agents operate directly inside your Salesforce org \u2014 reading records, triggering automations, and taking action on behalf of your team. Without a strong CRM foundation, clean data, and governance guardrails already in place, agents will amplify existing problems rather than solve them.',
-  DataCloud: 'What is Salesforce Data Cloud? Data Cloud is Salesforce\u2019s real-time data platform that unifies customer data from every source \u2014 CRM, website, support, marketing, and third-party systems \u2014 into a single customer profile. It\u2019s the data foundation that makes Agentforce agents smarter and more personalized.',
-  SalesCloud: 'What Can an AI Sales Agent Do? Agentforce SDR Agent can autonomously qualify inbound leads, follow up on open opportunities, and surface next best actions for your sales team \u2014 all within Salesforce. The result is faster response times, consistent follow-through, and reps focused on closing rather than admin.',
-  ServiceCloud: 'What Can an AI Service Agent Do? Agentforce Service Agent handles routine customer inquiries autonomously across chat, email, and messaging channels \u2014 resolving cases without human intervention and escalating complex issues with full context already captured. Companies deploying service agents report 30\u201340% reduction in handle time.',
+  CorePrereqs: 'Why Prerequisites Matter Before Deploying Agentforce: Agentforce agents operate directly inside your Salesforce org, reading records, triggering automations, and taking action on behalf of your team. Without a strong CRM foundation, clean data, and governance guardrails already in place, agents will amplify existing problems rather than solve them.',
+  DataCloud: 'What is Salesforce Data Cloud? Data Cloud is Salesforce\'s real-time data platform that unifies customer data from every source (CRM, website, support, marketing, and third-party systems) into a single customer profile. It\'s the data foundation that makes Agentforce agents smarter and more personalized.',
+  SalesCloud: 'What Can an AI Sales Agent Do? Agentforce SDR Agent can autonomously qualify inbound leads, follow up on open opportunities, and surface next best actions for your sales team, all within Salesforce. The result is faster response times, consistent follow-through, and reps focused on closing rather than admin.',
+  ServiceCloud: 'What Can an AI Service Agent Do? Agentforce Service Agent handles routine customer inquiries autonomously across chat, email, and messaging channels, resolving cases without human intervention and escalating complex issues with full context already captured. Companies deploying service agents report 30 to 40% reduction in handle time.',
   MarketingCloud: 'What Can an AI Marketing Agent Do? Agentforce for Marketing automates audience segmentation, campaign optimization, and personalized journey triggers based on real-time customer behavior. Marketing teams using AI agents report higher engagement rates and significantly reduced time spent on manual campaign management.',
 }
 
 // "Why It Matters" closing lines for educational sidebars
 const SIDEBAR_CLOSING: Record<string, string> = {
   AIStrategy: 'Organizations without a defined AI strategy spend 3x longer evaluating tools than deploying them.',
-  PeopleAndCulture: 'The #1 reason AI initiatives stall is not technology — it is people. Change readiness determines deployment speed.',
-  DataFoundation: 'An AI system trained on incomplete data doesn\'t just underperform — it actively misleads. Clean data is not a nice-to-have, it is a prerequisite.',
+  PeopleAndCulture: 'The #1 reason AI initiatives stall is not technology. It is people. Change readiness determines deployment speed.',
+  DataFoundation: 'An AI system trained on incomplete data doesn\'t just underperform, it actively misleads. Clean data is not a nice-to-have, it is a prerequisite.',
   ProcessReadiness: 'AI agents follow rules. If your processes are undocumented, your agents will automate the chaos, not fix it.',
-  RiskAndGovernance: 'The cost of an AI incident — reputational, regulatory, or operational — far exceeds the cost of a governance framework built before deployment.',
+  RiskAndGovernance: 'The cost of an AI incident (reputational, regulatory, or operational) far exceeds the cost of a governance framework built before deployment.',
   AIAgentGovernance: 'An agent without an owner is a liability without a name. Accountability must be established before autonomy is granted.',
 }
 
 const AGENTFORCE_CLOSING: Record<string, string> = {
   CorePrereqs: 'A Salesforce org that is not ready for automation will not become ready by adding agents. Prerequisites exist for a reason.',
-  DataCloud: 'Agentforce agents are only as intelligent as the data they can access. A unified data layer is not optional — it is the foundation.',
+  DataCloud: 'Agentforce agents are only as intelligent as the data they can access. A unified data layer is not optional. It is the foundation.',
   SalesCloud: 'An SDR Agent working from incomplete CRM data will follow up on the wrong leads, miss the right ones, and erode rep trust in the tool within weeks.',
-  ServiceCloud: 'A Service Agent deployed without a Knowledge Base is not an agent — it is an expensive escalation machine.',
+  ServiceCloud: 'A Service Agent deployed without a Knowledge Base is not an agent. It is an expensive escalation machine.',
   MarketingCloud: 'AI-powered personalization requires clean, consented, segmented data. Without it, automation scales irrelevance, not engagement.',
 }
 
@@ -331,8 +331,7 @@ const s = StyleSheet.create({
   gridCell: {
     flex: 1,
     padding: 12,
-    borderRadius: 6,
-    borderWidth: 1,
+    borderRadius: 0,
     minHeight: 120,
   },
   gridLabel: {
@@ -480,7 +479,7 @@ const s = StyleSheet.create({
 function PageFooter({ companyName }: { companyName: string }) {
   return (
     <View style={s.footer} fixed>
-      <Text style={s.footerText}>Confidential — Prepared for {companyName}</Text>
+      <Text style={s.footerText}>Confidential, Prepared for {companyName}</Text>
       <Text style={s.footerText}>Powered by IMG</Text>
     </View>
   )
@@ -525,29 +524,52 @@ function HorizontalBar({
   const benchmarkPos = benchmark ? (benchmark / 5) * barWidth : 0
 
   return (
-    <View style={{ marginBottom: 10 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+    <View style={{ marginBottom: 12 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
         <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: COLORS.gray800 }}>{label}</Text>
-        <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color }}>{score.toFixed(1)}/5</Text>
       </View>
-      <View style={{ width: barWidth, height: 12, backgroundColor: COLORS.gray200, borderRadius: 6, position: 'relative' }}>
-        <View style={{ width: fillWidth, height: 12, backgroundColor: color, borderRadius: 6 }} />
+      <View style={{ position: 'relative' }}>
+        {/* Full 1-5 track */}
+        <View style={{ width: barWidth, height: 14, backgroundColor: COLORS.gray200, borderRadius: 7 }} />
+        {/* Filled bar */}
+        <View style={{ position: 'absolute', top: 0, left: 0, width: fillWidth, height: 14, backgroundColor: color, borderRadius: 7 }} />
+        {/* Score label at end of filled bar */}
+        <Text style={{
+          position: 'absolute',
+          top: 0,
+          left: fillWidth + 6,
+          fontSize: 10,
+          fontFamily: 'Helvetica-Bold',
+          color,
+          lineHeight: 14,
+        }}>
+          {score.toFixed(1)}
+        </Text>
+        {/* Benchmark marker */}
         {benchmark != null && benchmark > 0 && (
-          <View style={{
-            position: 'absolute',
-            left: benchmarkPos - 1,
-            top: -2,
-            width: 2,
-            height: 16,
-            backgroundColor: COLORS.gray700,
-          }} />
+          <>
+            <Text style={{
+              position: 'absolute',
+              left: benchmarkPos - 6,
+              top: -12,
+              fontSize: 7,
+              fontFamily: 'Helvetica-Bold',
+              color: COLORS.gray700,
+            }}>
+              {benchmark.toFixed(1)}
+            </Text>
+            <View style={{
+              position: 'absolute',
+              left: benchmarkPos - 1.5,
+              top: -2,
+              width: 3,
+              height: 18,
+              backgroundColor: COLORS.gray800,
+              borderRadius: 1,
+            }} />
+          </>
         )}
       </View>
-      {benchmark != null && benchmark > 0 && (
-        <Text style={{ fontSize: 7, color: COLORS.gray400, marginTop: 1 }}>
-          Industry avg: {benchmark.toFixed(1)}
-        </Text>
-      )}
     </View>
   )
 }
@@ -633,7 +655,7 @@ export function ProspectReport({
 
         <Text style={s.coverMeta}>PREPARED FOR</Text>
         <Text style={s.coverMetaValue}>
-          {respondentName}{respondentTitle ? ` — ${respondentTitle}` : ''}
+          {respondentName}{respondentTitle ? `, ${respondentTitle}` : ''}
         </Text>
 
         <Text style={s.coverMeta}>DATE</Text>
@@ -673,21 +695,21 @@ export function ProspectReport({
         </View>
       </Page>
 
-      {/* ── PAGE 2: Understanding AI in 2026 ──────────────────────────── */}
+      {/* ── PAGE 2: Understanding AI Today ──────────────────────────── */}
       <Page size="LETTER" style={s.page}>
         <Text style={s.sectionLabel}>REPORT INTRODUCTION</Text>
-        <Text style={s.sectionTitle}>Understanding AI in 2026</Text>
+        <Text style={s.sectionTitle}>Understanding AI in {new Date().getFullYear()}</Text>
 
         {/* ── THE AI LANDSCAPE ── */}
         <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 8 }}>
           The AI Landscape
         </Text>
         <Text style={[s.bodyText, { marginBottom: 20 }]}>
-          AI has moved beyond experimentation. In 2026, the organizations gaining competitive advantage are not
-          the ones running pilots — they are the ones deploying AI agents that take autonomous action on behalf
+          AI has moved beyond experimentation. In {new Date().getFullYear()}, the organizations gaining competitive advantage are not
+          the ones running pilots. They are the ones deploying AI agents that take autonomous action on behalf
           of the business. Across every industry, the conversation has shifted from &quot;should we use AI?&quot;
           to &quot;how quickly can we operationalize it?&quot; The gap between companies that treat AI as
-          infrastructure and those still exploring it is widening rapidly — and that gap directly impacts
+          infrastructure and those still exploring it is widening rapidly, and that gap directly impacts
           revenue, efficiency, and talent retention.
         </Text>
 
@@ -703,7 +725,7 @@ export function ProspectReport({
             &quot;Most AI projects don&apos;t fail because the technology doesn&apos;t work. They fail because the organization wasn&apos;t ready for it.&quot;
           </Text>
           <Text style={{ fontSize: 8, letterSpacing: 1.5, color: COLORS.gray400, marginTop: 6 }}>
-            — IMG AI READINESS RESEARCH, 2026
+            IMG AI READINESS RESEARCH, {new Date().getFullYear()}
           </Text>
         </View>
 
@@ -716,13 +738,13 @@ export function ProspectReport({
         </Text>
 
         {[
-          ['Artificial Intelligence (AI)', 'Software systems that perform tasks that typically require human intelligence — pattern recognition, decision-making, language understanding, and prediction. Modern AI learns from data rather than following rigid rules.'],
+          ['Artificial Intelligence (AI)', 'Software systems that perform tasks that typically require human intelligence: pattern recognition, decision-making, language understanding, and prediction. Modern AI learns from data rather than following rigid rules.'],
           ['Large Language Model (LLM)', 'The technology behind tools like ChatGPT, Claude, and Copilot. LLMs are trained on vast amounts of text and can generate, summarize, translate, and reason about language at a human level. They are the foundation of most modern AI assistants and agents.'],
-          ['AI Agent', 'An AI system that can take autonomous action — not just answer questions, but execute tasks, make decisions, and interact with systems on behalf of a user or organization. Agents can be given a goal and work through multiple steps to achieve it without constant human direction.'],
-          ['Agentforce', "Salesforce's native AI agent platform. Agentforce agents live inside your Salesforce org and can autonomously handle sales follow-up, customer service inquiries, and marketing actions using your actual CRM data — without switching tools or systems."],
+          ['AI Agent', 'An AI system that can take autonomous action, not just answer questions, but execute tasks, make decisions, and interact with systems on behalf of a user or organization. Agents can be given a goal and work through multiple steps to achieve it without constant human direction.'],
+          ['Agentforce', "Salesforce's native AI agent platform. Agentforce agents live inside your Salesforce org and can autonomously handle sales follow-up, customer service inquiries, and marketing actions using your actual CRM data, without switching tools or systems."],
           ['Prompt', "The instruction or question given to an AI model. The quality and specificity of a prompt directly affects the quality of the AI's output. Organizations that develop internal prompt standards see more consistent and reliable AI results."],
-          ['Retrieval-Augmented Generation (RAG)', "A technique that allows AI models to pull from a specific knowledge base — your company's documents, policies, or data — rather than relying solely on general training. RAG makes AI outputs more accurate, relevant, and grounded in your actual business context."],
-          ['Einstein Trust Layer', "Salesforce's built-in security and compliance framework for AI. It ensures that data sent to AI models is masked, not retained by third parties, and auditable — giving IT and legal teams confidence that AI operates within established guardrails."],
+          ['Retrieval-Augmented Generation (RAG)', "A technique that allows AI models to pull from a specific knowledge base (your company's documents, policies, or data) rather than relying solely on general training. RAG makes AI outputs more accurate, relevant, and grounded in your actual business context."],
+          ['Einstein Trust Layer', "Salesforce's built-in security and compliance framework for AI. It ensures that data sent to AI models is masked, not retained by third parties, and auditable, giving IT and legal teams confidence that AI operates within established guardrails."],
           ['Data Foundation', 'The combination of data quality, accessibility, governance, and infrastructure that determines how effectively AI can operate within an organization. A strong data foundation is the single most important prerequisite for successful AI deployment.'],
           ['AI Governance', 'The policies, processes, and controls an organization puts in place to ensure AI systems operate safely, ethically, and accountably. Governance covers who owns AI decisions, how models are monitored, and what happens when an agent makes a mistake.'],
         ].map(([term, definition], i) => (
@@ -745,10 +767,10 @@ export function ProspectReport({
         </Text>
         <Text style={s.bodyText}>
           This report is designed to give business leaders a clear, honest view of where their organization
-          stands today — not to sell a specific technology, but to identify the gaps and opportunities that
+          stands today, not to sell a specific technology, but to identify the gaps and opportunities that
           will determine how effectively you can compete in an AI-enabled market. The findings and
           recommendations that follow are grounded in your actual responses, benchmarked against industry
-          standards, and structured to drive action. IMG serves as a guide through this landscape — helping
+          standards, and structured to drive action. IMG serves as a guide through this landscape, helping
           you see what matters, what to prioritize, and where to start.
         </Text>
 
@@ -814,7 +836,7 @@ export function ProspectReport({
         <PageFooter companyName={companyName} />
       </Page>
 
-      {/* ── PAGE 4: Score Summary — "Your AI Readiness at a Glance" ──── */}
+      {/* ── PAGE 4: Score Summary ──────────────────────────────────── */}
       <Page size="LETTER" style={s.page}>
         <Text style={s.sectionLabel}>SCORE SUMMARY</Text>
         <Text style={s.sectionTitle}>Your AI Readiness at a Glance</Text>
@@ -853,21 +875,21 @@ export function ProspectReport({
         ))}
 
         {/* Tier legend */}
-        <View style={{ flexDirection: 'row', gap: 12, marginTop: 8, marginBottom: 20 }}>
+        <View style={{ flexDirection: 'row', gap: 14, marginTop: 10, marginBottom: 20, flexWrap: 'wrap' }}>
           {[
             { label: 'Exploring (1-2)', color: COLORS.exploring },
             { label: 'Building (2.1-3)', color: COLORS.building },
             { label: 'Scaling (3.1-4)', color: COLORS.scaling },
             { label: 'Leading (4.1-5)', color: COLORS.leading },
           ].map((t) => (
-            <View key={t.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: t.color }} />
-              <Text style={{ fontSize: 7, color: COLORS.gray500 }}>{t.label}</Text>
+            <View key={t.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <View style={{ width: 12, height: 10, borderRadius: 2, backgroundColor: t.color }} />
+              <Text style={{ fontSize: 8, color: COLORS.gray700 }}>{t.label}</Text>
             </View>
           ))}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-            <View style={{ width: 8, height: 2, backgroundColor: COLORS.gray700 }} />
-            <Text style={{ fontSize: 7, color: COLORS.gray500 }}>Industry Avg</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <View style={{ width: 12, height: 3, backgroundColor: COLORS.gray800, borderRadius: 1 }} />
+            <Text style={{ fontSize: 8, color: COLORS.gray700 }}>Industry Avg</Text>
           </View>
         </View>
 
@@ -891,7 +913,7 @@ export function ProspectReport({
             {l2Scores.edition_flag && (
               <View style={{ backgroundColor: COLORS.amberLight, borderRadius: 4, padding: 8, marginBottom: 12 }}>
                 <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.amberDark }}>
-                  Edition flag: {assessment.salesforce_edition} — scores capped at 2.5
+                  Edition flag: {assessment.salesforce_edition}, scores capped at 2.5
                 </Text>
               </View>
             )}
@@ -918,25 +940,19 @@ export function ProspectReport({
         {/* Assessment Methodology Note */}
         <View style={{
           backgroundColor: COLORS.gray50,
-          borderRadius: 6,
-          padding: 14,
-          marginTop: 20,
+          borderRadius: 4,
+          padding: 10,
+          marginTop: 14,
         }}>
-          <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 6 }}>
+          <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 4 }}>
             About This Assessment
           </Text>
-          <Text style={{ fontSize: 9, lineHeight: 1.6, color: COLORS.gray700 }}>
+          <Text style={{ fontSize: 7.5, lineHeight: 1.5, color: COLORS.gray700 }}>
             This report is based on {layer1QuestionCount} scored responses across 6 dimensions of AI readiness
             {isSalesforce && layer2QuestionCount > 0
               ? `, plus ${layer2QuestionCount} Agentforce-specific questions across ${(activeClouds.filter(c => c !== 'DataCloud').length || 0) + 2} sections`
               : ''
-            }. Each question was scored on a 1–5 scale:{'\n\n'}
-            1 = No awareness or capability{'\n'}
-            2 = Early / ad hoc{'\n'}
-            3 = In development / inconsistent{'\n'}
-            4 = Mostly in place{'\n'}
-            5 = Fully implemented / leading practice{'\n\n'}
-            Category scores represent the average of all responses within that dimension. The Overall AI Maturity score is a weighted composite: AI Strategy (20%), People and Culture (20%), Data Foundation (20%), Process Readiness (20%), Risk and Governance (10%), AI Agent Governance (10%). Industry benchmarks reflect aggregate data from assessments conducted across similar organizations.
+            }. Each question was scored on a 1 to 5 scale: 1 = No awareness or capability, 2 = Early / ad hoc, 3 = In development / inconsistent, 4 = Mostly in place, 5 = Fully implemented / leading practice.{'\n\n'}Category scores represent the average of all responses within that dimension. The Overall AI Maturity score is a weighted composite: AI Strategy (20%), People and Culture (20%), Data Foundation (20%), Process Readiness (20%), Risk and Governance (10%), AI Agent Governance (10%). Industry benchmarks reflect aggregate data from assessments conducted across similar organizations.
           </Text>
         </View>
 
@@ -957,6 +973,44 @@ export function ProspectReport({
           <Text style={s.calloutLabel}>RECOMMENDED ACTION</Text>
           <Text style={[s.calloutBody, { fontFamily: 'Helvetica-Bold', marginBottom: 0 }]}>
             {narrative.criticalGap.recommendation}
+          </Text>
+        </View>
+
+        {/* Impact if Unaddressed */}
+        <View style={{
+          backgroundColor: '#FFF7ED',
+          borderWidth: 1,
+          borderColor: '#FDBA74',
+          borderRadius: 8,
+          padding: 20,
+          marginTop: 16,
+        }}>
+          <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#9A3412', marginBottom: 8 }}>
+            Impact if Unaddressed
+          </Text>
+          <Text style={{ fontSize: 10, lineHeight: 1.6, color: '#7C2D12' }}>
+            {narrative.criticalGap.impactIfUnaddressed
+              ? narrative.criticalGap.impactIfUnaddressed
+              : `Without closing the gap in ${narrative.criticalGap.area}, your organization risks falling further behind industry benchmarks. Teams will continue to operate without the foundation needed for reliable AI deployment, leading to wasted investment, inconsistent results, and growing competitive disadvantage as peers accelerate their AI capabilities.`}
+          </Text>
+        </View>
+
+        {/* Immediate Next Step */}
+        <View style={{
+          backgroundColor: '#F0FDF4',
+          borderWidth: 1,
+          borderColor: '#86EFAC',
+          borderRadius: 8,
+          padding: 20,
+          marginTop: 12,
+        }}>
+          <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#166534', marginBottom: 8 }}>
+            Immediate Next Step
+          </Text>
+          <Text style={{ fontSize: 10, lineHeight: 1.6, color: '#14532D' }}>
+            {narrative.criticalGap.immediateNextStep
+              ? narrative.criticalGap.immediateNextStep
+              : `This week: schedule a 30-minute internal review of your current ${narrative.criticalGap.area.toLowerCase()} capabilities. Identify the single highest-priority blocker and assign an owner to scope the effort required to resolve it within the next 30 days.`}
           </Text>
         </View>
 
@@ -1024,7 +1078,7 @@ export function ProspectReport({
             {/* Industry Benchmark comparison */}
             {benchmarkScore != null && diffLabel && (
               <Text style={{ fontSize: 9, color: COLORS.gray400, marginBottom: 14 }}>
-                Industry Average ({industryLabel}): {benchmarkScore.toFixed(1)} — You scored {diffLabel}
+                Industry Average ({industryLabel}): {benchmarkScore.toFixed(1)}. You scored {diffLabel}
               </Text>
             )}
 
@@ -1081,7 +1135,7 @@ export function ProspectReport({
                     VALIDATE
                   </Text>
                   <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
-                    Confirm your Salesforce foundation meets Agentforce prerequisites — edition, data completeness, automation maturity, and trust layer readiness.
+                    Confirm your Salesforce foundation meets Agentforce prerequisites: edition, data completeness, automation maturity, and trust layer readiness.
                   </Text>
                 </View>
                 {/* Arrow */}
@@ -1107,7 +1161,7 @@ export function ProspectReport({
                     SCALE
                   </Text>
                   <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
-                    Expand based on measured outcomes — task success rate, time saved, CSAT improvement — not assumption or vendor pressure.
+                    Expand based on measured outcomes (task success rate, time saved, CSAT improvement), not assumption or vendor pressure.
                   </Text>
                 </View>
               </View>
@@ -1149,7 +1203,7 @@ export function ProspectReport({
             {agentforceNarrative.editionFlag && (
               <View style={[s.editionCallout, { marginTop: 16 }]}>
                 <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.amberDark, marginBottom: 4 }}>
-                  Edition Limitation — {assessment.salesforce_edition}
+                  Edition Limitation: {assessment.salesforce_edition}
                 </Text>
                 <Text style={{ fontSize: 9, lineHeight: 1.5, color: COLORS.amberDark }}>
                   {agentforceNarrative.editionFlag}
@@ -1331,11 +1385,11 @@ export function ProspectReport({
         <Text style={s.sectionTitle}>Moving Forward</Text>
 
         <Text style={[s.bodyText, { marginBottom: 10 }]}>
-          Your scores are not a verdict — they are a starting point. Every gap identified in this report is an opportunity to build the foundation that makes AI work for your business. The organizations that move deliberately, with the right implementation partner, consistently outperform those that move fast without direction.
+          Your scores are not a verdict. They are a starting point. Every gap identified in this report is an opportunity to build the foundation that makes AI work for your business. The organizations that move deliberately, with the right implementation partner, consistently outperform those that move fast without direction.
         </Text>
 
         <Text style={[s.bodyText, { marginBottom: 16 }]}>
-          IMG works with organizations at every stage of AI readiness — from foundation-building to full Agentforce deployment. Your Salesforce AE can connect you with an IMG specialist to review this report and build a deployment plan tailored to your timeline and goals.
+          IMG works with organizations at every stage of AI readiness, from foundation-building to full Agentforce deployment.
         </Text>
 
         <View style={s.ctaBox}>
@@ -1387,7 +1441,7 @@ function QuickWinsGrid({ quickWins }: { quickWins: QuickWin[] }) {
 
       <View style={[s.gridRow, { marginBottom: 8 }]}>
         {/* Quick Wins (Low Effort, High Impact) */}
-        <View style={[s.gridCell, { borderColor: '#86efac', backgroundColor: COLORS.greenLight }]}>
+        <View style={[s.gridCell, { backgroundColor: COLORS.greenLight }]}>
           <Text style={[s.gridLabel, { color: COLORS.greenDark }]}>Quick Wins</Text>
           <Text style={s.gridSubtitle}>Low Effort / High Impact</Text>
           {topQuickWins.map((w, i) => (
@@ -1406,7 +1460,7 @@ function QuickWinsGrid({ quickWins }: { quickWins: QuickWin[] }) {
         </View>
 
         {/* Strategic Bets (High Effort, High Impact) */}
-        <View style={[s.gridCell, { borderColor: '#93c5fd', backgroundColor: COLORS.blueLight }]}>
+        <View style={[s.gridCell, { backgroundColor: COLORS.blueLight }]}>
           <Text style={[s.gridLabel, { color: COLORS.blueDark }]}>Strategic Bets</Text>
           <Text style={s.gridSubtitle}>High Effort / High Impact</Text>
           {topStrategic.map((w, i) => (
@@ -1427,7 +1481,7 @@ function QuickWinsGrid({ quickWins }: { quickWins: QuickWin[] }) {
 
       <View style={s.gridRow}>
         {/* Fill-Ins (Low Effort, Low Impact) */}
-        <View style={[s.gridCell, { borderColor: COLORS.gray200, backgroundColor: COLORS.gray50 }]}>
+        <View style={[s.gridCell, { backgroundColor: COLORS.gray50 }]}>
           <Text style={[s.gridLabel, { color: COLORS.gray700 }]}>Fill-Ins</Text>
           <Text style={s.gridSubtitle}>Low Effort / Low Impact</Text>
           {fillInItems.map((w, i) => (
@@ -1439,7 +1493,7 @@ function QuickWinsGrid({ quickWins }: { quickWins: QuickWin[] }) {
         </View>
 
         {/* Deprioritize (High Effort, Low Impact) */}
-        <View style={[s.gridCell, { borderColor: '#fca5a5', backgroundColor: COLORS.redLight }]}>
+        <View style={[s.gridCell, { backgroundColor: COLORS.redLight }]}>
           <Text style={[s.gridLabel, { color: COLORS.redDark }]}>Deprioritize</Text>
           <Text style={s.gridSubtitle}>High Effort / Low Impact</Text>
           {deprioritizeItems.map((w, i) => (
