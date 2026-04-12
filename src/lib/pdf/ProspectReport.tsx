@@ -3,13 +3,14 @@
  *
  * Pages:
  *   1   Cover (company, respondent, AE, score badges)
- *   2   Executive Summary
- *   3   Critical Gap
- *   4-9 Category Findings (one per page)
- *  10   Quick Wins vs Long-Term Investments
- *  11-13 Agentforce section (Salesforce only)
- *  14   Phased Implementation Roadmap (Salesforce only)
- *  15   Next Steps
+ *   2   Understanding AI in 2026 (intro, glossary, why this matters)
+ *   3   Executive Summary
+ *   4   Critical Gap
+ *   5-10 Category Findings (one per page)
+ *  11   Quick Wins vs Long-Term Investments
+ *  12-14 Agentforce section (Salesforce only)
+ *  15   Phased Implementation Roadmap (Salesforce only)
+ *  16   Next Steps
  */
 
 import React from 'react'
@@ -536,7 +537,73 @@ export function ProspectReport({
         </View>
       </Page>
 
-      {/* ── PAGE 2: Executive Summary ──────────────────────────────────── */}
+      {/* ── PAGE 2: Understanding AI in 2026 ──────────────────────────── */}
+      <Page size="LETTER" style={s.page}>
+        <Text style={s.sectionLabel}>REPORT INTRODUCTION</Text>
+        <Text style={s.sectionTitle}>Understanding AI in 2026</Text>
+
+        {/* ── THE AI LANDSCAPE ── */}
+        <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 8 }}>
+          The AI Landscape
+        </Text>
+        <Text style={[s.bodyText, { marginBottom: 20 }]}>
+          AI has moved beyond experimentation. In 2026, the organizations gaining competitive advantage are not
+          the ones running pilots — they are the ones deploying AI agents that take autonomous action on behalf
+          of the business. Across every industry, the conversation has shifted from &quot;should we use AI?&quot;
+          to &quot;how quickly can we operationalize it?&quot; The gap between companies that treat AI as
+          infrastructure and those still exploring it is widening rapidly — and that gap directly impacts
+          revenue, efficiency, and talent retention.
+        </Text>
+
+        {/* ── Divider ── */}
+        <View style={{ borderBottomWidth: 1, borderBottomColor: COLORS.gray200, marginBottom: 16 }} />
+
+        {/* ── KEY TERMINOLOGY ── */}
+        <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 12 }}>
+          Key Terminology
+        </Text>
+
+        {[
+          ['Artificial Intelligence (AI)', 'Software systems that perform tasks that typically require human intelligence — pattern recognition, decision-making, language understanding, and prediction. Modern AI learns from data rather than following rigid rules.'],
+          ['Large Language Model (LLM)', 'The technology behind tools like ChatGPT, Claude, and Copilot. LLMs are trained on vast amounts of text and can generate, summarize, translate, and reason about language at a human level. They are the foundation of most modern AI assistants and agents.'],
+          ['AI Agent', 'An AI system that can take autonomous action — not just answer questions, but execute tasks, make decisions, and interact with systems on behalf of a user or organization. Agents can be given a goal and work through multiple steps to achieve it without constant human direction.'],
+          ['Agentforce', "Salesforce's native AI agent platform. Agentforce agents live inside your Salesforce org and can autonomously handle sales follow-up, customer service inquiries, and marketing actions using your actual CRM data — without switching tools or systems."],
+          ['Prompt', "The instruction or question given to an AI model. The quality and specificity of a prompt directly affects the quality of the AI's output. Organizations that develop internal prompt standards see more consistent and reliable AI results."],
+          ['Retrieval-Augmented Generation (RAG)', "A technique that allows AI models to pull from a specific knowledge base — your company's documents, policies, or data — rather than relying solely on general training. RAG makes AI outputs more accurate, relevant, and grounded in your actual business context."],
+          ['Einstein Trust Layer', "Salesforce's built-in security and compliance framework for AI. It ensures that data sent to AI models is masked, not retained by third parties, and auditable — giving IT and legal teams confidence that AI operates within established guardrails."],
+          ['Data Foundation', 'The combination of data quality, accessibility, governance, and infrastructure that determines how effectively AI can operate within an organization. A strong data foundation is the single most important prerequisite for successful AI deployment.'],
+          ['AI Governance', 'The policies, processes, and controls an organization puts in place to ensure AI systems operate safely, ethically, and accountably. Governance covers who owns AI decisions, how models are monitored, and what happens when an agent makes a mistake.'],
+        ].map(([term, definition], i) => (
+          <View key={i} style={{ flexDirection: 'row', marginBottom: 6 }}>
+            <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, width: 135, paddingRight: 10 }}>
+              {term}
+            </Text>
+            <Text style={{ fontSize: 8, lineHeight: 1.5, color: COLORS.gray700, flex: 1 }}>
+              {definition}
+            </Text>
+          </View>
+        ))}
+
+        {/* ── Divider ── */}
+        <View style={{ borderBottomWidth: 1, borderBottomColor: COLORS.gray200, marginTop: 12, marginBottom: 16 }} />
+
+        {/* ── WHY THIS ASSESSMENT MATTERS ── */}
+        <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 8 }}>
+          Why This Assessment Matters
+        </Text>
+        <Text style={s.bodyText}>
+          This report is designed to give business leaders a clear, honest view of where their organization
+          stands today — not to sell a specific technology, but to identify the gaps and opportunities that
+          will determine how effectively you can compete in an AI-enabled market. The findings and
+          recommendations that follow are grounded in your actual responses, benchmarked against industry
+          standards, and structured to drive action. IMG serves as a guide through this landscape — helping
+          you see what matters, what to prioritize, and where to start.
+        </Text>
+
+        <PageFooter companyName={companyName} />
+      </Page>
+
+      {/* ── PAGE 3: Executive Summary ──────────────────────────────────── */}
       <Page size="LETTER" style={s.page}>
         <Text style={s.sectionLabel}>EXECUTIVE SUMMARY</Text>
         <Text style={s.sectionTitle}>Your AI Readiness at a Glance</Text>
