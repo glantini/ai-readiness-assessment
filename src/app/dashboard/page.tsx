@@ -15,19 +15,6 @@ const STATUS_CLASS: Record<string, string> = {
   completed:   'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20',
 }
 
-const MATURITY_TIER_COLOR: Record<string, string> = {
-  Exploring: '#DC2626',
-  Building:  '#EA580C',
-  Scaling:   '#CA8A04',
-  Leading:   '#16A34A',
-}
-
-const AGENTFORCE_TIER_COLOR: Record<string, string> = {
-  'Not Ready':        '#DC2626',
-  'Getting Ready':    '#EA580C',
-  'Nearly Ready':     '#CA8A04',
-  'Ready to Deploy':  '#16A34A',
-}
 
 export default async function DashboardPage() {
   const supabase = createClient()
