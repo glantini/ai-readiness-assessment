@@ -8,6 +8,8 @@
  *   ?type=ae  — returns the AE Intelligence PDF instead
  */
 
+export const dynamic = 'force-dynamic'
+
 import { NextRequest } from 'next/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
@@ -100,6 +102,15 @@ export async function GET(
   if (!narrative) {
     return Response.json({ error: 'Narrative not generated yet' }, { status: 400 })
   }
+
+  // Debug: confirm which recommendation format is being served in the PDF
+  const sampleCat = narrative.categories?.AIStrategy
+  console.log('[pdf/route] Rendering PDF with recommendation format:', {
+    assessmentId,
+    reportStatus: report.report_status,
+    sampleRecommendation: sampleCat?.recommendations?.[0],
+    isRichFormat: typeof sampleCat?.recommendations?.[0] === 'object',
+  })
 
   // ── Render PDF ─────────────────────────────────────────────────────────────
   let buffer: Buffer

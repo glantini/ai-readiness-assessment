@@ -120,7 +120,7 @@ export async function POST(
 
       const stream = anthropic.messages.stream({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 3000,
+        max_tokens: 4096,
         system: REPORT_SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userPrompt }],
       })
@@ -146,6 +146,16 @@ export async function POST(
         })
         return
       }
+
+      // Debug: confirm the new recommendation structure before saving
+      const sampleCat = block1.categories?.AIStrategy
+      console.log('[generate/stream] Saving narrative. Sample recommendation format:', {
+        assessmentId,
+        hasBlock1: !!block1,
+        hasBlock2: !!block2,
+        sampleRecommendation: sampleCat?.recommendations?.[0],
+        isRichFormat: typeof sampleCat?.recommendations?.[0] === 'object',
+      })
 
       // Save to reports table
       const { error: saveErr } = await supabase

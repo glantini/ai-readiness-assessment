@@ -262,13 +262,33 @@ export async function calculateLayer1Scores(
 
   if (error) throw new Error(`Failed to fetch Layer 1 responses: ${error.message}`)
 
+  // Debug: log raw response data to diagnose 0.0 scoring issues
+  console.log('[scoring] Layer 1 raw fetch:', {
+    assessmentId,
+    rowCount: rows?.length ?? 0,
+    sampleRows: (rows ?? []).slice(0, 3).map((r) => ({
+      question_id: r.question_id,
+      value: r.value,
+      valueType: typeof r.value,
+    })),
+  })
+
   const responses: Record<string, number> = {}
   for (const row of rows ?? []) {
     const v = typeof row.value === 'number' ? row.value : Number(row.value)
     if (!Number.isNaN(v)) responses[row.question_id] = v
   }
 
-  return scoreLayer1(responses)
+  const result = scoreLayer1(responses)
+
+  console.log('[scoring] Layer 1 result:', {
+    assessmentId,
+    parsedResponseCount: Object.keys(responses).length,
+    overall: result.overall,
+    categories: result.categories.map((c) => `${c.category}: ${c.raw}`),
+  })
+
+  return result
 }
 
 /**

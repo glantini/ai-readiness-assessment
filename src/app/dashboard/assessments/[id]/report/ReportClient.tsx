@@ -476,6 +476,14 @@ export function ReportClient({
   // When router.refresh() completes and we get new props, transition to view
   useEffect(() => {
     if (initialNarrative && phase === 'generating') {
+      // Debug: log which recommendation format was received from the server
+      const sampleCat = initialNarrative.categories?.AIStrategy
+      const sampleRec = sampleCat?.recommendations?.[0]
+      console.log('[ReportClient] Received narrative from server:', {
+        isRichFormat: typeof sampleRec === 'object' && sampleRec !== null && 'action' in sampleRec,
+        sampleRecommendation: sampleRec,
+        format: typeof sampleRec === 'string' ? 'LEGACY (string[])' : 'NEW (RichRecommendation[])',
+      })
       setNarrative(initialNarrative)
       setAgentforceNarrative(initialAgentforceNarrative)
       setPhase('view')

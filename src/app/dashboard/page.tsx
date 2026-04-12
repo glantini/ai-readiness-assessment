@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { CopyTokenUrl } from './CopyTokenUrl'
 import type { Layer1Scores, Layer2Scores } from '@/types'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -80,18 +79,18 @@ export default async function DashboardPage() {
         {/* ── Table ────────────────────────────────────────────────────── */}
         {assessments && assessments.length > 0 && (
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="w-full divide-y divide-gray-200 table-fixed">
               <thead className="bg-gray-50">
                 <tr>
-                  {['Contact', 'Company', 'AE', 'Status', 'AI Maturity', 'Agentforce', 'Token URL', 'Created', ''].map((col) => (
-                    <th
-                      key={col}
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      {col}
-                    </th>
-                  ))}
+                  <th scope="col" className="w-[18%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Contact</th>
+                  <th scope="col" className="w-[14%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Company</th>
+                  <th scope="col" className="w-[10%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">AE</th>
+                  <th scope="col" className="w-[9%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                  <th scope="col" className="w-[8%] px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">AI Score</th>
+                  <th scope="col" className="w-[8%] px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">SF Score</th>
+                  <th scope="col" className="w-[13%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Assessment</th>
+                  <th scope="col" className="w-[12%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Created</th>
+                  <th scope="col" className="w-[8%] px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"><span className="sr-only">Actions</span></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -112,60 +111,70 @@ export default async function DashboardPage() {
 
                   return (
                     <tr key={a.id} className="transition-colors hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <p className="text-sm font-medium text-gray-900">{fullName}</p>
+                      <td className="px-4 py-3">
+                        <p className="truncate text-sm font-medium text-gray-900">{fullName}</p>
                         {a.contact_email && (
-                          <p className="mt-0.5 text-xs text-gray-500">{a.contact_email}</p>
+                          <p className="mt-0.5 truncate text-xs text-gray-500">{a.contact_email}</p>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
-                        {a.company_name ?? '—'}
+                      <td className="px-4 py-3 text-sm text-gray-700">
+                        <span className="line-clamp-2">{a.company_name ?? '—'}</span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      <td className="px-4 py-3 text-sm text-gray-700 truncate">
                         {a.ae_name ?? '—'}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass}`}
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ${statusClass}`}
                         >
                           {statusLabel}
                         </span>
                       </td>
 
-                      {/* AI Maturity */}
-                      <td className="px-6 py-4">
+                      {/* AI Score */}
+                      <td className="px-4 py-3 text-center">
                         {l1 ? (
                           <span className="text-sm font-semibold text-gray-900">
                             {l1.overall.toFixed(1)}
                           </span>
                         ) : (
-                          <span className="text-xs text-gray-400">Not scored</span>
+                          <span className="text-xs text-gray-400">—</span>
                         )}
                       </td>
 
-                      {/* Agentforce Readiness */}
-                      <td className="px-6 py-4">
+                      {/* SF Score */}
+                      <td className="px-4 py-3 text-center">
                         {a.uses_salesforce ? (
                           l2 ? (
                             <span className="text-sm font-semibold text-gray-900">
                               {l2.overall.toFixed(1)}
                             </span>
                           ) : (
-                            <span className="text-xs text-gray-400">Pending</span>
+                            <span className="text-xs text-gray-400">—</span>
                           )
                         ) : (
                           <span className="text-xs text-gray-300">—</span>
                         )}
                       </td>
 
-                      <td className="px-6 py-4">
-                        <CopyTokenUrl token={a.token} />
+                      {/* Open Assessment link */}
+                      <td className="px-4 py-3">
+                        <a
+                          href={`/assess/${a.token}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium hover:underline"
+                          style={{ color: '#EA580C' }}
+                        >
+                          Open Assessment
+                        </a>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{created}</td>
-                      <td className="px-6 py-4 text-right">
+
+                      <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{created}</td>
+                      <td className="px-4 py-3 text-right">
                         <Link
                           href={`/dashboard/assessments/${a.id}`}
-                          className="text-sm text-blue-700 hover:underline"
+                          className="text-sm font-medium text-blue-700 hover:underline whitespace-nowrap"
                         >
                           View
                         </Link>

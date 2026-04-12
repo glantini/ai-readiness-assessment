@@ -104,7 +104,7 @@ export async function generateReport(assessmentId: string): Promise<{
   try {
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 3000,
+      max_tokens: 4096,
       system: REPORT_SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userPrompt }],
     })
@@ -124,6 +124,16 @@ export async function generateReport(assessmentId: string): Promise<{
   }
 
   // ── 8. Save to reports table ─────────────────────────────────────────────
+  // Debug: confirm the new recommendation structure before saving
+  const sampleCat = block1.categories?.AIStrategy
+  console.log('[generateReport] Saving narrative. Sample recommendation format:', {
+    assessmentId,
+    hasBlock1: !!block1,
+    hasBlock2: !!block2,
+    sampleRecommendation: sampleCat?.recommendations?.[0],
+    isRichFormat: typeof sampleCat?.recommendations?.[0] === 'object',
+  })
+
   const { error: saveErr } = await supabase
     .from('reports')
     .update({

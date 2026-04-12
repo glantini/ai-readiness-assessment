@@ -277,19 +277,32 @@ export function parseNarrativeBlocks(fullText: string): ParsedNarratives {
   let block1: ReportNarrative | null = null
   let block2: AgentforceNarrative | null = null
 
+  console.log('[reportGeneration] Parsing narrative blocks:', {
+    rawTextLength: fullText.length,
+    jsonBlocksFound: captured.length,
+    block1Length: captured[0]?.length ?? 0,
+    block2Length: captured[1]?.length ?? 0,
+    rawTextStart: fullText.substring(0, 200),
+  })
+
   if (captured[0]) {
     try {
       block1 = JSON.parse(captured[0])
     } catch (e) {
       console.error('[reportGeneration] Failed to parse Block 1 JSON:', e)
+      console.error('[reportGeneration] Block 1 raw start:', captured[0].substring(0, 500))
     }
+  } else {
+    console.error('[reportGeneration] No JSON blocks found in Claude response. Raw start:', fullText.substring(0, 500))
   }
 
   if (captured[1]) {
     try {
       block2 = JSON.parse(captured[1])
     } catch (e) {
-      console.error('[reportGeneration] Failed to parse Block 2 JSON:', e)
+      // Block 2 parse failure should not block Block 1 from being saved
+      console.error('[reportGeneration] Failed to parse Block 2 JSON (non-fatal):', e)
+      console.error('[reportGeneration] Block 2 raw start:', captured[1].substring(0, 500))
     }
   }
 
