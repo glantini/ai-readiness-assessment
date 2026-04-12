@@ -87,13 +87,11 @@ CREATE TABLE IF NOT EXISTS reports (
   id            uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   assessment_id uuid REFERENCES assessments(id) ON DELETE CASCADE UNIQUE NOT NULL,
 
-  -- Scored output from /lib/scoring.ts (individual columns for easier querying)
-  ai_overall_score        numeric,          -- Layer 1 weighted average (1–5)
-  ai_category_scores      jsonb,            -- CategoryScore[]
-  agentforce_index        numeric,          -- Layer 2 weighted average (1–5), null for non-SF
-  agentforce_section_scores jsonb,          -- SectionScore[], null for non-SF
-  agentforce_product_scores jsonb,          -- ProductScore[], null for non-SF
-  edition_flag            boolean,          -- true = edition capped at 2.5
+  -- Scored output from /lib/scoring.ts
+  layer1_scores  jsonb,
+  layer2_scores  jsonb,
+  product_scores jsonb,
+  overall_tier   text,
 
   -- AI narrative (populated after /api/reports/[id]/generate)
   ai_narrative_json         jsonb,

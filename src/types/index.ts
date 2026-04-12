@@ -151,12 +151,10 @@ export interface Layer2Scores {
 export interface Report {
   id: string
   assessment_id: string
-  ai_overall_score: number | null
-  ai_category_scores: CategoryScore[] | null
-  agentforce_index: number | null
-  agentforce_section_scores: SectionScore[] | null
-  agentforce_product_scores: ProductScore[] | null
-  edition_flag: boolean | null
+  layer1_scores: Layer1Scores | null
+  layer2_scores: Layer2Scores | null
+  product_scores: ProductScore[] | null
+  overall_tier: ReadinessTier | null
   ai_narrative_json: ReportNarrative | null
   agentforce_narrative_json: AgentforceNarrative | null
   report_status: ReportStatus | null
