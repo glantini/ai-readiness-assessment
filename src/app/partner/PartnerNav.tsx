@@ -24,10 +24,10 @@ export default function PartnerNav({ partner }: { partner: ReferralPartner }) {
   const pathname = usePathname()
 
   return (
-    <header className="border-b border-gray-200 bg-white">
+    <header className="border-b border-slate-700 bg-slate-800">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/partner" className="flex items-center gap-3">
-          <Logo variant="light" size="md" />
+          <Logo variant="dark" size="md" />
         </Link>
 
         <nav className="flex items-center gap-1">
@@ -39,8 +39,8 @@ export default function PartnerNav({ partner }: { partner: ReferralPartner }) {
                 href={item.href}
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-slate-700 text-blue-400'
+                    : 'text-slate-300 hover:bg-slate-700 hover:text-slate-50'
                 }`}
               >
                 {item.label}
@@ -51,13 +51,13 @@ export default function PartnerNav({ partner }: { partner: ReferralPartner }) {
 
         <div className="flex items-center gap-3">
           <div className="hidden text-right sm:block">
-            <p className="text-sm font-medium text-gray-900">{partner.name}</p>
-            <p className="text-xs text-gray-500">{partner.email}</p>
+            <p className="text-sm font-medium text-slate-50">{partner.name}</p>
+            <p className="text-xs text-slate-400">{partner.email}</p>
           </div>
           <form action={signOutPartner}>
             <button
               type="submit"
-              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              className="rounded-lg border border-slate-600 bg-transparent px-3 py-1.5 text-sm font-medium text-slate-200 transition-colors hover:bg-slate-700 hover:text-slate-50"
             >
               Sign out
             </button>
