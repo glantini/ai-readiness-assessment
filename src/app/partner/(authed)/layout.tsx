@@ -20,7 +20,9 @@ export default async function PartnerAuthedLayout({
     const message =
       result.status === 'wrong_domain'
         ? 'Access is restricted to Salesforce employees.'
-        : 'Your email is not registered as a partner. Contact the administrator.'
+        : result.status === 'deactivated'
+          ? 'Your account has been deactivated. Contact the administrator.'
+          : 'Your email is not registered as a partner. Contact the administrator.'
 
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">

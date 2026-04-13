@@ -93,6 +93,7 @@ export interface ReferralPartner {
   city: string | null
   sf_team_region: SfTeamRegion | null
   notes: string | null
+  is_active: boolean
   created_at: string
   updated_at: string
 }

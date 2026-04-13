@@ -7,8 +7,8 @@ import { signOutAdmin } from '@/app/actions/adminAuth'
 const NAV_ITEMS: { href: string; label: string; matchPrefix?: string }[] = [
   { href: '/admin', label: 'Dashboard' },
   {
-    href: '/admin/partners/new',
-    label: 'New Referral Partner',
+    href: '/admin/partners',
+    label: 'Referral Partners',
     matchPrefix: '/admin/partners',
   },
   {

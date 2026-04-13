@@ -11,6 +11,8 @@ const ERROR_LABELS: Record<string, string> = {
     'Your email is not registered as a partner. Contact the administrator.',
   unauthorized:
     'Your email is not registered as a partner. Contact the administrator.',
+  deactivated:
+    'Your account has been deactivated. Contact the administrator.',
 }
 
 export default function PartnerLoginPage() {

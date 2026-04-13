@@ -53,11 +53,17 @@ export async function GET(request: NextRequest) {
     const service = createServiceClient()
     const { data: partner } = await service
       .from('referral_partners')
-      .select('id')
+      .select('id, is_active')
       .ilike('email', email)
       .maybeSingle()
 
     if (partner) {
+      if (!partner.is_active) {
+        await supabase.auth.signOut()
+        return NextResponse.redirect(
+          `${origin}${loginPath}?error=${encodeURIComponent('deactivated')}`
+        )
+      }
       return NextResponse.redirect(`${origin}/partner/dashboard`)
     }
 

@@ -5,6 +5,7 @@ export type PartnerAuthResult =
   | { status: 'unauthenticated' }
   | { status: 'wrong_domain'; email: string }
   | { status: 'not_registered'; email: string }
+  | { status: 'deactivated'; email: string }
   | { status: 'ok'; partner: ReferralPartner }
 
 const ALLOWED_DOMAIN = '@salesforce.com'
@@ -37,7 +38,11 @@ export async function resolvePartner(): Promise<PartnerAuthResult> {
     .maybeSingle()
 
   if (!data) return { status: 'not_registered', email }
-  return { status: 'ok', partner: data as ReferralPartner }
+
+  const partner = data as ReferralPartner
+  if (!partner.is_active) return { status: 'deactivated', email }
+
+  return { status: 'ok', partner }
 }
 
 /**
