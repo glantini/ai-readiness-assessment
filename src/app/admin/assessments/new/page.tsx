@@ -53,7 +53,7 @@ export default function NewAssessmentPage() {
         setError(result.error)
         window.scrollTo({ top: 0, behavior: 'smooth' })
       } else {
-        router.push('/dashboard')
+        router.push('/admin')
       }
     })
   }
@@ -63,7 +63,7 @@ export default function NewAssessmentPage() {
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
 
         <div className="mb-8">
-          <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
+          <Link href="/admin" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
             ← Back to Dashboard
           </Link>
           <h1 className="mt-4 text-2xl font-semibold text-gray-900">New Assessment</h1>
@@ -115,7 +115,7 @@ export default function NewAssessmentPage() {
               <ReferralPartnerLookup />
               <p className="mt-2 text-xs text-gray-500">
                 Search an existing partner or add a new one inline.{' '}
-                <Link href="/dashboard/partners/new" className="text-blue-700 hover:underline">
+                <Link href="/admin/partners/new" className="text-blue-700 hover:underline">
                   Create in full page →
                 </Link>
               </p>
@@ -124,7 +124,7 @@ export default function NewAssessmentPage() {
 
           <div className="flex items-center justify-end gap-4 pb-8">
             <Link
-              href="/dashboard"
+              href="/admin"
               className="px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
             >
               Cancel

@@ -40,10 +40,10 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // ── Auth routes: redirect authenticated IMG users to dashboard ─────────────
+  // ── Auth routes: redirect authenticated IMG users to admin ────────────────
   if (pathname.startsWith('/auth')) {
     if (user && user.email?.endsWith('@growwithimg.com')) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      return NextResponse.redirect(new URL('/admin', request.url))
     }
     return supabaseResponse
   }
@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // ── Admin alias: same gate as /dashboard, redirects through to /dashboard ──
+  // ── Admin routes: require authenticated @growwithimg.com user ─────────────
   if (pathname.startsWith('/admin')) {
     if (!user) {
       const loginUrl = new URL('/auth/login', request.url)
@@ -82,30 +82,10 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // ── Dashboard routes: require authenticated @growwithimg.com user ──────────
-  if (pathname.startsWith('/dashboard')) {
-    // Not signed in → redirect to login
-    if (!user) {
-      const loginUrl = new URL('/auth/login', request.url)
-      loginUrl.searchParams.set('next', pathname)
-      return NextResponse.redirect(loginUrl)
-    }
-
-    // Signed in but wrong domain → sign out and redirect to login with error
-    if (!user.email?.endsWith('@growwithimg.com')) {
-      await supabase.auth.signOut()
-      const loginUrl = new URL('/auth/login', request.url)
-      loginUrl.searchParams.set('error', 'unauthorized_domain')
-      return NextResponse.redirect(loginUrl)
-    }
-
-    return supabaseResponse
-  }
-
-  // ── Root: redirect authenticated IMG users to dashboard ───────────────────
+  // ── Root: redirect authenticated IMG users to admin ───────────────────────
   if (pathname === '/') {
     if (user && user.email?.endsWith('@growwithimg.com')) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      return NextResponse.redirect(new URL('/admin', request.url))
     }
   }
 

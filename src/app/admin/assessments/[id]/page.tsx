@@ -131,7 +131,7 @@ export default async function AssessmentDetailPage({
 
         {/* ── Back link ─────────────────────────────────────────────────── */}
         <Link
-          href="/dashboard"
+          href="/admin"
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -168,7 +168,7 @@ export default async function AssessmentDetailPage({
               <RecalculateButton assessmentId={a.id} usesSalesforce={!!a.uses_salesforce} />
               {hasScores && (
                 <Link
-                  href={`/dashboard/assessments/${a.id}/report`}
+                  href={`/admin/assessments/${a.id}/report`}
                   className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

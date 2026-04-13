@@ -68,7 +68,7 @@ export default async function ReportPage({
 
         {/* ── Back link ───────────────────────────────────────────────── */}
         <Link
-          href={`/dashboard/assessments/${params.id}`}
+          href={`/admin/assessments/${params.id}`}
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

@@ -147,7 +147,7 @@ export async function generateReport(assessmentId: string): Promise<{
     return { success: false, error: `Failed to save narrative: ${saveErr.message}` }
   }
 
-  revalidatePath(`/dashboard/assessments/${assessmentId}/report`)
+  revalidatePath(`/admin/assessments/${assessmentId}/report`)
 
   return { success: true }
 }
@@ -179,7 +179,7 @@ export async function approveReport(
     console.error('[approveReport] Failed to send AE Intelligence email:', err)
   })
 
-  revalidatePath(`/dashboard/assessments/${assessmentId}/report`)
+  revalidatePath(`/admin/assessments/${assessmentId}/report`)
   return { success: true }
 }
 

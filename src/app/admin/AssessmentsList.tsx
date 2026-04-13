@@ -211,7 +211,7 @@ export default function AssessmentsList({
                     <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{created}</td>
                     <td className="px-4 py-3 text-right">
                       <Link
-                        href={`/dashboard/assessments/${a.id}`}
+                        href={`/admin/assessments/${a.id}`}
                         className="text-sm font-medium text-blue-700 hover:underline whitespace-nowrap"
                       >
                         View

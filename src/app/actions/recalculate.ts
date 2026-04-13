@@ -34,6 +34,6 @@ export async function recalculateScores(
     return { success: false, error: String(err) }
   }
 
-  revalidatePath(`/dashboard/assessments/${assessmentId}`)
+  revalidatePath(`/admin/assessments/${assessmentId}`)
   return { success: true }
 }
