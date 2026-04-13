@@ -8,6 +8,17 @@ type PartnerRow = ReferralPartner & {
   assessments: { id: string }[] | null
 }
 
+function formatLastLogin(iso: string): string {
+  const d = new Date(iso)
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
 export default async function PartnersListPage() {
   const supabase = createClient()
 
@@ -66,6 +77,7 @@ export default async function PartnersListPage() {
                   <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Company</th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Region</th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Last Login</th>
                   <th scope="col" className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500"># Assessments</th>
                   <th scope="col" className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"><span className="sr-only">Details</span></th>
                 </tr>
@@ -94,6 +106,9 @@ export default async function PartnersListPage() {
                             Inactive
                           </span>
                         )}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
+                        {p.last_login ? formatLastLogin(p.last_login) : <span className="text-gray-400">Never</span>}
                       </td>
                       <td className="px-4 py-3 text-center text-sm font-medium text-gray-900">
                         {count}

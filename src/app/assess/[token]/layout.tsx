@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import Footer from '@/components/Footer'
+import Logo from '@/components/Logo'
 
 export const metadata: Metadata = {
   title: 'AI Readiness Assessment',
@@ -7,23 +9,18 @@ export const metadata: Metadata = {
 
 export default function AssessLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Minimal branding header */}
-      <header className="border-b border-gray-200 bg-white">
+    <div className="flex min-h-screen flex-col bg-gray-50">
+      <header className="border-b border-slate-700 bg-slate-800">
         <div className="mx-auto max-w-3xl px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-2.5">
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-700">
-              IMG
-            </span>
-            <span className="text-gray-300" aria-hidden="true">|</span>
-            <span className="text-sm text-gray-500">AI Readiness Assessment</span>
-          </div>
+          <Logo variant="dark" size="sm" />
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">
         {children}
       </main>
+
+      <Footer />
     </div>
   )
 }

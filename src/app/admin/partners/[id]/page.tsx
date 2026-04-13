@@ -7,6 +7,17 @@ import type { ReferralPartner } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
+function formatLastLogin(iso: string): string {
+  const d = new Date(iso)
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
 export default async function PartnerDetailPage({
   params,
 }: {
@@ -58,6 +69,10 @@ export default async function PartnerDetailPage({
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">{p.name}</h1>
           <p className="mt-0.5 text-sm text-gray-500">{p.email}</p>
+          <p className="mt-2 text-xs text-gray-500">
+            <span className="font-medium text-gray-700">Last login:</span>{' '}
+            {p.last_login ? formatLastLogin(p.last_login) : <span className="text-gray-400">Never</span>}
+          </p>
         </div>
 
         <PartnerDetailForm partner={p} />

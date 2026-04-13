@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { resolvePartner } from '@/lib/partnerAuth'
 import { signOutPartner } from '@/app/actions/partnerAuth'
 import PartnerNav from '../PartnerNav'
+import Footer from '@/components/Footer'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,9 +60,10 @@ export default async function PartnerAuthedLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-gray-50">
       <PartnerNav partner={result.partner} />
-      {children}
+      <div className="flex-1">{children}</div>
+      <Footer />
     </div>
   )
 }

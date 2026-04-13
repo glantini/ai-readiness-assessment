@@ -64,6 +64,10 @@ export async function GET(request: NextRequest) {
           `${origin}${loginPath}?error=${encodeURIComponent('deactivated')}`
         )
       }
+      await service
+        .from('referral_partners')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', partner.id)
       return NextResponse.redirect(`${origin}/partner/dashboard`)
     }
 

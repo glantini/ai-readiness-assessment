@@ -94,6 +94,7 @@ export interface ReferralPartner {
   sf_team_region: SfTeamRegion | null
   notes: string | null
   is_active: boolean
+  last_login: string | null
   created_at: string
   updated_at: string
 }
