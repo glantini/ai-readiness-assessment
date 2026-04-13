@@ -8,6 +8,9 @@ import {
 } from '@/lib/questions/layer2'
 import type { Layer2Section } from '@/types'
 import { saveLayer2Section, saveLayer2AndFinish } from './actions'
+import AutoSaveBanner from '@/components/AutoSaveBanner'
+import SaveIndicator from '@/components/SaveIndicator'
+import LastSavedLabel from '@/components/LastSavedLabel'
 
 // ─── Yes / No / Partial options ───────────────────────────────────────────────
 
@@ -57,6 +60,7 @@ export default function Layer2Form({
   const [answers, setAnswers] = useState<Record<string, YesNoValue>>(initialAnswers)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [savedAt, setSavedAt] = useState<number | null>(null)
 
   const section = activeSections[currentStep]
   const questions = layer2BySection[section]
@@ -87,7 +91,8 @@ export default function Layer2Form({
     const hasCurrentAnswers = Object.keys(sectionAnswers).length > 0
     if (hasCurrentAnswers) {
       startTransition(async () => {
-        await saveLayer2Section(token, sectionAnswers)
+        const result = await saveLayer2Section(token, sectionAnswers)
+        if (!result?.error) setSavedAt(Date.now())
         setCurrentStep(target)
         window.scrollTo({ top: 0, behavior: 'smooth' })
       })
@@ -109,6 +114,7 @@ export default function Layer2Form({
         if (result?.error) {
           setError(result.error)
         } else {
+          setSavedAt(Date.now())
           setCurrentStep((s) => s + 1)
           window.scrollTo({ top: 0, behavior: 'smooth' })
         }
@@ -118,19 +124,24 @@ export default function Layer2Form({
 
   return (
     <div className="space-y-6">
+      <AutoSaveBanner />
+      <SaveIndicator savedAt={savedAt} />
 
       {/* ── Progress header ──────────────────────────────────────────────── */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white px-6 py-5 shadow-sm">
-        <div className="mb-3 flex items-start justify-between gap-4">
-          <div>
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm sm:px-6 sm:py-5">
+        <div className="mb-3 flex items-start justify-between gap-3 sm:gap-4">
+          <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
               Step {currentStep + 1} of {activeSections.length}
             </p>
-            <h1 className="mt-0.5 text-xl font-semibold text-gray-900">
+            <h1 className="mt-0.5 text-lg font-semibold text-gray-900 sm:text-xl">
               {LAYER2_SECTION_LABELS[section]}
             </h1>
           </div>
-          <span className="shrink-0 text-sm text-gray-400">{progressPct}% complete</span>
+          <div className="flex shrink-0 flex-col items-end gap-0.5">
+            <span className="text-xs text-gray-400 sm:text-sm">{progressPct}% complete</span>
+            <LastSavedLabel savedAt={savedAt} />
+          </div>
         </div>
 
         {/* Progress bar */}
@@ -174,14 +185,14 @@ export default function Layer2Form({
               key={q.id}
               className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
             >
-              <div className="px-5 pt-5 pb-4">
+              <div className="px-4 pt-4 pb-3 sm:px-5 sm:pt-5 sm:pb-4">
                 <p className="text-sm font-medium leading-relaxed text-gray-900">
                   <span className="mr-1.5 text-gray-400">{qi + 1}.</span>
                   {q.text}
                 </p>
               </div>
 
-              <fieldset className="border-t border-gray-100 px-5 pb-5 pt-4">
+              <fieldset className="border-t border-gray-100 px-4 pb-4 pt-4 sm:px-5 sm:pb-5">
                 <legend className="sr-only">Response for: {q.text}</legend>
 
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -191,7 +202,7 @@ export default function Layer2Form({
                       <label
                         key={opt.value}
                         className={[
-                          'flex cursor-pointer items-center justify-center rounded-lg border px-2 py-3 text-center text-sm font-medium transition-colors',
+                          'flex min-h-[48px] cursor-pointer items-center justify-center rounded-lg border px-2 py-3 text-center text-sm font-medium transition-colors active:bg-blue-100',
                           isSelected
                             ? opt.selectedClass
                             : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50',
@@ -228,27 +239,26 @@ export default function Layer2Form({
       )}
 
       {/* ── Navigation ──────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between border-t border-gray-200 pt-5">
-        <button
-          type="button"
-          onClick={handlePrev}
-          disabled={currentStep === 0 || isPending}
-          className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          ← Previous
-        </button>
-
-        <div className="flex flex-col items-end gap-1">
-          {!allAnswered && (
-            <p className="text-xs text-gray-400">
-              Answer all {questions.length} questions to continue
-            </p>
-          )}
+      <div className="border-t border-gray-200 pt-5">
+        {!allAnswered && (
+          <p className="mb-2 text-center text-xs text-gray-400 sm:text-right">
+            Answer all {questions.length} questions to continue
+          </p>
+        )}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handlePrev}
+            disabled={currentStep === 0 || isPending}
+            className="flex-1 min-h-[44px] rounded-lg border border-gray-300 px-5 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:py-2.5"
+          >
+            ← Previous
+          </button>
           <button
             type="button"
             onClick={handleNext}
             disabled={!allAnswered || isPending}
-            className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex-1 min-h-[44px] rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none sm:ml-auto sm:py-2.5"
           >
             {isPending
               ? 'Saving…'

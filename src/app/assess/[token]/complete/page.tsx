@@ -26,7 +26,7 @@ export default async function CompletePage({
   if (assessment.status !== 'completed') {
     await supabase
       .from('assessments')
-      .update({ status: 'completed' })
+      .update({ status: 'completed', current_section: 'complete' })
       .eq('id', assessment.id)
   }
 

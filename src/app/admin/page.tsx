@@ -10,7 +10,7 @@ export default async function DashboardPage() {
     supabase
       .from('assessments')
       .select(
-        'id, token, status, contact_first_name, contact_last_name, contact_email, company_name, uses_salesforce, created_at, referral_partner:referral_partners(id, name)'
+        'id, token, status, current_section, contact_first_name, contact_last_name, contact_email, company_name, uses_salesforce, created_at, updated_at, referral_partner:referral_partners(id, name)'
       )
       .order('created_at', { ascending: false }),
     supabase

@@ -39,6 +39,15 @@ export interface Question {
 
 export type AssessmentStatus = 'pending' | 'in_progress' | 'completed'
 
+export type AssessmentSection = 'intake' | 'layer1' | 'layer2' | 'complete'
+
+export const ASSESSMENT_SECTION_LABELS: Record<AssessmentSection, string> = {
+  intake: 'Intake',
+  layer1: 'AI Readiness',
+  layer2: 'Agentforce Readiness',
+  complete: 'Complete',
+}
+
 export type SalesforceEdition =
   | 'Starter'
   | 'Pro'
@@ -50,6 +59,7 @@ export interface Assessment {
   id: string
   token: string
   status: AssessmentStatus
+  current_section: AssessmentSection
 
   // Contact
   contact_first_name: string | null

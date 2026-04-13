@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
-import type { Layer1Scores, Layer2Scores } from '@/types'
+import type { AssessmentSection, Layer1Scores, Layer2Scores } from '@/types'
+import { formatProgress, formatTimeAgo } from '@/lib/assessmentProgress'
 
 const STATUS_LABEL: Record<string, string> = {
   pending: 'Sent',
@@ -19,12 +20,14 @@ const STATUS_CLASS: Record<string, string> = {
 type Assessment = {
   id: string
   status: string
+  current_section: AssessmentSection | null
   contact_first_name: string | null
   contact_last_name: string | null
   contact_email: string | null
   company_name: string | null
   uses_salesforce: boolean | null
   created_at: string
+  updated_at: string | null
 }
 
 type Report = {
@@ -157,6 +160,18 @@ export default function PartnerAssessmentsList({
                       >
                         {statusLabel}
                       </span>
+                      {(() => {
+                        const progress = formatProgress(a.status, a.current_section, a.uses_salesforce)
+                        if (!progress) return null
+                        return (
+                          <p className="mt-1 text-xs text-gray-500 whitespace-nowrap">
+                            {progress}
+                            {a.updated_at && (
+                              <> · <span className="text-gray-400">{formatTimeAgo(a.updated_at)}</span></>
+                            )}
+                          </p>
+                        )
+                      })()}
                     </td>
                     <td className="px-4 py-3 text-center">
                       {l1 ? (

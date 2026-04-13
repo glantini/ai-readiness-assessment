@@ -45,7 +45,12 @@ export async function saveSnapshot(
   if (assessment.status === 'pending') {
     await supabase
       .from('assessments')
-      .update({ status: 'in_progress' })
+      .update({ status: 'in_progress', current_section: 'layer1' })
+      .eq('id', assessment.id)
+  } else {
+    await supabase
+      .from('assessments')
+      .update({ current_section: 'layer1' })
       .eq('id', assessment.id)
   }
 
@@ -117,6 +122,7 @@ export async function saveIntake(
     salesforce_edition:   edition,
     salesforce_clouds:    usesSalesforce && clouds.length > 0 ? clouds : null,
     status: assessment.status === 'pending' ? 'in_progress' : assessment.status,
+    current_section: 'layer1' as const,
   }
 
   const { error: updateErr } = await supabase

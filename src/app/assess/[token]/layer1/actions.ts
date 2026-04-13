@@ -70,9 +70,12 @@ export async function saveLayer1AndFinish(
   const err = await upsertLayer1Responses(assessment.id, responses)
   if (err) return { error: err }
 
-  redirect(
-    assessment.uses_salesforce
-      ? `/assess/${token}/layer2`
-      : `/assess/${token}/complete`,
-  )
+  const nextSection = assessment.uses_salesforce ? 'layer2' : 'complete'
+  const supabase = createServiceClient()
+  await supabase
+    .from('assessments')
+    .update({ current_section: nextSection })
+    .eq('id', assessment.id)
+
+  redirect(`/assess/${token}/${nextSection}`)
 }

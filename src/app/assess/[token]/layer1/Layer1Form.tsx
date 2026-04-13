@@ -7,6 +7,9 @@ import {
   type Layer1Category,
 } from '@/lib/questions/layer1'
 import { saveLayer1Category, saveLayer1AndFinish } from './actions'
+import AutoSaveBanner from '@/components/AutoSaveBanner'
+import SaveIndicator from '@/components/SaveIndicator'
+import LastSavedLabel from '@/components/LastSavedLabel'
 
 // ─── Scale options ────────────────────────────────────────────────────────────
 
@@ -35,6 +38,7 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
   const [answers, setAnswers] = useState<Record<string, number>>(initialAnswers)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [savedAt, setSavedAt] = useState<number | null>(null)
 
   const category = LAYER1_CATEGORIES[currentStep] as Layer1Category
   const questions = layer1ByCategory[category]
@@ -66,7 +70,8 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
     const hasCurrentAnswers = Object.keys(categoryAnswers).length > 0
     if (hasCurrentAnswers) {
       startTransition(async () => {
-        await saveLayer1Category(token, categoryAnswers)
+        const result = await saveLayer1Category(token, categoryAnswers)
+        if (!result?.error) setSavedAt(Date.now())
         setCurrentStep(target)
         window.scrollTo({ top: 0, behavior: 'smooth' })
       })
@@ -88,6 +93,7 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
         if (result?.error) {
           setError(result.error)
         } else {
+          setSavedAt(Date.now())
           setCurrentStep((s) => s + 1)
           window.scrollTo({ top: 0, behavior: 'smooth' })
         }
@@ -97,17 +103,22 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
 
   return (
     <div className="space-y-6">
+      <AutoSaveBanner />
+      <SaveIndicator savedAt={savedAt} />
 
       {/* ── Progress header ──────────────────────────────────────────────── */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white px-6 py-5 shadow-sm">
-        <div className="mb-3 flex items-start justify-between gap-4">
-          <div>
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm sm:px-6 sm:py-5">
+        <div className="mb-3 flex items-start justify-between gap-3 sm:gap-4">
+          <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
               Step {currentStep + 1} of {LAYER1_CATEGORIES.length}
             </p>
-            <h1 className="mt-0.5 text-xl font-semibold text-gray-900">{category}</h1>
+            <h1 className="mt-0.5 text-lg font-semibold text-gray-900 sm:text-xl">{category}</h1>
           </div>
-          <span className="shrink-0 text-sm text-gray-400">{progressPct}% complete</span>
+          <div className="flex shrink-0 flex-col items-end gap-0.5">
+            <span className="text-xs text-gray-400 sm:text-sm">{progressPct}% complete</span>
+            <LastSavedLabel savedAt={savedAt} />
+          </div>
         </div>
 
         {/* Progress bar */}
@@ -151,14 +162,14 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
               key={q.id}
               className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
             >
-              <div className="px-5 pt-5 pb-4">
+              <div className="px-4 pt-4 pb-3 sm:px-5 sm:pt-5 sm:pb-4">
                 <p className="text-sm font-medium leading-relaxed text-gray-900">
                   <span className="mr-1.5 text-gray-400">{qi + 1}.</span>
                   {q.text}
                 </p>
               </div>
 
-              <fieldset className="border-t border-gray-100 px-5 pb-5 pt-4">
+              <fieldset className="border-t border-gray-100 px-4 pb-4 pt-4 sm:px-5 sm:pb-5">
                 <legend className="sr-only">
                   Rating scale for: {q.text}
                 </legend>
@@ -170,12 +181,12 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
                 </div>
 
                 {/* 5 option cards */}
-                <div className="grid grid-cols-5 gap-2 sm:gap-2.5">
+                <div className="grid grid-cols-5 gap-1.5 sm:gap-2.5">
                   {SCALE_OPTIONS.map((opt) => (
                     <label
                       key={opt.value}
                       className={[
-                        'flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border px-1 py-3 text-center transition-colors',
+                        'flex min-h-[48px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border px-1 py-3 text-center transition-colors active:bg-blue-100',
                         selected === opt.value
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50',
@@ -224,27 +235,26 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
       )}
 
       {/* ── Navigation ──────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between border-t border-gray-200 pt-5">
-        <button
-          type="button"
-          onClick={handlePrev}
-          disabled={currentStep === 0 || isPending}
-          className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          ← Previous
-        </button>
-
-        <div className="flex flex-col items-end gap-1">
-          {!allAnswered && (
-            <p className="text-xs text-gray-400">
-              Answer all {questions.length} questions to continue
-            </p>
-          )}
+      <div className="border-t border-gray-200 pt-5">
+        {!allAnswered && (
+          <p className="mb-2 text-center text-xs text-gray-400 sm:text-right">
+            Answer all {questions.length} questions to continue
+          </p>
+        )}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handlePrev}
+            disabled={currentStep === 0 || isPending}
+            className="flex-1 min-h-[44px] rounded-lg border border-gray-300 px-5 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:py-2.5"
+          >
+            ← Previous
+          </button>
           <button
             type="button"
             onClick={handleNext}
             disabled={!allAnswered || isPending}
-            className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex-1 min-h-[44px] rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none sm:ml-auto sm:py-2.5"
           >
             {isPending
               ? 'Saving…'

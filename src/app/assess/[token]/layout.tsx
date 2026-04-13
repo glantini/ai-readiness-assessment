@@ -16,7 +16,7 @@ export default function AssessLayout({ children }: { children: React.ReactNode }
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
         {children}
       </main>
 

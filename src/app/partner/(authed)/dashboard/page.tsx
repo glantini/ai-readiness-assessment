@@ -20,7 +20,7 @@ export default async function PartnerDashboardPage() {
   const { data: assessments, error } = await supabase
     .from('assessments')
     .select(
-      'id, status, contact_first_name, contact_last_name, contact_email, company_name, uses_salesforce, created_at'
+      'id, status, current_section, contact_first_name, contact_last_name, contact_email, company_name, uses_salesforce, created_at, updated_at'
     )
     .eq('referral_partner_id', partner.id)
     .order('created_at', { ascending: false })

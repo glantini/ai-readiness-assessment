@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { saveIntake } from './actions'
+import AutoSaveBanner from '@/components/AutoSaveBanner'
 import type { Question } from '@/types'
 import {
   INDUSTRIES,
@@ -14,10 +15,10 @@ import {
 } from '@/types'
 
 const inputCls =
-  'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent'
+  'w-full min-h-[44px] rounded-lg border border-gray-300 px-3 py-2.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent sm:text-sm'
 
 const selectCls =
-  'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent'
+  'w-full min-h-[44px] rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent sm:text-sm'
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -118,6 +119,7 @@ export default function IntakeForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <AutoSaveBanner />
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error}
@@ -126,12 +128,12 @@ export default function IntakeForm({
 
       {/* ── Your details ─────────────────────────────────────────────── */}
       <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-100 bg-gray-50 px-6 py-3">
+        <div className="border-b border-gray-100 bg-gray-50 px-4 py-3 sm:px-6">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
             Your details
           </h2>
         </div>
-        <div className="grid grid-cols-1 gap-5 px-6 py-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 px-4 py-5 sm:grid-cols-2 sm:px-6 sm:py-6">
           <div>
             <Label>Phone</Label>
             <input
@@ -156,12 +158,12 @@ export default function IntakeForm({
 
       {/* ── Company ──────────────────────────────────────────────────── */}
       <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-100 bg-gray-50 px-6 py-3">
+        <div className="border-b border-gray-100 bg-gray-50 px-4 py-3 sm:px-6">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
             Company
           </h2>
         </div>
-        <div className="grid grid-cols-1 gap-5 px-6 py-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 px-4 py-5 sm:grid-cols-2 sm:px-6 sm:py-6">
           <div className="sm:col-span-2">
             <Label required>Company Name</Label>
             <input
@@ -224,12 +226,12 @@ export default function IntakeForm({
 
       {/* ── AI Context ───────────────────────────────────────────────── */}
       <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-100 bg-gray-50 px-6 py-3">
+        <div className="border-b border-gray-100 bg-gray-50 px-4 py-3 sm:px-6">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
             AI Context
           </h2>
         </div>
-        <div className="grid grid-cols-1 gap-5 px-6 py-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 px-4 py-5 sm:grid-cols-2 sm:px-6 sm:py-6">
           <div>
             <Label>Primary Motivation</Label>
             <select name="ai_motivation" defaultValue={initial.ai_motivation ?? ''} className={selectCls}>
@@ -253,12 +255,12 @@ export default function IntakeForm({
 
       {/* ── Salesforce ───────────────────────────────────────────────── */}
       <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-100 bg-gray-50 px-6 py-3">
+        <div className="border-b border-gray-100 bg-gray-50 px-4 py-3 sm:px-6">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
             Salesforce
           </h2>
         </div>
-        <div className="space-y-5 px-6 py-6">
+        <div className="space-y-5 px-4 py-5 sm:px-6 sm:py-6">
           <div className="max-w-xs">
             <Label>Salesforce Edition</Label>
             <select
@@ -296,7 +298,7 @@ export default function IntakeForm({
 
       {/* ── Operations Snapshot ──────────────────────────────────────── */}
       <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-100 bg-gray-50 px-6 py-3">
+        <div className="border-b border-gray-100 bg-gray-50 px-4 py-3 sm:px-6">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
             Operations Snapshot
           </h2>
@@ -304,12 +306,12 @@ export default function IntakeForm({
             Check any that apply — this helps us tailor your report
           </p>
         </div>
-        <div className="space-y-3 px-6 py-6">
+        <div className="space-y-3 px-4 py-5 sm:px-6 sm:py-6">
           {snapshotQuestions.map((q) => (
             <label
               key={q.id}
               className={[
-                'flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors',
+                'flex min-h-[44px] cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors active:bg-blue-100',
                 snapshot[q.id]
                   ? 'border-blue-200 bg-blue-50'
                   : 'border-gray-200 bg-white hover:bg-gray-50',
@@ -319,7 +321,7 @@ export default function IntakeForm({
                 type="checkbox"
                 checked={snapshot[q.id] ?? false}
                 onChange={() => toggleSnapshot(q.id)}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-600"
+                className="mt-0.5 h-5 w-5 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-600"
               />
               <span className="text-sm leading-relaxed text-gray-700">{q.text}</span>
             </label>
@@ -340,11 +342,11 @@ export default function IntakeForm({
         </div>
       </div>
 
-      <div className="flex justify-end pb-8">
+      <div className="flex pb-8 sm:justify-end">
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full min-h-[44px] rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:py-2.5"
         >
           {isPending ? 'Saving…' : 'Start Assessment →'}
         </button>
