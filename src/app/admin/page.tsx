@@ -32,25 +32,9 @@ export default async function DashboardPage() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
 
         {/* ── Page header ──────────────────────────────────────────────── */}
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Assessments</h1>
-            <p className="mt-1 text-sm text-gray-500">Manage client AI readiness assessments</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin/partners/new"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-            >
-              <span aria-hidden="true">+</span> New Referral Partner
-            </Link>
-            <Link
-              href="/admin/assessments/new"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-800"
-            >
-              <span aria-hidden="true">+</span> New Assessment
-            </Link>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold text-gray-900">Assessments</h1>
+          <p className="mt-1 text-sm text-gray-500">Manage client AI readiness assessments</p>
         </div>
 
         {/* ── Error state ───────────────────────────────────────────────── */}
