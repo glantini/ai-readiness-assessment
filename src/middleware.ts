@@ -48,6 +48,40 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
+  // ── Partner login: always public ──────────────────────────────────────────
+  if (pathname === '/partner/login') {
+    return supabaseResponse
+  }
+
+  // ── Partner routes: require an authenticated user (partner identity is
+  //    verified at the page/layout level via referral_partners lookup) ───────
+  if (pathname.startsWith('/partner')) {
+    if (!user) {
+      const loginUrl = new URL('/partner/login', request.url)
+      loginUrl.searchParams.set('next', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+    return supabaseResponse
+  }
+
+  // ── Admin alias: same gate as /dashboard, redirects through to /dashboard ──
+  if (pathname.startsWith('/admin')) {
+    if (!user) {
+      const loginUrl = new URL('/auth/login', request.url)
+      loginUrl.searchParams.set('next', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    if (!user.email?.endsWith('@growwithimg.com')) {
+      await supabase.auth.signOut()
+      const loginUrl = new URL('/auth/login', request.url)
+      loginUrl.searchParams.set('error', 'access_restricted')
+      return NextResponse.redirect(loginUrl)
+    }
+
+    return supabaseResponse
+  }
+
   // ── Dashboard routes: require authenticated @growwithimg.com user ──────────
   if (pathname.startsWith('/dashboard')) {
     // Not signed in → redirect to login
