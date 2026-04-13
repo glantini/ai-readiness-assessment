@@ -154,7 +154,7 @@ export default function Layer2Form({
                 i < currentStep
                   ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                   : i === currentStep
-                    ? 'bg-blue-700 text-white'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
                 'disabled:cursor-not-allowed disabled:opacity-70',
               ].join(' ')}
@@ -248,7 +248,7 @@ export default function Layer2Form({
             type="button"
             onClick={handleNext}
             disabled={!allAnswered || isPending}
-            className="rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPending
               ? 'Saving…'

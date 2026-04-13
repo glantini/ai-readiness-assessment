@@ -5,6 +5,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --brand-primary: #2563EB;
+  --brand-primary-light: #60A5FA;
+  --brand-primary-dark: #1D4ED8;
+  --brand-dark: #1E293B;
+  --brand-text-light: #F8FAFC;
 }
 
 @media (prefers-color-scheme: dark) {

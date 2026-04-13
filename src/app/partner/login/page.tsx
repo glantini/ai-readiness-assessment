@@ -60,7 +60,7 @@ function PartnerLoginInner() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="bg-blue-700 px-8 py-6 text-center">
+          <div className="bg-blue-600 px-8 py-6 text-center">
             <p className="text-xs font-semibold uppercase tracking-widest text-blue-200">
               Partner Portal
             </p>

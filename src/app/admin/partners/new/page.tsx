@@ -115,7 +115,7 @@ export default function NewReferralPartnerPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? 'Saving…' : 'Save Referral Partner'}
             </button>

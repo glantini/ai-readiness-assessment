@@ -54,7 +54,7 @@ export default async function DashboardPage() {
             <p className="text-sm text-gray-500">No assessments yet.</p>
             <Link
               href="/admin/assessments/new"
-              className="mt-3 inline-block text-sm text-blue-700 hover:underline"
+              className="mt-3 inline-block text-sm text-blue-600 hover:text-blue-700 hover:underline"
             >
               Create your first assessment →
             </Link>

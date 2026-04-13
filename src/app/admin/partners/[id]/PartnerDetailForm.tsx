@@ -187,7 +187,7 @@ export default function PartnerDetailForm({
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSaving ? 'Saving…' : 'Save'}
           </button>

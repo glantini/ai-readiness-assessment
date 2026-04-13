@@ -115,7 +115,7 @@ export default function NewAssessmentPage() {
               <ReferralPartnerLookup />
               <p className="mt-2 text-xs text-gray-500">
                 Search an existing partner or add a new one inline.{' '}
-                <Link href="/admin/partners/new" className="text-blue-700 hover:underline">
+                <Link href="/admin/partners/new" className="text-blue-600 hover:text-blue-700 hover:underline">
                   Create in full page →
                 </Link>
               </p>
@@ -132,7 +132,7 @@ export default function NewAssessmentPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? 'Creating…' : 'Create & Send Invite'}
             </button>

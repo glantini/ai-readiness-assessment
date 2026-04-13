@@ -70,7 +70,7 @@ export default function ReferralPartnerLookup() {
           <button
             type="button"
             onClick={clear}
-            className="text-xs font-medium text-blue-700 hover:underline"
+            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
           >
             Change
           </button>
@@ -98,7 +98,7 @@ export default function ReferralPartnerLookup() {
                   <button
                     type="button"
                     onClick={() => setShowInlineAdd(true)}
-                    className="mt-2 text-sm font-medium text-blue-700 hover:underline"
+                    className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
                   >
                     + Add new partner
                   </button>
@@ -127,7 +127,7 @@ export default function ReferralPartnerLookup() {
                     <button
                       type="button"
                       onClick={() => setShowInlineAdd(true)}
-                      className="text-sm font-medium text-blue-700 hover:underline"
+                      className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
                     >
                       + Add new partner
                     </button>
@@ -218,7 +218,7 @@ function InlineAddPanel({
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-md bg-blue-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-800 disabled:opacity-60"
+            className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-60"
           >
             {isPending ? 'Saving…' : 'Add & Link'}
           </button>

@@ -668,7 +668,7 @@ export function ReportClient({
           <button
             onClick={handleApprove}
             disabled={isPending}
-            className="rounded-lg bg-blue-700 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
+            className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
           >
             {isPending ? 'Saving…' : 'Approve Report'}
           </button>
@@ -1203,7 +1203,7 @@ export function ReportClient({
         <button
           onClick={handleApprove}
           disabled={isPending}
-          className="rounded-lg bg-blue-700 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
+          className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
         >
           {isPending ? 'Saving…' : 'Approve Report'}
         </button>

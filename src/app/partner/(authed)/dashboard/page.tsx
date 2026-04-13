@@ -44,7 +44,7 @@ export default async function PartnerDashboardPage() {
         </div>
         <Link
           href="/partner/assessments/new"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-800"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
         >
           <span aria-hidden="true">+</span> New Assessment
         </Link>
@@ -63,7 +63,7 @@ export default async function PartnerDashboardPage() {
           <p className="text-sm text-gray-500">No assessments yet.</p>
           <Link
             href="/partner/assessments/new"
-            className="mt-3 inline-block text-sm text-blue-700 hover:underline"
+            className="mt-3 inline-block text-sm text-blue-600 hover:text-blue-700 hover:underline"
           >
             Create your first assessment →
           </Link>

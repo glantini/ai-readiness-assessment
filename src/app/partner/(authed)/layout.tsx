@@ -48,7 +48,7 @@ export default async function PartnerAuthedLayout({
           <form action={signOutPartner} className="mt-6">
             <button
               type="submit"
-              className="w-full rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-800"
+              className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
             >
               Sign out and try again
             </button>

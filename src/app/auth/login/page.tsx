@@ -59,7 +59,7 @@ function LoginInner() {
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
 
           {/* Header stripe */}
-          <div className="bg-blue-700 px-8 py-6 text-center">
+          <div className="bg-blue-600 px-8 py-6 text-center">
             <p className="text-xs font-semibold uppercase tracking-widest text-blue-200">
               Powered by IMG
             </p>
