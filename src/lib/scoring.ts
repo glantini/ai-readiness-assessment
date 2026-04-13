@@ -54,16 +54,10 @@ const LAYER2_TIERS: { min: number; tier: AgentforceTier }[] = [
 ]
 
 // Editions where Agentforce Readiness Index is capped at 2.5
-const EDITION_FLAGGED: SalesforceEdition[] = ['Essentials', 'Professional']
+const EDITION_FLAGGED: SalesforceEdition[] = ['Starter', 'Pro']
 
 // Editions with full Agentforce support
-const SUPPORTED_EDITIONS: SalesforceEdition[] = [
-  'Enterprise',
-  'Unlimited',
-  'Unlimited+',
-  'Einstein 1',
-  'Developer',
-]
+const SUPPORTED_EDITIONS: SalesforceEdition[] = ['Enterprise', 'Unlimited']
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -92,16 +86,16 @@ function r2(value: number): number {
 /**
  * Determine whether a Salesforce edition is fully compatible with Agentforce.
  *
- * - 'supported'  : Enterprise, Unlimited, Unlimited+, Einstein 1, Developer
- * - 'limited'    : Professional (requires Agentforce add-on; index capped at 2.5)
- * - 'unsupported': Essentials, Starter, or unknown (index capped at 2.5)
+ * - 'supported'  : Enterprise, Unlimited
+ * - 'limited'    : Starter, Pro (Agentforce Readiness Index capped at 2.5)
+ * - 'unsupported': None or unknown
  */
 export function editionGate(
   edition: SalesforceEdition | null | undefined,
 ): EditionGateResult {
-  if (!edition) return 'unsupported'
+  if (!edition || edition === 'None') return 'unsupported'
   if (SUPPORTED_EDITIONS.includes(edition)) return 'supported'
-  if (edition === 'Professional') return 'limited'
+  if (EDITION_FLAGGED.includes(edition)) return 'limited'
   return 'unsupported'
 }
 
@@ -115,7 +109,7 @@ export function editionGate(
  *   overall        = Σ(category_score × weight)      →  1–5 weighted average
  *
  * Weights: AI Strategy 20% | People & Culture 20% | Data Foundation 20%
- *          Process Readiness 20% | Risk & Governance 10% | AI Agent Governance 10%
+ *          Process Readiness 20% | AI Policies 10% | Agent Controls 10%
  *
  * Tiers: 1.0–2.0 Exploring | 2.1–3.0 Building | 3.1–4.0 Scaling | 4.1–5.0 Leading
  */

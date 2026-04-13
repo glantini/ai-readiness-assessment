@@ -404,8 +404,8 @@ export function AEIntelligenceDoc({
                         (k === 'PeopleAndCulture' && cat.category === 'People & Culture') ||
                         (k === 'DataFoundation' && cat.category === 'Data Foundation') ||
                         (k === 'ProcessReadiness' && cat.category === 'Process Readiness') ||
-                        (k === 'RiskAndGovernance' && cat.category === 'Risk & Governance') ||
-                        (k === 'AIAgentGovernance' && cat.category === 'AI Agent Governance'),
+                        (k === 'AIPolicies' && cat.category === 'AI Policies') ||
+                        (k === 'AgentControls' && cat.category === 'Agent Controls'),
                     ) as keyof typeof narrative.categories
                   ]?.recommendations[0]
                   if (!rec) return ''

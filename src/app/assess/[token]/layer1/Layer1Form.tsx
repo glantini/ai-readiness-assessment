@@ -59,6 +59,23 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  function jumpTo(target: number) {
+    if (target === currentStep || isPending) return
+    setError(null)
+    // Persist any in-progress answers for the current category before jumping
+    const hasCurrentAnswers = Object.keys(categoryAnswers).length > 0
+    if (hasCurrentAnswers) {
+      startTransition(async () => {
+        await saveLayer1Category(token, categoryAnswers)
+        setCurrentStep(target)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      })
+    } else {
+      setCurrentStep(target)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   function handleNext() {
     setError(null)
     startTransition(async () => {
@@ -101,22 +118,26 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
           />
         </div>
 
-        {/* Category pills */}
+        {/* Category pills — clickable */}
         <div className="mt-4 flex gap-1.5 overflow-x-auto pb-0.5">
           {LAYER1_CATEGORIES.map((cat, i) => (
-            <span
+            <button
               key={cat}
+              type="button"
+              onClick={() => jumpTo(i)}
+              disabled={isPending}
               className={[
-                'shrink-0 rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap',
+                'shrink-0 rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors',
                 i < currentStep
-                  ? 'bg-blue-100 text-blue-700'
+                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                   : i === currentStep
                     ? 'bg-blue-700 text-white'
-                    : 'bg-gray-100 text-gray-400',
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
+                'disabled:cursor-not-allowed disabled:opacity-70',
               ].join(' ')}
             >
               {cat}
-            </span>
+            </button>
           ))}
         </div>
       </div>

@@ -31,7 +31,14 @@ import type {
   AgentforceNarrative,
   QuickWin,
   RichRecommendation,
+  ReferralPartner,
 } from '@/types'
+import {
+  CAPABILITY_BY_ID,
+  type UseCaseTag,
+} from '@/lib/agentforce/capabilities'
+import { selectROIProofPoints } from '@/lib/agentforce/roi'
+import { selectAgentforceRecommendations } from '@/lib/agentforce/recommend'
 
 // ─── Colors ──────────────────────────────────────────────────────────────────
 
@@ -95,24 +102,24 @@ function tierFromScore(score: number): string {
 // ─── Industry Benchmarks ────────────────────────────────────────────────────
 
 const INDUSTRY_BENCHMARKS: Record<string, Record<string, number>> = {
-  'Professional Services': { 'AI Strategy': 2.6, 'People & Culture': 2.9, 'Data Foundation': 2.8, 'Process Readiness': 2.7, 'Risk & Governance': 2.5, 'AI Agent Governance': 2.3 },
-  'Consulting': { 'AI Strategy': 2.6, 'People & Culture': 2.9, 'Data Foundation': 2.8, 'Process Readiness': 2.7, 'Risk & Governance': 2.5, 'AI Agent Governance': 2.3 },
-  'Legal': { 'AI Strategy': 2.6, 'People & Culture': 2.9, 'Data Foundation': 2.8, 'Process Readiness': 2.7, 'Risk & Governance': 2.5, 'AI Agent Governance': 2.3 },
-  'Healthcare': { 'AI Strategy': 2.4, 'People & Culture': 2.7, 'Data Foundation': 2.8, 'Process Readiness': 2.5, 'Risk & Governance': 2.9, 'AI Agent Governance': 2.2 },
-  'Life Sciences': { 'AI Strategy': 2.4, 'People & Culture': 2.7, 'Data Foundation': 2.8, 'Process Readiness': 2.5, 'Risk & Governance': 2.9, 'AI Agent Governance': 2.2 },
-  'Biotechnology': { 'AI Strategy': 2.4, 'People & Culture': 2.7, 'Data Foundation': 2.8, 'Process Readiness': 2.5, 'Risk & Governance': 2.9, 'AI Agent Governance': 2.2 },
-  'Banking & Financial Services': { 'AI Strategy': 3.2, 'People & Culture': 3.0, 'Data Foundation': 3.3, 'Process Readiness': 3.1, 'Risk & Governance': 3.4, 'AI Agent Governance': 2.8 },
-  'Insurance': { 'AI Strategy': 3.2, 'People & Culture': 3.0, 'Data Foundation': 3.3, 'Process Readiness': 3.1, 'Risk & Governance': 3.4, 'AI Agent Governance': 2.8 },
-  'Manufacturing': { 'AI Strategy': 2.3, 'People & Culture': 2.4, 'Data Foundation': 2.5, 'Process Readiness': 2.7, 'Risk & Governance': 2.3, 'AI Agent Governance': 2.1 },
-  'Technology': { 'AI Strategy': 3.5, 'People & Culture': 3.4, 'Data Foundation': 3.5, 'Process Readiness': 3.3, 'Risk & Governance': 3.2, 'AI Agent Governance': 3.0 },
-  'Telecommunications': { 'AI Strategy': 3.5, 'People & Culture': 3.4, 'Data Foundation': 3.5, 'Process Readiness': 3.3, 'Risk & Governance': 3.2, 'AI Agent Governance': 3.0 },
-  'Retail': { 'AI Strategy': 2.4, 'People & Culture': 2.5, 'Data Foundation': 2.6, 'Process Readiness': 2.5, 'Risk & Governance': 2.3, 'AI Agent Governance': 2.1 },
-  'Consumer Goods': { 'AI Strategy': 2.4, 'People & Culture': 2.5, 'Data Foundation': 2.6, 'Process Readiness': 2.5, 'Risk & Governance': 2.3, 'AI Agent Governance': 2.1 },
-  'Real Estate': { 'AI Strategy': 2.2, 'People & Culture': 2.3, 'Data Foundation': 2.2, 'Process Readiness': 2.4, 'Risk & Governance': 2.1, 'AI Agent Governance': 2.0 },
-  'Construction': { 'AI Strategy': 2.2, 'People & Culture': 2.3, 'Data Foundation': 2.2, 'Process Readiness': 2.4, 'Risk & Governance': 2.1, 'AI Agent Governance': 2.0 },
-  'Education': { 'AI Strategy': 2.1, 'People & Culture': 2.3, 'Data Foundation': 2.2, 'Process Readiness': 2.2, 'Risk & Governance': 2.3, 'AI Agent Governance': 1.9 },
-  'Non-Profit': { 'AI Strategy': 2.0, 'People & Culture': 2.2, 'Data Foundation': 2.1, 'Process Readiness': 2.1, 'Risk & Governance': 2.2, 'AI Agent Governance': 1.8 },
-  'Other': { 'AI Strategy': 2.4, 'People & Culture': 2.5, 'Data Foundation': 2.4, 'Process Readiness': 2.4, 'Risk & Governance': 2.3, 'AI Agent Governance': 2.1 },
+  'Professional Services': { 'AI Strategy': 2.6, 'People & Culture': 2.9, 'Data Foundation': 2.8, 'Process Readiness': 2.7, 'AI Policies': 2.5, 'Agent Controls': 2.3 },
+  'Consulting': { 'AI Strategy': 2.6, 'People & Culture': 2.9, 'Data Foundation': 2.8, 'Process Readiness': 2.7, 'AI Policies': 2.5, 'Agent Controls': 2.3 },
+  'Legal': { 'AI Strategy': 2.6, 'People & Culture': 2.9, 'Data Foundation': 2.8, 'Process Readiness': 2.7, 'AI Policies': 2.5, 'Agent Controls': 2.3 },
+  'Healthcare': { 'AI Strategy': 2.4, 'People & Culture': 2.7, 'Data Foundation': 2.8, 'Process Readiness': 2.5, 'AI Policies': 2.9, 'Agent Controls': 2.2 },
+  'Life Sciences': { 'AI Strategy': 2.4, 'People & Culture': 2.7, 'Data Foundation': 2.8, 'Process Readiness': 2.5, 'AI Policies': 2.9, 'Agent Controls': 2.2 },
+  'Biotechnology': { 'AI Strategy': 2.4, 'People & Culture': 2.7, 'Data Foundation': 2.8, 'Process Readiness': 2.5, 'AI Policies': 2.9, 'Agent Controls': 2.2 },
+  'Banking & Financial Services': { 'AI Strategy': 3.2, 'People & Culture': 3.0, 'Data Foundation': 3.3, 'Process Readiness': 3.1, 'AI Policies': 3.4, 'Agent Controls': 2.8 },
+  'Insurance': { 'AI Strategy': 3.2, 'People & Culture': 3.0, 'Data Foundation': 3.3, 'Process Readiness': 3.1, 'AI Policies': 3.4, 'Agent Controls': 2.8 },
+  'Manufacturing': { 'AI Strategy': 2.3, 'People & Culture': 2.4, 'Data Foundation': 2.5, 'Process Readiness': 2.7, 'AI Policies': 2.3, 'Agent Controls': 2.1 },
+  'Technology': { 'AI Strategy': 3.5, 'People & Culture': 3.4, 'Data Foundation': 3.5, 'Process Readiness': 3.3, 'AI Policies': 3.2, 'Agent Controls': 3.0 },
+  'Telecommunications': { 'AI Strategy': 3.5, 'People & Culture': 3.4, 'Data Foundation': 3.5, 'Process Readiness': 3.3, 'AI Policies': 3.2, 'Agent Controls': 3.0 },
+  'Retail': { 'AI Strategy': 2.4, 'People & Culture': 2.5, 'Data Foundation': 2.6, 'Process Readiness': 2.5, 'AI Policies': 2.3, 'Agent Controls': 2.1 },
+  'Consumer Goods': { 'AI Strategy': 2.4, 'People & Culture': 2.5, 'Data Foundation': 2.6, 'Process Readiness': 2.5, 'AI Policies': 2.3, 'Agent Controls': 2.1 },
+  'Real Estate': { 'AI Strategy': 2.2, 'People & Culture': 2.3, 'Data Foundation': 2.2, 'Process Readiness': 2.4, 'AI Policies': 2.1, 'Agent Controls': 2.0 },
+  'Construction': { 'AI Strategy': 2.2, 'People & Culture': 2.3, 'Data Foundation': 2.2, 'Process Readiness': 2.4, 'AI Policies': 2.1, 'Agent Controls': 2.0 },
+  'Education': { 'AI Strategy': 2.1, 'People & Culture': 2.3, 'Data Foundation': 2.2, 'Process Readiness': 2.2, 'AI Policies': 2.3, 'Agent Controls': 1.9 },
+  'Non-Profit': { 'AI Strategy': 2.0, 'People & Culture': 2.2, 'Data Foundation': 2.1, 'Process Readiness': 2.1, 'AI Policies': 2.2, 'Agent Controls': 1.8 },
+  'Other': { 'AI Strategy': 2.4, 'People & Culture': 2.5, 'Data Foundation': 2.4, 'Process Readiness': 2.4, 'AI Policies': 2.3, 'Agent Controls': 2.1 },
 }
 
 function getIndustryBenchmarks(industry: string | null): Record<string, number> | null {
@@ -127,8 +134,8 @@ const EDUCATIONAL_SIDEBARS: Record<string, string> = {
   PeopleAndCulture: 'AI Adoption is a People Problem First: The most sophisticated AI tools fail without organizational readiness. Companies that invest in AI literacy, change management, and dedicated ownership before deploying technology see 3x higher adoption rates and significantly faster time to value.',
   DataFoundation: 'Why Data Quality Matters for AI: AI models are only as reliable as the data they learn from. Before deploying any AI agent or automation, organizations need accessible, accurate, and governed data. Poor data quality is the #1 reason AI projects fail in their first year.',
   ProcessReadiness: 'AI Augments Process, It Does Not Replace It: The most successful AI deployments start with well-documented, repeatable processes. AI agents work best when they have clear rules to follow and defined outcomes to optimize for.',
-  RiskAndGovernance: 'The Cost of Moving Fast Without Guardrails: Organizations that deploy AI without governance frameworks face regulatory exposure, reputational risk, and model failures that erode trust. A lightweight governance policy takes weeks to build and can prevent months of remediation.',
-  AIAgentGovernance: 'What Makes an Agent Trustworthy: An AI agent that acts autonomously on behalf of your business needs the same controls as any employee: defined scope, audit trails, escalation paths, and performance accountability. Without these, agents create liability, not leverage.',
+  AIPolicies: 'The Cost of Moving Fast Without Guardrails: Organizations that deploy AI without governance frameworks face regulatory exposure, reputational risk, and model failures that erode trust. A lightweight governance policy takes weeks to build and can prevent months of remediation.',
+  AgentControls: 'What Makes an Agent Trustworthy: An AI agent that acts autonomously on behalf of your business needs the same controls as any employee: defined scope, audit trails, escalation paths, and performance accountability. Without these, agents create liability, not leverage.',
 }
 
 const AGENTFORCE_SIDEBARS: Record<string, string> = {
@@ -145,8 +152,8 @@ const SIDEBAR_CLOSING: Record<string, string> = {
   PeopleAndCulture: 'The #1 reason AI initiatives stall is not technology. It is people. Change readiness determines deployment speed.',
   DataFoundation: 'An AI system trained on incomplete data doesn\'t just underperform, it actively misleads. Clean data is not a nice-to-have, it is a prerequisite.',
   ProcessReadiness: 'AI agents follow rules. If your processes are undocumented, your agents will automate the chaos, not fix it.',
-  RiskAndGovernance: 'The cost of an AI incident (reputational, regulatory, or operational) far exceeds the cost of a governance framework built before deployment.',
-  AIAgentGovernance: 'An agent without an owner is a liability without a name. Accountability must be established before autonomy is granted.',
+  AIPolicies: 'The cost of an AI incident (reputational, regulatory, or operational) far exceeds the cost of a governance framework built before deployment.',
+  AgentControls: 'An agent without an owner is a liability without a name. Accountability must be established before autonomy is granted.',
 }
 
 const AGENTFORCE_CLOSING: Record<string, string> = {
@@ -163,8 +170,8 @@ const CATEGORY_ACCENT: Record<string, string> = {
   PeopleAndCulture: '#7c3aed',
   DataFoundation: '#0891b2',
   ProcessReadiness: '#059669',
-  RiskAndGovernance: '#d97706',
-  AIAgentGovernance: '#dc2626',
+  AIPolicies: '#d97706',
+  AgentControls: '#dc2626',
 }
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -515,8 +522,8 @@ const CATEGORY_KEYS = [
   'PeopleAndCulture',
   'DataFoundation',
   'ProcessReadiness',
-  'RiskAndGovernance',
-  'AIAgentGovernance',
+  'AIPolicies',
+  'AgentControls',
 ] as const
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -524,8 +531,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   PeopleAndCulture: 'People & Culture',
   DataFoundation: 'Data Foundation',
   ProcessReadiness: 'Process Readiness',
-  RiskAndGovernance: 'Risk & Governance',
-  AIAgentGovernance: 'AI Agent Governance',
+  AIPolicies: 'AI Policies',
+  AgentControls: 'Agent Controls',
 }
 
 const CLOUD_LABELS: Record<string, string> = {
@@ -544,8 +551,11 @@ export interface ProspectReportProps {
   narrative: ReportNarrative
   agentforceNarrative: AgentforceNarrative | null
   checkedSymptoms?: string[]
+  /** snapshot question_id → boolean; used by the Agentforce recommendation engine */
+  snapshotChecks?: Record<string, boolean>
   layer1QuestionCount?: number
   layer2QuestionCount?: number
+  referralPartner?: ReferralPartner | null
 }
 
 // ─── Document ────────────────────────────────────────────────────────────────
@@ -558,8 +568,10 @@ export function ProspectReport({
   narrative,
   agentforceNarrative,
   checkedSymptoms = [],
+  snapshotChecks = {},
   layer1QuestionCount = 0,
   layer2QuestionCount = 0,
+  referralPartner = null,
 }: ProspectReportProps) {
   const isSalesforce = !!assessment.uses_salesforce
   const companyName = assessment.company_name ?? 'Your Company'
@@ -568,7 +580,7 @@ export function ProspectReport({
       .filter(Boolean)
       .join(' ') || 'Respondent'
   const respondentTitle = assessment.contact_title ?? ''
-  const aeName = assessment.ae_name ?? 'Your Account Executive'
+  const aeName = referralPartner?.name ?? 'Your Account Executive'
   const reportDate = new Date().toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
@@ -1371,6 +1383,213 @@ export function ProspectReport({
         </>
       )}
 
+      {/* ── Agentforce Capability Mapping (always rendered) ─────────────── */}
+      {(() => {
+        const recs = selectAgentforceRecommendations(
+          {
+            usesSalesforce: isSalesforce,
+            activeClouds: (assessment.salesforce_clouds ?? []) as Parameters<typeof selectAgentforceRecommendations>[0]['activeClouds'],
+            layer1: l1Scores,
+            snapshot: snapshotChecks,
+            editionGated: !!l2Scores?.edition_flag,
+          },
+          5,
+        )
+        const caps = recs.map((r: UseCaseTag) => CAPABILITY_BY_ID[r]).filter(Boolean)
+        return (
+          <Page size="LETTER" style={s.page}>
+            <Text style={s.sectionLabel}>AGENTFORCE CAPABILITY MAPPING</Text>
+            <Text style={s.sectionTitle}>Recommended Agentforce Agents</Text>
+
+            <Text style={[s.bodyText, { marginBottom: 12 }]}>
+              {isSalesforce
+                ? `Based on your Layer 1 category scores, your active Salesforce clouds, and the operational symptoms you flagged, the following ${caps.length} Agentforce capabilities map to your highest-impact opportunities.`
+                : `Even without Salesforce today, these ${caps.length} Agentforce capabilities represent the highest-impact opportunities for an organization with your readiness profile. A "Considering Salesforce" callout appears on the next page with details on how to explore further.`}
+            </Text>
+
+            <View>
+              {/* Header row */}
+              <View style={{
+                flexDirection: 'row',
+                borderTop: `0.5pt solid ${COLORS.gray200}`,
+                borderBottom: `0.5pt solid ${COLORS.gray200}`,
+                backgroundColor: COLORS.gray50,
+                paddingVertical: 6,
+              }}>
+                <Text style={{ width: '22%', paddingHorizontal: 6, fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, letterSpacing: 0.6, textTransform: 'uppercase' }}>Capability</Text>
+                <Text style={{ width: '22%', paddingHorizontal: 6, fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, letterSpacing: 0.6, textTransform: 'uppercase' }}>SKU</Text>
+                <Text style={{ width: '30%', paddingHorizontal: 6, fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, letterSpacing: 0.6, textTransform: 'uppercase' }}>What It Does</Text>
+                <Text style={{ width: '26%', paddingHorizontal: 6, fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, letterSpacing: 0.6, textTransform: 'uppercase' }}>Impact for You</Text>
+              </View>
+              {caps.map((c) => (
+                <View key={c.id} wrap={false} style={{ flexDirection: 'row', borderBottom: `0.5pt solid ${COLORS.gray200}`, paddingVertical: 8 }}>
+                  <View style={{ width: '22%', paddingHorizontal: 6 }}>
+                    <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>{c.name}</Text>
+                    <Text style={{ fontSize: 8, color: COLORS.gray500, marginTop: 2 }}>{c.group}</Text>
+                  </View>
+                  <View style={{ width: '22%', paddingHorizontal: 6 }}>
+                    <Text style={{ fontSize: 9, color: COLORS.blueDark, fontFamily: 'Helvetica-Bold' }}>{c.sku}</Text>
+                  </View>
+                  <Text style={{ width: '30%', paddingHorizontal: 6, fontSize: 9, color: COLORS.gray700, lineHeight: 1.45 }}>{c.whatItDoes}</Text>
+                  <Text style={{ width: '26%', paddingHorizontal: 6, fontSize: 9, color: COLORS.gray700, lineHeight: 1.45 }}>{c.businessImpact}</Text>
+                </View>
+              ))}
+            </View>
+
+            <PageFooter companyName={companyName} />
+          </Page>
+        )
+      })()}
+
+      {/* ── Proof Points (always rendered) ──────────────────────────────── */}
+      {(() => {
+        const recs = selectAgentforceRecommendations(
+          {
+            usesSalesforce: isSalesforce,
+            activeClouds: (assessment.salesforce_clouds ?? []) as Parameters<typeof selectAgentforceRecommendations>[0]['activeClouds'],
+            layer1: l1Scores,
+            snapshot: snapshotChecks,
+            editionGated: !!l2Scores?.edition_flag,
+          },
+          5,
+        )
+        const proofs = selectROIProofPoints(recs, 3)
+        if (proofs.length === 0) return null
+        return (
+          <Page size="LETTER" style={s.page}>
+            <Text style={s.sectionLabel}>PROOF POINTS</Text>
+            <Text style={s.sectionTitle}>What Organizations Like Yours Have Achieved</Text>
+            <Text style={[s.bodyText, { marginBottom: 14 }]}>
+              These published customer results map to the capabilities recommended for {companyName}. They
+              are directional benchmarks, not guarantees — actual outcomes depend on deployment depth and
+              change management.
+            </Text>
+            {proofs.map((p, i) => (
+              <View key={`${p.company}-${i}`} wrap={false} style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: COLORS.gray50,
+                border: `0.5pt solid ${COLORS.gray200}`,
+                borderRadius: 6,
+                padding: 14,
+                marginBottom: 10,
+              }}>
+                <Text style={{ fontSize: 18, fontFamily: 'Helvetica-Bold', color: COLORS.blueDark, minWidth: 150, marginRight: 16 }}>
+                  {p.result}
+                </Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>{p.company}</Text>
+                  <Text style={{ fontSize: 9, color: COLORS.gray500, marginTop: 2 }}>{p.metric}</Text>
+                </View>
+              </View>
+            ))}
+            <PageFooter companyName={companyName} />
+          </Page>
+        )
+      })()}
+
+      {/* ── Foundation Requirements (always rendered) ───────────────────── */}
+      <Page size="LETTER" style={s.page}>
+        <Text style={s.sectionLabel}>FOUNDATION REQUIREMENTS</Text>
+        <Text style={s.sectionTitle}>What You Need Before Deploying Agents</Text>
+
+        <Text style={[s.bodyText, { marginBottom: 14 }]}>
+          Agentforce is only as powerful as the foundation it runs on. Make sure the following prerequisites
+          are in place — or on an imminent roadmap — before committing to a deployment timeline.
+        </Text>
+
+        {/* Required products table */}
+        <View style={{ borderTop: `0.5pt solid ${COLORS.gray200}` }}>
+          {[
+            {
+              name: 'Data Cloud',
+              why: 'Powers every Agentforce agent with unified customer data. Without Data Cloud, agents lack the context needed for accurate, personalized responses.',
+              how: 'Free tier available via Salesforce Foundations (100K Flex Credits). Full implementation requires a Data Cloud license.',
+            },
+            {
+              name: 'Einstein 1 Platform',
+              why: 'Provides the Einstein Trust Layer for security, data masking, and compliance. Required for enterprise-grade AI governance.',
+              how: 'Included with Agentforce Add-ons and Agentforce 1 Editions.',
+            },
+            {
+              name: 'Enterprise Edition+',
+              why: 'Agentforce requires Enterprise edition or higher for Sales Cloud, Service Cloud, or Industry Clouds.',
+              how: 'Contact your Salesforce AE to discuss edition requirements.',
+            },
+          ].map((f) => (
+            <View key={f.name} wrap={false} style={{ flexDirection: 'row', borderBottom: `0.5pt solid ${COLORS.gray200}`, paddingVertical: 10 }}>
+              <View style={{ width: '24%', paddingHorizontal: 6 }}>
+                <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>{f.name}</Text>
+              </View>
+              <Text style={{ width: '42%', paddingHorizontal: 6, fontSize: 9, color: COLORS.gray700, lineHeight: 1.45 }}>
+                {f.why}
+              </Text>
+              <Text style={{ width: '34%', paddingHorizontal: 6, fontSize: 9, color: COLORS.gray700, lineHeight: 1.45 }}>
+                {f.how}
+              </Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Enablement path */}
+        <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginTop: 18, marginBottom: 8 }}>
+          Recommended Enablement Path
+        </Text>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {[
+            { title: 'Phase 1: Foundation', weeks: 'Weeks 1–2', text: 'Activate Salesforce Foundations (free). Set up Data Cloud basics. Enable the Einstein Trust Layer.' },
+            { title: 'Phase 2: First Agent', weeks: 'Weeks 3–4', text: 'Deploy the first pre-built agent (Service Agent or SDR Agent recommended). Test with a subset of use cases. Gather baseline metrics.' },
+            { title: 'Phase 3: Optimize',    weeks: 'Weeks 5–8', text: 'Refine agent topics and guardrails. Add additional agents based on performance. Monitor via the Agentforce Command Center.' },
+          ].map((ph) => (
+            <View key={ph.title} style={{ flex: 1, border: `0.5pt solid ${COLORS.gray200}`, borderRadius: 6, padding: 10, backgroundColor: COLORS.gray50 }}>
+              <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.blueDark }}>{ph.title}</Text>
+              <Text style={{ fontSize: 8, color: COLORS.gray500, marginTop: 2, marginBottom: 6 }}>{ph.weeks}</Text>
+              <Text style={{ fontSize: 9, color: COLORS.gray700, lineHeight: 1.5 }}>{ph.text}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Implementation considerations */}
+        <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginTop: 18, marginBottom: 8 }}>
+          Implementation Considerations
+        </Text>
+        {[
+          { label: 'Data quality',        body: 'Field completion rates below 70% on key objects (Lead, Contact, Account, Opportunity) will limit agent effectiveness. Consider a data quality sprint before deployment.' },
+          { label: 'Change management',   body: 'Teams that view agents as a threat consistently underperform. Brief teams early and measure success by productivity gains rather than headcount reduction.' },
+          { label: 'Ongoing optimization',body: 'Weekly transcript reviews, monthly prompt refinements, and quarterly use case expansions compound ROI over time.' },
+          { label: 'Implementation partner', body: 'Typical setup costs range from $2,000–$6,000 per agent for configuration and training.' },
+        ].map((c) => (
+          <View key={c.label} style={{ flexDirection: 'row', marginBottom: 4 }}>
+            <Text style={{ width: 10, fontSize: 10, color: COLORS.blueDark }}>•</Text>
+            <Text style={{ flex: 1, fontSize: 9.5, color: COLORS.gray700, lineHeight: 1.5 }}>
+              <Text style={{ fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>{c.label}: </Text>
+              {c.body}
+            </Text>
+          </View>
+        ))}
+
+        {!isSalesforce && (
+          <View style={{
+            borderLeftWidth: 4,
+            borderLeftColor: COLORS.blueDark,
+            backgroundColor: '#eff6ff',
+            borderRadius: 6,
+            padding: 12,
+            marginTop: 14,
+          }}>
+            <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: COLORS.blueDark, marginBottom: 4 }}>
+              Considering Salesforce?
+            </Text>
+            <Text style={{ fontSize: 10, color: COLORS.gray700, lineHeight: 1.5 }}>
+              Agentforce provides enterprise-grade AI agents for sales, service, and marketing automation on
+              the Salesforce platform. {referralPartner?.name ? `Contact ${referralPartner.name} to explore what a readiness-aligned deployment would look like for ${companyName}.` : 'Ask IMG to introduce you to a Salesforce AE aligned to your industry and size.'}
+            </Text>
+          </View>
+        )}
+
+        <PageFooter companyName={companyName} />
+      </Page>
+
       {/* ── Final Page: Next Steps ─────────────────────────────────────── */}
       <Page size="LETTER" style={s.page}>
         <Text style={s.sectionLabel}>NEXT STEPS</Text>
@@ -1394,6 +1613,71 @@ export function ProspectReport({
           <Text style={[s.ctaText, { marginTop: 16, fontFamily: 'Helvetica-Bold', color: COLORS.white }]}>
             Contact: gil@growwithimg.com
           </Text>
+        </View>
+
+        {/* ── Referral Partner card (AE) ─────────────────────────────────── */}
+        {referralPartner && (
+          <View style={{
+            borderWidth: 1,
+            borderColor: '#bfdbfe',
+            backgroundColor: '#eff6ff',
+            borderRadius: 6,
+            padding: 14,
+            marginTop: 16,
+          }}>
+            <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: COLORS.blueDark, letterSpacing: 1, marginBottom: 6 }}>
+              YOUR SALESFORCE ACCOUNT EXECUTIVE
+            </Text>
+            <Text style={{ fontSize: 14, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>
+              {referralPartner.name}
+            </Text>
+            {referralPartner.sf_team_region && (
+              <Text style={{ fontSize: 10, color: COLORS.blueDark, marginTop: 1 }}>
+                {referralPartner.sf_team_region}
+                {referralPartner.company ? ` · ${referralPartner.company}` : ''}
+              </Text>
+            )}
+            <View style={{ marginTop: 8 }}>
+              <View style={{ flexDirection: 'row', marginBottom: 2 }}>
+                <Text style={{ width: 60, fontSize: 9, color: COLORS.gray500 }}>Email</Text>
+                <Text style={{ flex: 1, fontSize: 9, color: COLORS.gray700 }}>{referralPartner.email}</Text>
+              </View>
+              {referralPartner.city && (
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={{ width: 60, fontSize: 9, color: COLORS.gray500 }}>Based in</Text>
+                  <Text style={{ flex: 1, fontSize: 9, color: COLORS.gray700 }}>{referralPartner.city}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* ── Resources Included callout ────────────────────────────────── */}
+        <View style={{
+          borderWidth: 1,
+          borderColor: '#6ee7b7',
+          backgroundColor: '#ecfdf5',
+          borderRadius: 6,
+          padding: 14,
+          marginTop: 14,
+        }}>
+          <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: '#065f46', marginBottom: 6 }}>
+            Resources Included with This Report
+          </Text>
+          {[
+            'Full AI Readiness Assessment — category scores, benchmarks, quick wins, and prioritized recommendations',
+            'Agentforce capability mapping — up to five agents matched to your readiness profile',
+            'ROI proof points from organizations like yours',
+            `Foundation requirements and a phased 8-week enablement path${isSalesforce ? '' : ' (for when you\'re ready to move on Salesforce)'}`,
+            referralPartner
+              ? `Direct line to ${referralPartner.name} (${referralPartner.email}) for scoping and demo scheduling`
+              : 'Introduction to a Salesforce AE aligned to your industry and size',
+            'Access to Salesforce Foundations and Agentforce Trailhead learning paths (free tier)',
+          ].map((r, i) => (
+            <Text key={i} style={{ fontSize: 10, color: '#065f46', lineHeight: 1.55 }}>
+              • {r}
+            </Text>
+          ))}
         </View>
 
         <PageFooter companyName={companyName} />

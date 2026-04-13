@@ -23,6 +23,7 @@ import type {
   ProductScore,
   ReportNarrative,
   AgentforceNarrative,
+  ReferralPartner,
 } from '@/types'
 
 export async function GET(
@@ -52,7 +53,11 @@ export async function GET(
     { data: layer1Rows },
     { data: layer2Rows },
   ] = await Promise.all([
-    supabase.from('assessments').select('*').eq('id', assessmentId).single(),
+    supabase
+      .from('assessments')
+      .select('*, referral_partner:referral_partners(*)')
+      .eq('id', assessmentId)
+      .single(),
     supabase
       .from('reports')
       .select(
@@ -93,6 +98,10 @@ export async function GET(
   }
 
   const a = assessment as Assessment
+  const partnerRaw = (assessment as { referral_partner?: unknown }).referral_partner
+  const referralPartner = (
+    Array.isArray(partnerRaw) ? partnerRaw[0] : partnerRaw
+  ) as ReferralPartner | null
   const l1 = report.layer1_scores as Layer1Scores
   const l2 = report.layer2_scores as Layer2Scores | null
   const ps = report.product_scores as ProductScore[] | null
@@ -152,8 +161,10 @@ export async function GET(
       narrative,
       agentforceNarrative: afNarrative,
       checkedSymptoms: prospectSymptoms,
+      snapshotChecks: prospectSnapshotMap,
       layer1QuestionCount: layer1Rows?.length ?? 0,
       layer2QuestionCount: layer2Rows?.length ?? 0,
+      referralPartner,
     })
     buffer = await renderToBuffer(reportDoc as unknown as React.ReactElement)
     filename = `AI-Readiness-Report-${companySlug}.pdf`

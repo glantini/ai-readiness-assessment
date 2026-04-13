@@ -21,7 +21,7 @@ export default async function DashboardPage() {
   const { data: assessments, error } = await supabase
     .from('assessments')
     .select(
-      'id, token, status, contact_first_name, contact_last_name, contact_email, company_name, ae_name, uses_salesforce, created_at'
+      'id, token, status, contact_first_name, contact_last_name, contact_email, company_name, uses_salesforce, created_at, referral_partner:referral_partners(id, name)'
     )
     .order('created_at', { ascending: false })
 
@@ -48,12 +48,20 @@ export default async function DashboardPage() {
             <h1 className="text-2xl font-semibold text-gray-900">Assessments</h1>
             <p className="mt-1 text-sm text-gray-500">Manage client AI readiness assessments</p>
           </div>
-          <Link
-            href="/dashboard/new"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-800"
-          >
-            <span aria-hidden="true">+</span> New Assessment
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard/partners/new"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              <span aria-hidden="true">+</span> New Referral Partner
+            </Link>
+            <Link
+              href="/dashboard/new"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-800"
+            >
+              <span aria-hidden="true">+</span> New Assessment
+            </Link>
+          </div>
         </div>
 
         {/* ── Error state ───────────────────────────────────────────────── */}
@@ -84,7 +92,7 @@ export default async function DashboardPage() {
                 <tr>
                   <th scope="col" className="w-[18%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Contact</th>
                   <th scope="col" className="w-[14%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Company</th>
-                  <th scope="col" className="w-[10%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">AE</th>
+                  <th scope="col" className="w-[10%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Partner</th>
                   <th scope="col" className="w-[9%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
                   <th scope="col" className="w-[8%] px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">AI Score</th>
                   <th scope="col" className="w-[8%] px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">SF Score</th>
@@ -121,7 +129,11 @@ export default async function DashboardPage() {
                         <span className="line-clamp-2">{a.company_name ?? '—'}</span>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700 truncate">
-                        {a.ae_name ?? '—'}
+                        {(() => {
+                          const p = a.referral_partner as { name?: string } | { name?: string }[] | null
+                          const name = Array.isArray(p) ? p[0]?.name : p?.name
+                          return name ?? '—'
+                        })()}
                       </td>
                       <td className="px-4 py-3">
                         <span

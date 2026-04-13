@@ -9,6 +9,7 @@ import type {
   ProductScore,
   ReadinessTier,
   AgentforceTier,
+  ReferralPartner,
 } from '@/types'
 
 export const dynamic = 'force-dynamic'
@@ -82,7 +83,11 @@ export default async function AssessmentDetailPage({
     { data: report },
     { data: narrativeRow },
   ] = await Promise.all([
-    supabase.from('assessments').select('*').eq('id', params.id).single(),
+    supabase
+      .from('assessments')
+      .select('*, referral_partner:referral_partners(*)')
+      .eq('id', params.id)
+      .single(),
     supabase
       .from('reports')
       .select('layer1_scores, layer2_scores, product_scores, overall_tier')
@@ -97,7 +102,10 @@ export default async function AssessmentDetailPage({
 
   if (aErr || !assessment) notFound()
 
-  const a = assessment as Assessment
+  const a = assessment as Assessment & {
+    referral_partner: ReferralPartner | ReferralPartner[] | null
+  }
+  const partner = Array.isArray(a.referral_partner) ? a.referral_partner[0] ?? null : a.referral_partner
 
   const layer1Scores = report?.layer1_scores as Layer1Scores | null
   const layer2ScoresRaw = report?.layer2_scores as Layer2Scores | null
@@ -220,15 +228,20 @@ export default async function AssessmentDetailPage({
                 </>
               )}
 
-              <div className="my-3 border-t border-gray-100" />
-
-              <ProfileRow label="AE"     value={a.ae_name} />
-              <ProfileRow label="Region" value={a.ae_region} />
-              {a.ae_notes && (
-                <div className="flex gap-2">
-                  <dt className="w-24 shrink-0 text-gray-400">Notes</dt>
-                  <dd className="text-gray-700">{a.ae_notes}</dd>
-                </div>
+              {partner && (
+                <>
+                  <div className="my-3 border-t border-gray-100" />
+                  <ProfileRow label="Partner" value={partner.name} />
+                  <ProfileRow label="Email"   value={partner.email} />
+                  <ProfileRow label="Company" value={partner.company} />
+                  <ProfileRow label="Region"  value={partner.sf_team_region} />
+                  {partner.notes && (
+                    <div className="flex gap-2">
+                      <dt className="w-24 shrink-0 text-gray-400">Notes</dt>
+                      <dd className="text-gray-700">{partner.notes}</dd>
+                    </div>
+                  )}
+                </>
               )}
             </dl>
           </div>

@@ -31,9 +31,9 @@ AI Strategy: Reference specific budget ranges for AI pilots, specific ROI calcul
 
 People and Culture: Reference specific training resources (Salesforce Trailhead AI modules, LinkedIn Learning AI courses), specific change management frameworks (ADKAR), specific ways to identify AI champions within a team.
 
-Risk and Governance: Reference specific policy frameworks (NIST AI Risk Management Framework, ISO 42001), specific Salesforce tools (Einstein Trust Layer settings, permission sets, field-level security), specific incident response components to define.
+AI Policies: Reference specific policy frameworks (NIST AI Risk Management Framework, ISO 42001), specific Salesforce tools (Einstein Trust Layer settings, permission sets, field-level security), specific incident response components to define.
 
-AI Agent Governance: Reference specific Salesforce tools (Agent Builder, permission sets, audit logs), specific metrics to track per agent (task success rate, escalation rate, user satisfaction score), specific stage-gate criteria for moving from sandbox to pilot to production.
+Agent Controls: Reference specific Salesforce tools (Agent Builder, permission sets, audit logs), specific metrics to track per agent (task success rate, escalation rate, user satisfaction score), specific stage-gate criteria for moving from sandbox to pilot to production.
 
 Always tie the why-it-matters to the company's specific industry, size, and stated primary motivation. A 50-person professional services firm and a 500-person manufacturer at the same score need fundamentally different implementation guidance. Never use em dashes in any output. Use commas, colons, or periods instead.`
 
@@ -150,8 +150,8 @@ ${productLines}`
       .join(',\n')
 
     const editionFlagValue =
-      assessment.salesforce_edition === 'Professional' ||
-      assessment.salesforce_edition === 'Essentials'
+      assessment.salesforce_edition === 'Pro' ||
+      assessment.salesforce_edition === 'Starter'
         ? '"Specific, direct note about this edition constraint and the upgrade path required"'
         : 'null'
 
@@ -243,8 +243,8 @@ BLOCK 1 (required for all respondents):
     "PeopleAndCulture": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
     "DataFoundation": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
     "ProcessReadiness": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
-    "RiskAndGovernance": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
-    "AIAgentGovernance": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] }
+    "AIPolicies": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
+    "AgentControls": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] }
   }
 }
 \`\`\`

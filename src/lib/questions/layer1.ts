@@ -11,8 +11,8 @@ import type { Question } from '@/types'
  *   People & Culture    20%
  *   Data Foundation     20%
  *   Process Readiness   20%
- *   Risk & Governance   10%
- *   AI Agent Governance 10%
+ *   AI Policies    10%
+ *   Agent Controls 10%
  */
 
 export type Layer1Category =
@@ -20,16 +20,16 @@ export type Layer1Category =
   | 'People & Culture'
   | 'Data Foundation'
   | 'Process Readiness'
-  | 'Risk & Governance'
-  | 'AI Agent Governance'
+  | 'AI Policies'
+  | 'Agent Controls'
 
 export const LAYER1_CATEGORY_WEIGHTS: Record<Layer1Category, number> = {
   'AI Strategy': 0.20,
   'People & Culture': 0.20,
   'Data Foundation': 0.20,
   'Process Readiness': 0.20,
-  'Risk & Governance': 0.10,
-  'AI Agent Governance': 0.10,
+  'AI Policies': 0.10,
+  'Agent Controls': 0.10,
 }
 
 export const SCALE_LABELS = {
@@ -238,10 +238,10 @@ export const layer1Questions: Question[] = [
     text: 'Our current processes are designed or ready to be extended by automation without a full rebuild.',
   },
 
-  // ── Risk & Governance (6) ─────────────────────────────────────────────────
+  // ── AI Policies (6) ───────────────────────────────────────────────────────
   {
     id: 'l1_risk_01',
-    category: 'Risk & Governance',
+    category: 'AI Policies',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -249,7 +249,7 @@ export const layer1Questions: Question[] = [
   },
   {
     id: 'l1_risk_02',
-    category: 'Risk & Governance',
+    category: 'AI Policies',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -257,7 +257,7 @@ export const layer1Questions: Question[] = [
   },
   {
     id: 'l1_risk_03',
-    category: 'Risk & Governance',
+    category: 'AI Policies',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -265,7 +265,7 @@ export const layer1Questions: Question[] = [
   },
   {
     id: 'l1_risk_04',
-    category: 'Risk & Governance',
+    category: 'AI Policies',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -273,7 +273,7 @@ export const layer1Questions: Question[] = [
   },
   {
     id: 'l1_risk_05',
-    category: 'Risk & Governance',
+    category: 'AI Policies',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -281,17 +281,17 @@ export const layer1Questions: Question[] = [
   },
   {
     id: 'l1_risk_06',
-    category: 'Risk & Governance',
+    category: 'AI Policies',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
     text: 'Customer and employee data is handled in compliance with applicable privacy laws (e.g., GDPR, CCPA).',
   },
 
-  // ── AI Agent Governance (6) ───────────────────────────────────────────────
+  // ── Agent Controls (6) ────────────────────────────────────────────────────
   {
     id: 'l1_agent_01',
-    category: 'AI Agent Governance',
+    category: 'Agent Controls',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -299,7 +299,7 @@ export const layer1Questions: Question[] = [
   },
   {
     id: 'l1_agent_02',
-    category: 'AI Agent Governance',
+    category: 'Agent Controls',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -307,7 +307,7 @@ export const layer1Questions: Question[] = [
   },
   {
     id: 'l1_agent_03',
-    category: 'AI Agent Governance',
+    category: 'Agent Controls',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -315,7 +315,7 @@ export const layer1Questions: Question[] = [
   },
   {
     id: 'l1_agent_04',
-    category: 'AI Agent Governance',
+    category: 'Agent Controls',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -323,7 +323,7 @@ export const layer1Questions: Question[] = [
   },
   {
     id: 'l1_agent_05',
-    category: 'AI Agent Governance',
+    category: 'Agent Controls',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -331,7 +331,7 @@ export const layer1Questions: Question[] = [
   },
   {
     id: 'l1_agent_06',
-    category: 'AI Agent Governance',
+    category: 'Agent Controls',
     inputType: 'scale',
     scaleMin: SCALE_LABELS.min,
     scaleMax: SCALE_LABELS.max,
@@ -345,8 +345,8 @@ export const layer1ByCategory: Record<Layer1Category, Question[]> = {
   'People & Culture': layer1Questions.filter((q) => q.category === 'People & Culture'),
   'Data Foundation': layer1Questions.filter((q) => q.category === 'Data Foundation'),
   'Process Readiness': layer1Questions.filter((q) => q.category === 'Process Readiness'),
-  'Risk & Governance': layer1Questions.filter((q) => q.category === 'Risk & Governance'),
-  'AI Agent Governance': layer1Questions.filter((q) => q.category === 'AI Agent Governance'),
+  'AI Policies': layer1Questions.filter((q) => q.category === 'AI Policies'),
+  'Agent Controls': layer1Questions.filter((q) => q.category === 'Agent Controls'),
 }
 
 export const LAYER1_CATEGORIES: Layer1Category[] = [
@@ -354,6 +354,6 @@ export const LAYER1_CATEGORIES: Layer1Category[] = [
   'People & Culture',
   'Data Foundation',
   'Process Readiness',
-  'Risk & Governance',
-  'AI Agent Governance',
+  'AI Policies',
+  'Agent Controls',
 ]

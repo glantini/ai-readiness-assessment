@@ -39,8 +39,8 @@ const CATEGORY_ORDER = [
   'PeopleAndCulture',
   'DataFoundation',
   'ProcessReadiness',
-  'RiskAndGovernance',
-  'AIAgentGovernance',
+  'AIPolicies',
+  'AgentControls',
 ] as const
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -48,8 +48,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   PeopleAndCulture: 'People & Culture',
   DataFoundation: 'Data Foundation',
   ProcessReadiness: 'Process Readiness',
-  RiskAndGovernance: 'Risk & Governance',
-  AIAgentGovernance: 'AI Agent Governance',
+  AIPolicies: 'AI Policies',
+  AgentControls: 'Agent Controls',
 }
 
 const CLOUD_LABELS: Record<string, string> = {

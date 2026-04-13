@@ -194,7 +194,11 @@ async function sendAEIntelligenceEmail(assessmentId: string): Promise<void> {
     { data: report },
     { data: snapshotRows },
   ] = await Promise.all([
-    supabase.from('assessments').select('*').eq('id', assessmentId).single(),
+    supabase
+      .from('assessments')
+      .select('*, referral_partner:referral_partners(*)')
+      .eq('id', assessmentId)
+      .single(),
     supabase
       .from('reports')
       .select('layer1_scores, layer2_scores, product_scores, ai_narrative_json, agentforce_narrative_json')
@@ -209,9 +213,11 @@ async function sendAEIntelligenceEmail(assessmentId: string): Promise<void> {
 
   if (!assessment || !report?.ai_narrative_json) return
 
-  const aeEmail = assessment.ae_email
+  const partnerRaw = (assessment as { referral_partner?: unknown }).referral_partner
+  const partner = Array.isArray(partnerRaw) ? partnerRaw[0] : partnerRaw
+  const aeEmail = (partner as { email?: string } | null)?.email
   if (!aeEmail) {
-    console.warn('[sendAEIntelligenceEmail] No ae_email set — skipping')
+    console.warn('[sendAEIntelligenceEmail] No referral partner email — skipping')
     return
   }
 

@@ -10,42 +10,20 @@ export async function createAssessment(
 ): Promise<{ error: string } | undefined> {
   const supabase = createServiceClient()
 
-  const usesSalesforce = formData.get('uses_salesforce') === 'yes'
-  const rawClouds = formData.getAll('salesforce_clouds') as string[]
-  const salesforceClouds = usesSalesforce && rawClouds.length ? rawClouds : null
-
   const str = (key: string): string | null =>
     (formData.get(key) as string)?.trim() || null
+
+  const referralPartnerId = str('referral_partner_id')
 
   const { data, error } = await supabase
     .from('assessments')
     .insert({
       status: 'pending',
-      // Contact
       contact_first_name: str('contact_first_name'),
       contact_last_name:  str('contact_last_name'),
-      contact_title:      str('contact_title'),
       contact_email:      str('contact_email'),
-      contact_phone:      str('contact_phone'),
-      contact_linkedin:   str('contact_linkedin'),
-      // Company
-      company_name:         str('company_name'),
-      company_industry:     str('company_industry'),
-      company_size:         str('company_size'),
-      company_revenue:      str('company_revenue'),
-      company_headquarters: str('company_headquarters'),
-      company_website:      str('company_website'),
-      // AI context
-      ai_motivation:     str('ai_motivation'),
-      ai_current_usage:  str('ai_current_usage'),
-      uses_salesforce:   usesSalesforce,
-      salesforce_edition: usesSalesforce ? str('salesforce_edition') : null,
-      salesforce_clouds:  salesforceClouds,
-      // AE info
-      ae_name:   str('ae_name'),
-      ae_email:  str('ae_email'),
-      ae_region: str('ae_region'),
-      ae_notes:  str('ae_notes'),
+      company_name:       str('company_name'),
+      referral_partner_id: referralPartnerId,
     })
     .select('id, token, contact_first_name, contact_last_name, contact_email, company_name')
     .single()
@@ -61,7 +39,6 @@ export async function createAssessment(
 
   if (data.contact_email) {
     try {
-      // NOTE: update the `from` address to a verified Resend domain before deploying
       await resend.emails.send({
         from: 'IMG Assessments <assessments@growwithimg.com>',
         to: data.contact_email,
@@ -69,7 +46,6 @@ export async function createAssessment(
         html: inviteEmailHtml({ contactName, assessmentUrl, companyName: data.company_name }),
       })
     } catch (emailErr) {
-      // Assessment is already created — don't fail the whole operation
       console.error('[Resend] Failed to send invite email:', emailErr)
     }
   }

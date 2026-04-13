@@ -6,7 +6,11 @@ export type SalesforceCloud =
   | 'SalesCloud'
   | 'ServiceCloud'
   | 'MarketingCloud'
+  | 'CommerceCloud'
   | 'DataCloud'
+  | 'ExperienceCloud'
+  | 'FieldService'
+  | 'RevenueCloud'
 
 export type Layer2Section =
   | 'CorePrereqs'
@@ -36,15 +40,11 @@ export interface Question {
 export type AssessmentStatus = 'pending' | 'in_progress' | 'completed'
 
 export type SalesforceEdition =
-  | 'Essentials'
   | 'Starter'
-  | 'Professional'
+  | 'Pro'
   | 'Enterprise'
   | 'Unlimited'
-  | 'Unlimited+'
-  | 'Einstein 1'
-  | 'Developer'
-  | 'Other'
+  | 'None'
 
 export interface Assessment {
   id: string
@@ -74,15 +74,30 @@ export interface Assessment {
   salesforce_edition: SalesforceEdition | null
   salesforce_clouds: SalesforceCloud[] | null
 
-  // AE info (internal only — never expose to public token routes)
-  ae_name: string | null
-  ae_email: string | null
-  ae_region: string | null
-  ae_notes: string | null
+  // Optional link to a referral partner (Salesforce AE)
+  referral_partner_id: string | null
 
   created_at: string
   updated_at: string
 }
+
+// ─── Referral Partner ────────────────────────────────────────────────────────
+
+export type SfTeamRegion = 'SMB' | 'Mid-Market' | 'Enterprise' | 'Strategic'
+
+export interface ReferralPartner {
+  id: string
+  name: string
+  email: string
+  company: string | null
+  city: string | null
+  sf_team_region: SfTeamRegion | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export const SF_TEAM_REGIONS: SfTeamRegion[] = ['SMB', 'Mid-Market', 'Enterprise', 'Strategic']
 
 // ─── Responses ────────────────────────────────────────────────────────────────
 
@@ -212,8 +227,8 @@ export interface ReportNarrative {
     PeopleAndCulture: CategoryNarrative
     DataFoundation: CategoryNarrative
     ProcessReadiness: CategoryNarrative
-    RiskAndGovernance: CategoryNarrative
-    AIAgentGovernance: CategoryNarrative
+    AIPolicies: CategoryNarrative
+    AgentControls: CategoryNarrative
   }
 }
 
@@ -315,20 +330,20 @@ export const AI_CURRENT_USAGES = [
 ] as const
 
 export const SALESFORCE_EDITIONS: SalesforceEdition[] = [
-  'Essentials',
   'Starter',
-  'Professional',
+  'Pro',
   'Enterprise',
   'Unlimited',
-  'Unlimited+',
-  'Einstein 1',
-  'Developer',
-  'Other',
+  'None',
 ]
 
 export const SALESFORCE_CLOUDS: { value: SalesforceCloud; label: string }[] = [
-  { value: 'SalesCloud', label: 'Sales Cloud' },
-  { value: 'ServiceCloud', label: 'Service Cloud' },
-  { value: 'MarketingCloud', label: 'Marketing Cloud' },
-  { value: 'DataCloud', label: 'Data Cloud' },
+  { value: 'SalesCloud',      label: 'Sales Cloud' },
+  { value: 'ServiceCloud',    label: 'Service Cloud' },
+  { value: 'MarketingCloud',  label: 'Marketing Cloud' },
+  { value: 'CommerceCloud',   label: 'Commerce Cloud' },
+  { value: 'DataCloud',       label: 'Data Cloud' },
+  { value: 'ExperienceCloud', label: 'Experience Cloud' },
+  { value: 'FieldService',    label: 'Field Service' },
+  { value: 'RevenueCloud',    label: 'Revenue Cloud' },
 ]

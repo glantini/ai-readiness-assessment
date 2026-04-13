@@ -6,47 +6,6 @@
 -- Enable pgcrypto for gen_random_uuid() (already enabled on Supabase)
 -- CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- ─── assessments ─────────────────────────────────────────────────────────────
-
-CREATE TABLE IF NOT EXISTS assessments (
-  id      uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  token   uuid DEFAULT gen_random_uuid() UNIQUE NOT NULL,
-  status  text NOT NULL DEFAULT 'pending'
-    CHECK (status IN ('pending', 'in_progress', 'completed')),
-
-  -- Contact info (collected from client on the public assess route)
-  contact_first_name  text,
-  contact_last_name   text,
-  contact_title       text,
-  contact_email       text,
-  contact_phone       text,
-  contact_linkedin    text,
-
-  -- Company info
-  company_name         text,
-  company_industry     text,
-  company_size         text,
-  company_revenue      text,
-  company_headquarters text,
-  company_website      text,
-
-  -- AI context
-  ai_motivation    text,
-  ai_current_usage text,
-  uses_salesforce  boolean,
-  salesforce_edition text,
-  salesforce_clouds  text[],   -- e.g. '{SalesCloud,ServiceCloud}'
-
-  -- AE info (internal only — never returned to public token routes)
-  ae_name   text,
-  ae_email  text,
-  ae_region text,
-  ae_notes  text,
-
-  created_at timestamptz DEFAULT now() NOT NULL,
-  updated_at timestamptz DEFAULT now() NOT NULL
-);
-
 -- Auto-update updated_at on any row change
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
@@ -55,6 +14,63 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+
+-- ─── referral_partners ───────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS referral_partners (
+  id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name            text NOT NULL,
+  email           text NOT NULL,
+  company         text,
+  city            text,
+  sf_team_region  text
+    CHECK (sf_team_region IN ('SMB', 'Mid-Market', 'Enterprise', 'Strategic')),
+  notes           text,
+  created_at      timestamptz DEFAULT now() NOT NULL,
+  updated_at      timestamptz DEFAULT now() NOT NULL
+);
+
+CREATE TRIGGER referral_partners_updated_at
+  BEFORE UPDATE ON referral_partners
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ─── assessments ─────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS assessments (
+  id      uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  token   uuid DEFAULT gen_random_uuid() UNIQUE NOT NULL,
+  status  text NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'in_progress', 'completed')),
+
+  -- Contact info (first/last name + email collected on admin creation; rest on intake)
+  contact_first_name  text,
+  contact_last_name   text,
+  contact_title       text,
+  contact_email       text,
+  contact_phone       text,
+  contact_linkedin    text,
+
+  -- Company info (collected from client on the public assess intake screen)
+  company_name         text,
+  company_industry     text,
+  company_size         text,
+  company_revenue      text,
+  company_headquarters text,
+  company_website      text,
+
+  -- AI context (collected from client on the public assess intake screen)
+  ai_motivation    text,
+  ai_current_usage text,
+  uses_salesforce  boolean,
+  salesforce_edition text,
+  salesforce_clouds  text[],   -- e.g. '{SalesCloud,ServiceCloud}'
+
+  -- Optional link to a referral partner (Salesforce AE)
+  referral_partner_id uuid REFERENCES referral_partners(id) ON DELETE SET NULL,
+
+  created_at timestamptz DEFAULT now() NOT NULL,
+  updated_at timestamptz DEFAULT now() NOT NULL
+);
 
 CREATE TRIGGER assessments_updated_at
   BEFORE UPDATE ON assessments
@@ -97,7 +113,6 @@ CREATE TABLE IF NOT EXISTS reports (
   pdf_url       text,   -- populated after PDF generation via /api/reports/[id]/pdf
 
   -- AI narrative columns — added by migration 001_add_narrative_columns.sql
-  -- Run: ALTER TABLE reports ADD COLUMN IF NOT EXISTS ai_narrative_json jsonb, ...
   ai_narrative_json         jsonb,
   agentforce_narrative_json jsonb,
   report_status             text DEFAULT 'draft'
@@ -106,9 +121,10 @@ CREATE TABLE IF NOT EXISTS reports (
 
 -- ─── Row Level Security ───────────────────────────────────────────────────────
 
-ALTER TABLE assessments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE responses   ENABLE ROW LEVEL SECURITY;
-ALTER TABLE reports     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE referral_partners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE assessments       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE responses         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reports           ENABLE ROW LEVEL SECURITY;
 
 -- Helper: check if the request comes from an @growwithimg.com authenticated user
 CREATE OR REPLACE FUNCTION is_img_user()
@@ -118,6 +134,26 @@ RETURNS boolean LANGUAGE sql SECURITY DEFINER AS $$
     AND auth.jwt() ->> 'email' ILIKE '%@growwithimg.com'
   );
 $$;
+
+-- ── referral_partners policies ───────────────────────────────────────────────
+
+CREATE POLICY "img_team_full_access_referral_partners" ON referral_partners
+  FOR ALL
+  USING (is_img_user())
+  WITH CHECK (is_img_user());
+
+-- Public (anon) can read a referral partner linked to an assessment they hold
+-- the token for — used to render AE info on the client-facing results page.
+CREATE POLICY "public_read_linked_referral_partner" ON referral_partners
+  FOR SELECT
+  USING (
+    auth.role() = 'anon'
+    AND EXISTS (
+      SELECT 1 FROM assessments a
+      WHERE a.referral_partner_id = referral_partners.id
+        AND a.token = (current_setting('request.jwt.claims', true)::jsonb ->> 'assessment_token')::uuid
+    )
+  );
 
 -- ── assessments policies ─────────────────────────────────────────────────────
 
@@ -196,7 +232,10 @@ CREATE POLICY "public_read_own_report" ON reports
 
 -- ─── Indexes ─────────────────────────────────────────────────────────────────
 
-CREATE INDEX IF NOT EXISTS assessments_token_idx    ON assessments (token);
-CREATE INDEX IF NOT EXISTS assessments_status_idx   ON assessments (status);
-CREATE INDEX IF NOT EXISTS assessments_ae_email_idx ON assessments (ae_email);
-CREATE INDEX IF NOT EXISTS reports_assessment_idx   ON reports (assessment_id);
+CREATE INDEX IF NOT EXISTS assessments_token_idx            ON assessments (token);
+CREATE INDEX IF NOT EXISTS assessments_status_idx           ON assessments (status);
+CREATE INDEX IF NOT EXISTS assessments_referral_partner_id_idx
+  ON assessments (referral_partner_id);
+CREATE INDEX IF NOT EXISTS reports_assessment_idx           ON reports (assessment_id);
+CREATE INDEX IF NOT EXISTS referral_partners_email_idx      ON referral_partners (email);
+CREATE INDEX IF NOT EXISTS referral_partners_name_idx       ON referral_partners (name);
