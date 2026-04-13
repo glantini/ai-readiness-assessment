@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import AssessmentsList from './AssessmentsList'
+import StatsBar from '@/components/StatsBar'
 
 export default async function DashboardPage() {
   const supabase = createClient()
@@ -36,6 +37,9 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-semibold text-gray-900">Assessments</h1>
           <p className="mt-1 text-sm text-gray-500">Manage client AI readiness assessments</p>
         </div>
+
+        {/* ── Stats banner ─────────────────────────────────────────────── */}
+        <StatsBar assessments={assessments ?? []} reports={reports ?? []} />
 
         {/* ── Error state ───────────────────────────────────────────────── */}
         {error && (

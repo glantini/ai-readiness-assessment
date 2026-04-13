@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getPartner } from '@/lib/partnerAuth'
 import PartnerAssessmentsList from '../PartnerAssessmentsList'
+import StatsBar from '@/components/StatsBar'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,6 +49,8 @@ export default async function PartnerDashboardPage() {
           <span aria-hidden="true">+</span> New Assessment
         </Link>
       </div>
+
+      <StatsBar assessments={assessments ?? []} reports={reports ?? []} />
 
       {error && (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
