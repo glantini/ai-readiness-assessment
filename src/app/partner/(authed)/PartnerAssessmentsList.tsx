@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import type { AssessmentSection, Layer1Scores, Layer2Scores } from '@/types'
 import { formatProgress, formatTimeAgo } from '@/lib/assessmentProgress'
+import { SortableHeader, useSort, useSortedRows } from '@/components/SortableHeader'
+import { CopyLinkButton } from '@/components/CopyLinkButton'
 
 const STATUS_LABEL: Record<string, string> = {
   pending: 'Sent',
@@ -17,8 +19,15 @@ const STATUS_CLASS: Record<string, string> = {
   completed: 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20',
 }
 
+const STATUS_ORDER: Record<string, number> = {
+  pending: 0,
+  in_progress: 1,
+  completed: 2,
+}
+
 type Assessment = {
   id: string
+  token: string
   status: string
   current_section: AssessmentSection | null
   contact_first_name: string | null
@@ -36,6 +45,8 @@ type Report = {
   layer2_scores: Layer2Scores | null
 }
 
+type SortKey = 'contact' | 'company' | 'status' | 'ai_score' | 'sf_score' | 'created'
+
 export default function PartnerAssessmentsList({
   assessments,
   reports,
@@ -44,6 +55,7 @@ export default function PartnerAssessmentsList({
   reports: Report[]
 }) {
   const [status, setStatus] = useState<string>('all')
+  const { sort, toggle } = useSort<SortKey>({ key: 'created', direction: 'desc' })
 
   const reportsByAssessment = useMemo(
     () => new Map(reports.map((r) => [r.assessment_id, r])),
@@ -56,6 +68,30 @@ export default function PartnerAssessmentsList({
       return true
     })
   }, [assessments, status])
+
+  const accessors = useMemo(
+    () => ({
+      contact: (a: Assessment) =>
+        [a.contact_first_name, a.contact_last_name].filter(Boolean).join(' ').toLowerCase() ||
+        a.contact_email?.toLowerCase() ||
+        '',
+      company: (a: Assessment) => a.company_name?.toLowerCase() ?? '',
+      status: (a: Assessment) => STATUS_ORDER[a.status] ?? 99,
+      ai_score: (a: Assessment) => {
+        const r = reportsByAssessment.get(a.id)
+        return r?.layer1_scores?.overall ?? null
+      },
+      sf_score: (a: Assessment) => {
+        if (!a.uses_salesforce) return null
+        const r = reportsByAssessment.get(a.id)
+        return r?.layer2_scores?.overall ?? null
+      },
+      created: (a: Assessment) => new Date(a.created_at).getTime(),
+    }),
+    [reportsByAssessment]
+  )
+
+  const sorted = useSortedRows(filtered, sort, accessors)
 
   return (
     <>
@@ -81,46 +117,52 @@ export default function PartnerAssessmentsList({
         </div>
 
         <div className="ml-auto text-xs text-gray-500">
-          {filtered.length} of {assessments.length}
+          {sorted.length} of {assessments.length}
         </div>
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-300 bg-white py-20 text-center">
-          <p className="text-sm text-gray-500">
-            No assessments match the selected filter.
+      {sorted.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-gray-300 bg-white py-16 text-center">
+          <svg
+            className="mx-auto h-10 w-10 text-gray-300"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2a4 4 0 014-4h4m0 0V9a4 4 0 10-8 0m8 2H9m12 4v2a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2h4l2 2h3a2 2 0 012 2v4" />
+          </svg>
+          <p className="mt-3 text-sm font-medium text-gray-700">No assessments found</p>
+          <p className="mt-1 text-xs text-gray-500">
+            Try adjusting your filter, or create a new assessment.
           </p>
+          <Link
+            href="/partner/assessments/new"
+            className="mt-4 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+          >
+            Create New Assessment
+          </Link>
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           <table className="w-full divide-y divide-gray-200 table-fixed">
             <thead className="bg-gray-50">
               <tr>
-                <th className="w-[22%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Contact
-                </th>
-                <th className="w-[18%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Company
-                </th>
-                <th className="w-[12%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Status
-                </th>
-                <th className="w-[10%] px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
-                  AI Score
-                </th>
-                <th className="w-[10%] px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
-                  SF Score
-                </th>
-                <th className="w-[14%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Created
-                </th>
-                <th className="w-[14%] px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                <SortableHeader sortKey="contact" activeSort={sort} onToggle={toggle} className="w-[20%]">Contact</SortableHeader>
+                <SortableHeader sortKey="company" activeSort={sort} onToggle={toggle} className="w-[16%]">Company</SortableHeader>
+                <SortableHeader sortKey="status" activeSort={sort} onToggle={toggle} className="w-[12%]">Status</SortableHeader>
+                <SortableHeader sortKey="ai_score" activeSort={sort} onToggle={toggle} align="center" className="w-[10%]">AI Score</SortableHeader>
+                <SortableHeader sortKey="sf_score" activeSort={sort} onToggle={toggle} align="center" className="w-[10%]">SF Score</SortableHeader>
+                <th className="w-[10%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Link</th>
+                <SortableHeader sortKey="created" activeSort={sort} onToggle={toggle} className="w-[12%]">Created</SortableHeader>
+                <th className="w-[10%] px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filtered.map((a) => {
+              {sorted.map((a) => {
                 const fullName =
                   [a.contact_first_name, a.contact_last_name]
                     .filter(Boolean)
@@ -194,6 +236,9 @@ export default function PartnerAssessmentsList({
                       ) : (
                         <span className="text-xs text-gray-300">—</span>
                       )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <CopyLinkButton token={a.token} />
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
                       {created}

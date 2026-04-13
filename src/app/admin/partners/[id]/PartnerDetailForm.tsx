@@ -7,6 +7,7 @@ import {
   togglePartnerActive,
 } from '@/app/actions/referralPartners'
 import { SF_TEAM_REGIONS, type ReferralPartner } from '@/types'
+import { ConfirmModal } from '@/components/ConfirmModal'
 
 const inputCls =
   'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent'
@@ -34,6 +35,7 @@ export default function PartnerDetailForm({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isActive, setIsActive] = useState(partner.is_active)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -52,18 +54,26 @@ export default function PartnerDetailForm({
     })
   }
 
-  function handleToggle() {
+  function handleToggleClick() {
     setError(null)
     setSuccess(null)
-    const next = !isActive
+    if (isActive) {
+      setConfirmOpen(true)
+      return
+    }
+    runToggle(true)
+  }
 
+  function runToggle(next: boolean) {
     startToggle(async () => {
       const result = await togglePartnerActive(partner.id, next)
       if ('error' in result) {
         setError(result.error)
+        setConfirmOpen(false)
       } else {
         setIsActive(next)
         setSuccess(next ? 'Partner activated.' : 'Partner deactivated.')
+        setConfirmOpen(false)
         router.refresh()
       }
     })
@@ -169,7 +179,7 @@ export default function PartnerDetailForm({
         <div className="flex items-center justify-between gap-4">
           <button
             type="button"
-            onClick={handleToggle}
+            onClick={handleToggleClick}
             disabled={isToggling}
             className={
               isActive
@@ -193,6 +203,23 @@ export default function PartnerDetailForm({
           </button>
         </div>
       </form>
+
+      <ConfirmModal
+        open={confirmOpen}
+        title="Deactivate partner?"
+        message={
+          <>
+            This will prevent <span className="font-medium text-gray-900">{partner.name}</span> from
+            logging in. Their assessment history will be preserved.
+          </>
+        }
+        confirmLabel="Deactivate"
+        cancelLabel="Cancel"
+        variant="danger"
+        isWorking={isToggling}
+        onConfirm={() => runToggle(false)}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </>
   )
 }
