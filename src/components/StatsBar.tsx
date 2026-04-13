@@ -47,30 +47,68 @@ export default function StatsBar({
       <StatCard
         label="Assessments Completed"
         value={totalSent > 0 ? String(completedCount) : '—'}
+        theme="blue"
       />
       <StatCard
         label="Completion Rate"
         value={completionRate === null ? '—' : `${completionRate}%`}
+        theme="emerald"
       />
       <StatCard
         label="Avg. AI Readiness Score"
         value={avgL1 === null ? '—' : `${avgL1.toFixed(1)} / 5.0`}
+        theme="orange"
       />
       <StatCard
         label="Avg. Agentforce Score"
         value={avgL2 === null ? '—' : `${avgL2.toFixed(1)} / 5.0`}
+        theme="violet"
       />
     </div>
   )
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+type Theme = 'blue' | 'emerald' | 'orange' | 'violet'
+
+const THEME_CLASSES: Record<Theme, { card: string; label: string; value: string }> = {
+  blue: {
+    card: 'border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100/60',
+    label: 'text-blue-700',
+    value: 'text-blue-900',
+  },
+  emerald: {
+    card: 'border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100/60',
+    label: 'text-emerald-700',
+    value: 'text-emerald-900',
+  },
+  orange: {
+    card: 'border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100/60',
+    label: 'text-orange-700',
+    value: 'text-orange-900',
+  },
+  violet: {
+    card: 'border-violet-200 bg-gradient-to-br from-violet-50 to-violet-100/60',
+    label: 'text-violet-700',
+    value: 'text-violet-900',
+  },
+}
+
+function StatCard({
+  label,
+  value,
+  theme,
+}: {
+  label: string
+  value: string
+  theme: Theme
+}) {
+  const t = THEME_CLASSES[theme]
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
+    <div className={`rounded-xl border p-5 shadow-sm ${t.card}`}>
+      <p className={`text-xs font-medium uppercase tracking-wider ${t.label}`}>
         {label}
       </p>
-      <p className="mt-2 text-3xl font-semibold text-gray-900">{value}</p>
+      <p className={`mt-2 text-3xl font-semibold ${t.value}`}>{value}</p>
     </div>
   )
 }
