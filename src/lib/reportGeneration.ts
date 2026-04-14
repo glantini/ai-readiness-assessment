@@ -142,9 +142,9 @@ ${productLines}`
         return `    "${c}": {
       "agentName": "Specific Agentforce agent name for ${c}",
       "readinessTier": "${ps?.tier ?? 'Not Ready'}",
-      "timeline": "Realistic deployment timeline based on scores",
-      "conditions": ["First prerequisite condition that must be met", "Second prerequisite condition"],
-      "expectedOutcome": "Specific measurable business outcome after deployment"
+      "timeline": "Time to first measurable value, e.g. '60 days to first automated case resolutions'. Frame as time-to-value, not time-to-wait.",
+      "conditions": ["First item IMG and the Salesforce AE handle as part of the deployment (e.g. data optimization, workflow configuration), written in partner voice: 'We configure X...' or 'Included: Y'", "Second item included in the deployment", "Third item included in the deployment"],
+      "expectedOutcome": "Specific measurable business outcome with a concrete metric and timeframe (e.g. 'Resolve 60% of routine inquiries automatically within 60 days')"
     }`
       })
       .join(',\n')
@@ -152,38 +152,41 @@ ${productLines}`
     const editionFlagValue =
       assessment.salesforce_edition === 'Pro' ||
       assessment.salesforce_edition === 'Starter'
-        ? '"Specific, direct note about this edition constraint and the upgrade path required"'
+        ? '"Constructive, sales-friendly note about the edition. Mention the upgrade path as an option to consider with the Salesforce AE. Do not use blocking language."'
         : 'null'
 
     block2Template = `BLOCK 2 (required, this client uses Salesforce):
+
+TONE REQUIREMENT FOR THIS BLOCK: Write in a confident, opportunity-focused, sales-enabling voice. This is prospect-facing content. Never use: "prerequisite", "required before", "blocker", "must be resolved", "3–4 month foundation-building phase", "will fail", "not ready". Instead use: "included in your deployment", "delivered alongside", "opportunity", "unlock", "60–90 day path to first automated results", "optimized as part of your deployment", "optimization opportunity". Frame foundation work as parallel to agent deployment, handled by the implementation partner, not as a gate in front of it. Lead every recommendation with the outcome, not the precondition.
+
 \`\`\`json
 {
-  "agentforceExecutiveSummary": "3–4 sentence Agentforce-specific executive summary grounded in this company's specific scores and clouds",
+  "agentforceExecutiveSummary": "3–4 sentences, opportunity-focused. Open with the specific Salesforce environment they have (edition + active clouds) as a head start that positions them to deploy Agentforce agents directly addressing their stated motivation. State what becomes possible in the first 60–90 days. Mention that foundation work happens in parallel with deployment, handled by the implementation partner. Never cite the score as a barrier; cite it as the starting point for what comes next.",
   "editionFlag": ${editionFlagValue},
   "dataCloudFlag": {
     "required": true,
-    "reason": "Explain why Data Cloud is or is not a prerequisite given their specific scores and use case",
-    "phase": "Specify when in the roadmap Data Cloud should be addressed"
+    "reason": "Frame Data Cloud as an unlock that adds unified customer context across their active clouds. Explain the specific benefit for their use case. Never call it a blocker or a prerequisite. Mention that many teams start with the free Salesforce Foundations tier to activate immediately.",
+    "phase": "When Data Cloud fits naturally alongside the 90-day deployment, e.g. 'Activate alongside your first agent deployment in weeks 1–6.'"
   },
   "agentRecommendations": {
 ${agentRecs.length > 0 ? agentRecs : '    // No product clouds selected'}
   },
   "implementationRoadmap": {
     "phase1": {
-      "title": "Foundation phase title",
-      "duration": "0–60 days",
-      "actions": ["Specific foundation action 1", "Specific foundation action 2", "Specific foundation action 3"]
+      "title": "Kickoff + Quick Wins",
+      "duration": "Weeks 1–2",
+      "actions": ["Kickoff action specific to this company: align success metrics and name the business owner", "Quick win the team can execute immediately (e.g. activate Salesforce Foundations, enable Einstein Trust Layer)", "First measurable result they can expect within 14 days"]
     },
     "phase2": {
-      "title": "First agent deployment",
-      "duration": "60–120 days",
-      "agent": "Which agent to deploy first and exactly why given their scores",
-      "outcome": "Specific measurable outcome after first agent deployment"
+      "title": "First Agent Live",
+      "duration": "Weeks 3–6",
+      "agent": "Which agent to deploy first and exactly why given their profile. Frame as the highest-leverage first move.",
+      "outcome": "Specific measurable outcome with a concrete number and timeframe, achieved by the end of week 6 (e.g. 'Resolve 60% of routine inquiries automatically, freeing 20+ rep hours/week')"
     },
     "phase3": {
-      "title": "Expansion",
-      "duration": "120–180 days",
-      "expansion": "Which additional agents or capabilities to expand to, and in what order"
+      "title": "Expand + Optimize",
+      "duration": "Weeks 7–12",
+      "expansion": "Which additional agent or capability comes next and why, with the compounding ROI story (how capturing outcome from Phase 2 makes Phase 3 easier). Include monitoring via the Agentforce Command Center."
     }
   }
 }

@@ -92,6 +92,16 @@ function layer2TierColor(tier: string): string {
   }
 }
 
+// Prospect-facing display labels for Agentforce tiers. Internal tier values
+// stay unchanged; only PDF rendering uses these opportunity-focused labels.
+function layer2TierLabel(tier: string): string {
+  switch (tier) {
+    case 'Getting Ready': return 'Positioned for Quick Wins'
+    case 'Not Ready': return 'Early Opportunity'
+    default: return tier
+  }
+}
+
 function tierFromScore(score: number): string {
   if (score >= 4.1) return 'Leading'
   if (score >= 3.1) return 'Scaling'
@@ -139,11 +149,11 @@ const EDUCATIONAL_SIDEBARS: Record<string, string> = {
 }
 
 const AGENTFORCE_SIDEBARS: Record<string, string> = {
-  CorePrereqs: 'Why Prerequisites Matter Before Deploying Agentforce: Agentforce agents operate directly inside your Salesforce org, reading records, triggering automations, and taking action on behalf of your team. Without a strong CRM foundation, clean data, and governance guardrails already in place, agents will amplify existing problems rather than solve them.',
-  DataCloud: 'What is Salesforce Data Cloud? Data Cloud is Salesforce\'s real-time data platform that unifies customer data from every source (CRM, website, support, marketing, and third-party systems) into a single customer profile. It\'s the data foundation that makes Agentforce agents smarter and more personalized.',
-  SalesCloud: 'What Can an AI Sales Agent Do? Agentforce SDR Agent can autonomously qualify inbound leads, follow up on open opportunities, and surface next best actions for your sales team, all within Salesforce. The result is faster response times, consistent follow-through, and reps focused on closing rather than admin.',
-  ServiceCloud: 'What Can an AI Service Agent Do? Agentforce Service Agent handles routine customer inquiries autonomously across chat, email, and messaging channels, resolving cases without human intervention and escalating complex issues with full context already captured. Companies deploying service agents report 30 to 40% reduction in handle time.',
-  MarketingCloud: 'What Can an AI Marketing Agent Do? Agentforce for Marketing automates audience segmentation, campaign optimization, and personalized journey triggers based on real-time customer behavior. Marketing teams using AI agents report higher engagement rates and significantly reduced time spent on manual campaign management.',
+  CorePrereqs: 'Why Your Salesforce Investment Is a Head Start on Agentforce: Agentforce agents run natively inside your existing Salesforce org, reading records, triggering automations, and taking action on your behalf. Every record, process, and integration you have already built becomes fuel for your agents on day one, which is why Salesforce customers consistently see faster time to value than teams starting from scratch.',
+  DataCloud: 'What is Salesforce Data Cloud? Data Cloud is Salesforce\'s real-time data platform that unifies customer data from every source (CRM, website, support, marketing, and third-party systems) into a single customer profile. It is the unlock that gives every Agentforce agent full context for more personalized, more accurate responses.',
+  SalesCloud: 'What an AI Sales Agent Delivers: Agentforce SDR Agent autonomously qualifies inbound leads, follows up on open opportunities, and surfaces next best actions for your sales team, all inside Salesforce. The result is faster response times, consistent follow-through, and reps focused on closing rather than admin, typically within 60 to 90 days of deployment.',
+  ServiceCloud: 'What an AI Service Agent Delivers: Agentforce Service Agent resolves routine customer inquiries autonomously across chat, email, and messaging, deflecting cases without human intervention and escalating complex issues with full context already captured. Companies deploying service agents report 30 to 40% reduction in handle time within the first 60 days.',
+  MarketingCloud: 'What an AI Marketing Agent Delivers: Agentforce for Marketing automates audience segmentation, campaign optimization, and personalized journey triggers based on real-time customer behavior. Marketing teams using AI agents see higher engagement rates and significantly less time spent on manual campaign management.',
 }
 
 // "Why It Matters" closing lines for educational sidebars
@@ -157,11 +167,11 @@ const SIDEBAR_CLOSING: Record<string, string> = {
 }
 
 const AGENTFORCE_CLOSING: Record<string, string> = {
-  CorePrereqs: 'A Salesforce org that is not ready for automation will not become ready by adding agents. Prerequisites exist for a reason.',
-  DataCloud: 'Agentforce agents are only as intelligent as the data they can access. A unified data layer is not optional. It is the foundation.',
-  SalesCloud: 'An SDR Agent working from incomplete CRM data will follow up on the wrong leads, miss the right ones, and erode rep trust in the tool within weeks.',
-  ServiceCloud: 'A Service Agent deployed without a Knowledge Base is not an agent. It is an expensive escalation machine.',
-  MarketingCloud: 'AI-powered personalization requires clean, consented, segmented data. Without it, automation scales irrelevance, not engagement.',
+  CorePrereqs: 'Your implementation partner handles the technical work. You see results within 60 to 90 days.',
+  DataCloud: 'With Data Cloud, agents gain full context across every customer touchpoint. Many teams activate the free Salesforce Foundations tier to get started immediately.',
+  SalesCloud: 'With clean CRM data and defined workflows, an SDR Agent becomes a consistent, 24/7 extension of your sales team that reps actually trust.',
+  ServiceCloud: 'With a Knowledge Base in place, a Service Agent resolves the majority of routine inquiries automatically, freeing your team for the cases that need a human.',
+  MarketingCloud: 'With clean, consented, segmented data, AI-powered personalization scales relevance across every campaign. Data work is included in your deployment.',
 }
 
 // Category accent colors for sidebar borders
@@ -634,7 +644,7 @@ export function ProspectReport({
                   { backgroundColor: layer2TierColor(l2Scores.tier), color: COLORS.white },
                 ]}
               >
-                {l2Scores.tier}
+                {layer2TierLabel(l2Scores.tier)}
               </Text>
             </View>
           )}
@@ -1111,19 +1121,86 @@ export function ProspectReport({
         <PageFooter companyName={companyName} />
       </Page>
 
-      {/* ── PAGES 13-15: Agentforce Section (Salesforce only) ─────────── */}
+      {/* ── Agentforce Opportunity (leads the section with value) ───────── */}
+      {(() => {
+        const recs = selectAgentforceRecommendations(
+          {
+            usesSalesforce: isSalesforce,
+            activeClouds: (assessment.salesforce_clouds ?? []) as Parameters<typeof selectAgentforceRecommendations>[0]['activeClouds'],
+            layer1: l1Scores,
+            snapshot: snapshotChecks,
+            editionGated: !!l2Scores?.edition_flag,
+          },
+          5,
+        )
+        const proofs = selectROIProofPoints(recs, 3)
+        const motivation = assessment.ai_motivation ?? 'your stated priorities'
+        const cloudCount = productClouds.length
+        const cloudList = productClouds
+          .map((c) => CLOUD_LABELS[c] ?? c)
+          .join(', ')
+          .replace(/,([^,]*)$/, cloudCount > 1 ? ' and$1' : '$1')
+        const edition = assessment.salesforce_edition ?? 'your'
+
+        return (
+          <Page size="LETTER" style={s.page}>
+            <Text style={s.sectionLabel}>AGENTFORCE OPPORTUNITY</Text>
+            <Text style={s.sectionTitle}>Here&apos;s What&apos;s Possible for You</Text>
+
+            <Text style={[s.bodyText, { marginBottom: 16 }]}>
+              {isSalesforce
+                ? `Your ${edition} Salesforce environment${cloudCount > 0 ? ` across ${cloudList}` : ''} gives you the infrastructure to deploy Agentforce agents that directly address ${motivation.toLowerCase()}. Your implementation partner configures the agents while optimizing your data foundation in parallel, so you see measurable results within 60 to 90 days.`
+                : `Organizations with a readiness profile like yours are already deploying Agentforce to address ${motivation.toLowerCase()}. The outcomes below show what becomes possible when the right agents are matched to your capabilities.`}
+            </Text>
+
+            {proofs.length > 0 && (
+              <>
+                <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 8 }}>
+                  What Organizations Like Yours Have Already Achieved
+                </Text>
+                <Text style={[s.bodyText, { marginBottom: 14 }]}>
+                  These published customer results map to the capabilities recommended for {companyName}. Competitors are already deploying Agentforce, and the organizations moving now are capturing the early gains.
+                </Text>
+                {proofs.map((p, i) => (
+                  <View key={`${p.company}-${i}`} wrap={false} style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: COLORS.gray50,
+                    border: `0.5pt solid ${COLORS.gray200}`,
+                    borderRadius: 6,
+                    padding: 14,
+                    marginBottom: 10,
+                  }}>
+                    <Text style={{ fontSize: 18, fontFamily: 'Helvetica-Bold', color: COLORS.blueDark, minWidth: 150, marginRight: 16 }}>
+                      {p.result}
+                    </Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>{p.company}</Text>
+                      <Text style={{ fontSize: 9, color: COLORS.gray500, marginTop: 2 }}>{p.metric}</Text>
+                    </View>
+                  </View>
+                ))}
+              </>
+            )}
+
+            <PageFooter companyName={companyName} />
+          </Page>
+        )
+      })()}
+
+      {/* ── Your Agentforce Fit, Recommended Agents, 90-Day Path (SF only) ─ */}
       {isSalesforce && agentforceNarrative && l2Scores && (
         <>
-          {/* Agentforce Executive Summary */}
+          {/* Your Agentforce Fit */}
           <Page size="LETTER" style={s.page}>
             <Text style={s.sectionLabel}>AGENTFORCE READINESS</Text>
-            <Text style={s.sectionTitle}>Agentforce Executive Summary</Text>
+            <Text style={s.sectionTitle}>Your Agentforce Fit</Text>
 
-            {/* Stage-Gate Deployment Model callout */}
+            {/* IMG Agentforce Deployment Model — opportunity framing */}
             <View style={{
-              backgroundColor: '#FFF7ED',
+              backgroundColor: '#EFF6FF',
               borderLeftWidth: 4,
-              borderLeftColor: '#EA580C',
+              borderLeftColor: COLORS.primary,
               borderRadius: 6,
               paddingVertical: 12,
               paddingHorizontal: 16,
@@ -1133,39 +1210,39 @@ export function ProspectReport({
                 The IMG Agentforce Deployment Model
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-                {/* VALIDATE */}
+                {/* LAUNCH */}
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#EA580C', marginBottom: 4 }}>
-                    VALIDATE
+                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.primary, marginBottom: 4 }}>
+                    LAUNCH
                   </Text>
                   <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
-                    Confirm your Salesforce foundation meets Agentforce prerequisites: edition, data completeness, automation maturity, and trust layer readiness.
+                    Kick off with a joint deployment plan. Your Salesforce AE and IMG align on the first agent, success metrics, and a named business owner in weeks, not months.
                   </Text>
                 </View>
                 {/* Arrow */}
                 <Text style={{ fontSize: 16, color: COLORS.gray400, paddingHorizontal: 6, paddingTop: 2 }}>
                   {'\u2192'}
                 </Text>
-                {/* PILOT */}
+                {/* DEPLOY */}
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#EA580C', marginBottom: 4 }}>
-                    PILOT
+                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.primary, marginBottom: 4 }}>
+                    DEPLOY
                   </Text>
                   <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
-                    Deploy one agent in a controlled environment with defined success metrics, a named owner, and a documented escalation path.
+                    Your first agent goes live within 60 to 90 days while IMG optimizes data and automation in parallel. You see measurable results as the foundation strengthens.
                   </Text>
                 </View>
                 {/* Arrow */}
                 <Text style={{ fontSize: 16, color: COLORS.gray400, paddingHorizontal: 6, paddingTop: 2 }}>
                   {'\u2192'}
                 </Text>
-                {/* SCALE */}
+                {/* EXPAND */}
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#EA580C', marginBottom: 4 }}>
-                    SCALE
+                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.primary, marginBottom: 4 }}>
+                    EXPAND
                   </Text>
                   <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
-                    Expand based on measured outcomes (task success rate, time saved, CSAT improvement), not assumption or vendor pressure.
+                    Layer in additional agents based on measured outcomes: task success rate, time saved, CSAT improvement. ROI compounds as you scale.
                   </Text>
                 </View>
               </View>
@@ -1196,7 +1273,7 @@ export function ProspectReport({
                 <Text style={[s.badgeScore, { color: COLORS.gray900 }]}>
                   {l2Scores.overall.toFixed(1)}/5
                 </Text>
-                <TierBadge tier={l2Scores.tier} color={layer2TierColor(l2Scores.tier)} />
+                <TierBadge tier={layer2TierLabel(l2Scores.tier)} color={layer2TierColor(l2Scores.tier)} />
               </View>
             </View>
 
@@ -1207,7 +1284,7 @@ export function ProspectReport({
             {agentforceNarrative.editionFlag && (
               <View style={[s.editionCallout, { marginTop: 16 }]}>
                 <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.amberDark, marginBottom: 4 }}>
-                  Edition Limitation: {assessment.salesforce_edition}
+                  Edition Note: {assessment.salesforce_edition}
                 </Text>
                 <Text style={{ fontSize: 9, lineHeight: 1.5, color: COLORS.amberDark }}>
                   {agentforceNarrative.editionFlag}
@@ -1218,13 +1295,13 @@ export function ProspectReport({
             {agentforceNarrative.dataCloudFlag && (
               <View style={[s.dataCloudCallout, { marginTop: agentforceNarrative.editionFlag ? 0 : 16 }]}>
                 <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.blueDark, marginBottom: 4 }}>
-                  Data Cloud: {agentforceNarrative.dataCloudFlag.required ? 'Required' : 'Optional'}
+                  Data Cloud Opportunity
                 </Text>
                 <Text style={{ fontSize: 9, lineHeight: 1.5, color: COLORS.blueDark }}>
-                  {agentforceNarrative.dataCloudFlag.reason}
+                  Adding Data Cloud unlocks unified customer profiles across all your clouds, giving every agent full context for personalized responses. {agentforceNarrative.dataCloudFlag.reason} Many clients start with the free Salesforce Foundations tier (100K Flex Credits) to activate immediately.
                 </Text>
                 <Text style={{ fontSize: 8, color: '#3b82f6', marginTop: 4 }}>
-                  Recommended phase: {agentforceNarrative.dataCloudFlag.phase}
+                  When it fits your deployment: {agentforceNarrative.dataCloudFlag.phase}
                 </Text>
               </View>
             )}
@@ -1232,11 +1309,14 @@ export function ProspectReport({
             <PageFooter companyName={companyName} />
           </Page>
 
-          {/* Per-product recommendations */}
+          {/* Per-product recommendations — outcomes-first */}
           {productClouds.length > 0 && (
             <Page size="LETTER" style={s.page}>
-              <Text style={s.sectionLabel}>AGENT RECOMMENDATIONS</Text>
-              <Text style={s.sectionTitle}>Product-Level Readiness</Text>
+              <Text style={s.sectionLabel}>RECOMMENDED AGENTS</Text>
+              <Text style={s.sectionTitle}>Your Recommended Agents</Text>
+              <Text style={[s.bodyText, { marginBottom: 14 }]}>
+                These agents map to your active Salesforce clouds and lead with the outcome you can expect. IMG handles the configuration and data work in parallel so you see results quickly.
+              </Text>
 
               {productClouds.map((cloud) => {
                 const rec = agentforceNarrative.agentRecommendations?.[cloud]
@@ -1279,32 +1359,32 @@ export function ProspectReport({
                           </Text>
                         </View>
                         {ps && (
-                          <TierBadge tier={ps.tier} color={layer2TierColor(ps.tier)} />
+                          <TierBadge tier={layer2TierLabel(ps.tier)} color={layer2TierColor(ps.tier)} />
                         )}
                       </View>
 
+                      <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, marginBottom: 2 }}>
+                        What You Can Expect:
+                      </Text>
+                      <Text style={{ fontSize: 9, color: COLORS.gray700, marginBottom: 8 }}>
+                        {rec.expectedOutcome}
+                      </Text>
+
                       <View style={{ flexDirection: 'row', gap: 24, marginBottom: 6 }}>
                         <Text style={{ fontSize: 9, color: COLORS.gray500 }}>
-                          <Text style={{ fontFamily: 'Helvetica-Bold' }}>Timeline: </Text>
+                          <Text style={{ fontFamily: 'Helvetica-Bold' }}>Time to Value: </Text>
                           {rec.timeline}
                         </Text>
                       </View>
 
                       <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, marginBottom: 4 }}>
-                        Prerequisites:
+                        Included in Your Deployment:
                       </Text>
                       {rec.conditions.map((cond, i) => (
                         <Text key={i} style={{ fontSize: 9, color: COLORS.gray700, marginBottom: 2, paddingLeft: 8 }}>
                           {'\u2022'} {cond}
                         </Text>
                       ))}
-
-                      <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, marginTop: 6, marginBottom: 2 }}>
-                        Expected Outcome:
-                      </Text>
-                      <Text style={{ fontSize: 9, color: COLORS.gray700 }}>
-                        {rec.expectedOutcome}
-                      </Text>
                     </View>
                   </View>
                 )
@@ -1314,15 +1394,14 @@ export function ProspectReport({
             </Page>
           )}
 
-          {/* Phased Implementation Roadmap */}
+          {/* Your 90-Day Path — fast path to results */}
           {agentforceNarrative.implementationRoadmap && (
             <Page size="LETTER" style={s.page}>
-              <Text style={s.sectionLabel}>IMPLEMENTATION ROADMAP</Text>
-              <Text style={s.sectionTitle}>Phased Agentforce Deployment</Text>
+              <Text style={s.sectionLabel}>IMPLEMENTATION PATH</Text>
+              <Text style={s.sectionTitle}>Your 90-Day Path to Results</Text>
 
               <Text style={[s.bodyText, { marginBottom: 20 }]}>
-                IMG serves as your implementation partner throughout each phase, ensuring
-                successful deployment and measurable outcomes at every milestone.
+                IMG handles the technical work while you see results. Each phase compounds on the last, so the foundation strengthens as your agents deliver measurable outcomes.
               </Text>
 
               <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -1398,13 +1477,13 @@ export function ProspectReport({
         const caps = recs.map((r: UseCaseTag) => CAPABILITY_BY_ID[r]).filter(Boolean)
         return (
           <Page size="LETTER" style={s.page}>
-            <Text style={s.sectionLabel}>AGENTFORCE CAPABILITY MAPPING</Text>
-            <Text style={s.sectionTitle}>Recommended Agentforce Agents</Text>
+            <Text style={s.sectionLabel}>AGENTFORCE CAPABILITIES</Text>
+            <Text style={s.sectionTitle}>Capabilities Mapped to Your Highest-Impact Outcomes</Text>
 
             <Text style={[s.bodyText, { marginBottom: 12 }]}>
               {isSalesforce
-                ? `Based on your Layer 1 category scores, your active Salesforce clouds, and the operational symptoms you flagged, the following ${caps.length} Agentforce capabilities map to your highest-impact opportunities.`
-                : `Even without Salesforce today, these ${caps.length} Agentforce capabilities represent the highest-impact opportunities for an organization with your readiness profile. A "Considering Salesforce" callout appears on the next page with details on how to explore further.`}
+                ? `Based on your category scores, active Salesforce clouds, and operational priorities, these ${caps.length} Agentforce capabilities represent your highest-impact opportunities. Each one is mapped to a specific business outcome your team can start capturing in your first deployment window.`
+                : `These ${caps.length} Agentforce capabilities represent the highest-impact opportunities for an organization with your readiness profile. A "Considering Salesforce" callout on the next page outlines the fastest path to activate them.`}
             </Text>
 
             <View>
@@ -1441,80 +1520,32 @@ export function ProspectReport({
         )
       })()}
 
-      {/* ── Proof Points (always rendered) ──────────────────────────────── */}
-      {(() => {
-        const recs = selectAgentforceRecommendations(
-          {
-            usesSalesforce: isSalesforce,
-            activeClouds: (assessment.salesforce_clouds ?? []) as Parameters<typeof selectAgentforceRecommendations>[0]['activeClouds'],
-            layer1: l1Scores,
-            snapshot: snapshotChecks,
-            editionGated: !!l2Scores?.edition_flag,
-          },
-          5,
-        )
-        const proofs = selectROIProofPoints(recs, 3)
-        if (proofs.length === 0) return null
-        return (
-          <Page size="LETTER" style={s.page}>
-            <Text style={s.sectionLabel}>PROOF POINTS</Text>
-            <Text style={s.sectionTitle}>What Organizations Like Yours Have Achieved</Text>
-            <Text style={[s.bodyText, { marginBottom: 14 }]}>
-              These published customer results map to the capabilities recommended for {companyName}. They
-              are directional benchmarks, not guarantees — actual outcomes depend on deployment depth and
-              change management.
-            </Text>
-            {proofs.map((p, i) => (
-              <View key={`${p.company}-${i}`} wrap={false} style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: COLORS.gray50,
-                border: `0.5pt solid ${COLORS.gray200}`,
-                borderRadius: 6,
-                padding: 14,
-                marginBottom: 10,
-              }}>
-                <Text style={{ fontSize: 18, fontFamily: 'Helvetica-Bold', color: COLORS.blueDark, minWidth: 150, marginRight: 16 }}>
-                  {p.result}
-                </Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>{p.company}</Text>
-                  <Text style={{ fontSize: 9, color: COLORS.gray500, marginTop: 2 }}>{p.metric}</Text>
-                </View>
-              </View>
-            ))}
-            <PageFooter companyName={companyName} />
-          </Page>
-        )
-      })()}
-
-      {/* ── Foundation Requirements (always rendered) ───────────────────── */}
+      {/* ── Foundation Enhancements (included with deployment) ──────────── */}
       <Page size="LETTER" style={s.page}>
-        <Text style={s.sectionLabel}>FOUNDATION REQUIREMENTS</Text>
-        <Text style={s.sectionTitle}>What You Need Before Deploying Agents</Text>
+        <Text style={s.sectionLabel}>FOUNDATION ENHANCEMENTS</Text>
+        <Text style={s.sectionTitle}>Included With Your Deployment</Text>
 
         <Text style={[s.bodyText, { marginBottom: 14 }]}>
-          Agentforce is only as powerful as the foundation it runs on. Make sure the following prerequisites
-          are in place — or on an imminent roadmap — before committing to a deployment timeline.
+          Every Agentforce deployment includes a parallel foundation workstream. While your first agent goes live, IMG and your Salesforce AE optimize the data, platform, and governance layers alongside it, so quick wins compound into long-term performance.
         </Text>
 
-        {/* Required products table */}
+        {/* Enhancement products table */}
         <View style={{ borderTop: `0.5pt solid ${COLORS.gray200}` }}>
           {[
             {
               name: 'Data Cloud',
-              why: 'Powers every Agentforce agent with unified customer data. Without Data Cloud, agents lack the context needed for accurate, personalized responses.',
-              how: 'Free tier available via Salesforce Foundations (100K Flex Credits). Full implementation requires a Data Cloud license.',
+              why: 'Unlocks unified customer profiles across every cloud, giving each Agentforce agent full context for personalized responses. Think of this as the upgrade that makes every agent smarter.',
+              how: 'Many clients start with the free Salesforce Foundations tier (100K Flex Credits) to activate immediately. Full implementation scales as your usage grows.',
             },
             {
               name: 'Einstein 1 Platform',
-              why: 'Provides the Einstein Trust Layer for security, data masking, and compliance. Required for enterprise-grade AI governance.',
-              how: 'Included with Agentforce Add-ons and Agentforce 1 Editions.',
+              why: 'Delivers the Einstein Trust Layer for security, data masking, and compliance, giving IT and legal teams confidence that every agent operates within your guardrails.',
+              how: 'Included with Agentforce Add-ons and Agentforce 1 Editions. Your AE configures the trust settings as part of rollout.',
             },
             {
               name: 'Enterprise Edition+',
-              why: 'Agentforce requires Enterprise edition or higher for Sales Cloud, Service Cloud, or Industry Clouds.',
-              how: 'Contact your Salesforce AE to discuss edition requirements.',
+              why: 'Enterprise edition or higher unlocks the full Agentforce feature set across Sales Cloud, Service Cloud, and Industry Clouds. If you are already on Enterprise or Unlimited, you are ready to deploy.',
+              how: 'If an edition upgrade makes sense for your roadmap, your Salesforce AE can walk through the options and the fit.',
             },
           ].map((f) => (
             <View key={f.name} wrap={false} style={{ flexDirection: 'row', borderBottom: `0.5pt solid ${COLORS.gray200}`, paddingVertical: 10 }}>
@@ -1531,15 +1562,15 @@ export function ProspectReport({
           ))}
         </View>
 
-        {/* Enablement path */}
+        {/* 90-Day enablement path */}
         <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginTop: 18, marginBottom: 8 }}>
-          Recommended Enablement Path
+          Your 90-Day Enablement Path
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {[
-            { title: 'Phase 1: Foundation', weeks: 'Weeks 1–2', text: 'Activate Salesforce Foundations (free). Set up Data Cloud basics. Enable the Einstein Trust Layer.' },
-            { title: 'Phase 2: First Agent', weeks: 'Weeks 3–4', text: 'Deploy the first pre-built agent (Service Agent or SDR Agent recommended). Test with a subset of use cases. Gather baseline metrics.' },
-            { title: 'Phase 3: Optimize',    weeks: 'Weeks 5–8', text: 'Refine agent topics and guardrails. Add additional agents based on performance. Monitor via the Agentforce Command Center.' },
+            { title: 'Weeks 1–2: Kickoff + Quick Wins', weeks: 'Weeks 1–2', text: 'Align on success metrics and name a business owner. Activate Salesforce Foundations and enable the Einstein Trust Layer. First quick wins land immediately.' },
+            { title: 'Weeks 3–6: First Agent Live',     weeks: 'Weeks 3–6', text: 'Deploy your first pre-built agent (Service Agent or SDR Agent recommended). Capture baseline metrics. Data optimization runs in parallel, not ahead.' },
+            { title: 'Weeks 7–12: Expand + Optimize',   weeks: 'Weeks 7–12', text: 'Layer in the next agent based on measured outcomes. Refine topics and guardrails. Monitor performance via the Agentforce Command Center.' },
           ].map((ph) => (
             <View key={ph.title} style={{ flex: 1, border: `0.5pt solid ${COLORS.gray200}`, borderRadius: 6, padding: 10, backgroundColor: COLORS.gray50 }}>
               <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.blueDark }}>{ph.title}</Text>
@@ -1549,15 +1580,15 @@ export function ProspectReport({
           ))}
         </View>
 
-        {/* Implementation considerations */}
+        {/* What the deployment covers */}
         <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginTop: 18, marginBottom: 8 }}>
-          Implementation Considerations
+          What&apos;s Covered by Your Deployment Team
         </Text>
         {[
-          { label: 'Data quality',        body: 'Field completion rates below 70% on key objects (Lead, Contact, Account, Opportunity) will limit agent effectiveness. Consider a data quality sprint before deployment.' },
-          { label: 'Change management',   body: 'Teams that view agents as a threat consistently underperform. Brief teams early and measure success by productivity gains rather than headcount reduction.' },
-          { label: 'Ongoing optimization',body: 'Weekly transcript reviews, monthly prompt refinements, and quarterly use case expansions compound ROI over time.' },
-          { label: 'Implementation partner', body: 'Typical setup costs range from $2,000–$6,000 per agent for configuration and training.' },
+          { label: 'Data optimization',      body: 'IMG tunes field completion and cleans key objects (Lead, Contact, Account, Opportunity) alongside agent rollout, so quality keeps improving as agents deliver results.' },
+          { label: 'Change enablement',      body: 'Your team is briefed and enabled early, with agents positioned as a productivity multiplier rather than a headcount play. Early buy-in is the single biggest predictor of adoption.' },
+          { label: 'Continuous optimization',body: 'Weekly transcript reviews, monthly prompt refinements, and quarterly capability expansions compound ROI over time. Your Salesforce AE and IMG drive the cadence.' },
+          { label: 'Implementation partnership', body: 'Typical engagement investments range from $2,000 to $6,000 per agent for configuration, training, and ongoing tuning.' },
         ].map((c) => (
           <View key={c.label} style={{ flexDirection: 'row', marginBottom: 4 }}>
             <Text style={{ width: 10, fontSize: 10, color: COLORS.blueDark }}>•</Text>
@@ -1596,19 +1627,19 @@ export function ProspectReport({
         <Text style={s.sectionTitle}>Moving Forward</Text>
 
         <Text style={[s.bodyText, { marginBottom: 10 }]}>
-          Your scores are not a verdict. They are a starting point. Every gap identified in this report is an opportunity to build the foundation that makes AI work for your business. The organizations that move deliberately, with the right implementation partner, consistently outperform those that move fast without direction.
+          Your scores are a launchpad, not a verdict. Every opportunity in this report is a lever your team can activate in the next 90 days. Competitors are already deploying agents, and the organizations moving deliberately with the right implementation partner are capturing the early gains.
         </Text>
 
         <Text style={[s.bodyText, { marginBottom: 16 }]}>
-          IMG works with organizations at every stage of AI readiness, from foundation-building to full Agentforce deployment.
+          Your Salesforce AE and IMG will guide you through a proven deployment process designed to deliver quick wins while building long-term performance.
         </Text>
 
         <View style={s.ctaBox}>
-          <Text style={s.ctaBold}>Ready to take the next step?</Text>
+          <Text style={s.ctaBold}>Schedule Your Deployment Planning Session</Text>
           <Text style={s.ctaText}>
             {isSalesforce
-              ? 'Your Salesforce AE can connect you with an IMG Agentforce implementation specialist to review this report and build a detailed deployment plan.'
-              : 'The IMG team can help you translate these findings into a concrete implementation roadmap tailored to your organization.'}
+              ? 'Your Salesforce AE will connect you with an IMG Agentforce implementation specialist to walk through this report and lock in your 90-day deployment plan.'
+              : 'The IMG team is ready to translate these findings into a concrete implementation plan tailored to your organization and timeline.'}
           </Text>
           <Text style={[s.ctaText, { marginTop: 16, fontFamily: 'Helvetica-Bold', color: COLORS.white }]}>
             Contact: gil@growwithimg.com
