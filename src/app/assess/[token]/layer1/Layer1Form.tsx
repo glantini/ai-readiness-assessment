@@ -14,11 +14,11 @@ import LastSavedLabel from '@/components/LastSavedLabel'
 // ─── Scale options ────────────────────────────────────────────────────────────
 
 const SCALE_OPTIONS = [
-  { value: 1, label: 'No awareness or capability' },
-  { value: 2, label: 'Early / ad hoc' },
-  { value: 3, label: 'In development / inconsistent' },
-  { value: 4, label: 'Mostly in place' },
-  { value: 5, label: 'Fully implemented / leading practice' },
+  { value: 1, label: 'Not started' },
+  { value: 2, label: 'Just beginning' },
+  { value: 3, label: 'Inconsistent' },
+  { value: 4, label: 'Mostly yes' },
+  { value: 5, label: 'Fully' },
 ] as const
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -186,7 +186,7 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
                     <label
                       key={opt.value}
                       className={[
-                        'flex min-h-[48px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border px-1 py-3 text-center transition-colors active:bg-blue-100',
+                        'flex cursor-pointer flex-col items-center justify-start gap-1 rounded-lg border px-1 py-2 text-center transition-colors active:bg-blue-100',
                         selected === opt.value
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50',
@@ -208,7 +208,7 @@ export default function Layer1Form({ token, initialStep, initialAnswers }: Props
                       >
                         {opt.value}
                       </span>
-                      <span className="hidden text-xs leading-tight text-gray-500 sm:block">
+                      <span className="hidden whitespace-nowrap text-xs leading-tight text-gray-500 sm:block">
                         {opt.label}
                       </span>
                     </label>
