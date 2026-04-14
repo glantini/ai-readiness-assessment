@@ -156,7 +156,7 @@ export default async function AssessmentDetailPage({
 
           {/* Report + recalculate buttons */}
           {a.status === 'completed' && (
-            <div className="flex items-center gap-2">
+            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
               {reportStatus === 'approved' && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800">
                   <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

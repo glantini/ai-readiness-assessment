@@ -177,7 +177,117 @@ export default function AssessmentsList({
           </Link>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <>
+        {/* ── Mobile card list ─────────────────────────────────────────── */}
+        <ul className="space-y-3 md:hidden">
+          {sorted.map((a) => {
+            const fullName =
+              [a.contact_first_name, a.contact_last_name].filter(Boolean).join(' ') || '—'
+            const statusLabel = STATUS_LABEL[a.status] ?? a.status
+            const statusClass = STATUS_CLASS[a.status] ?? STATUS_CLASS.pending
+            const created = new Date(a.created_at).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
+            const report = reportsByAssessment.get(a.id)
+            const l1 = report?.layer1_scores as Layer1Scores | null
+            const l2 = report?.layer2_scores as Layer2Scores | null
+            const p = a.referral_partner
+            const partnerName = Array.isArray(p) ? p[0]?.name : p?.name
+            const progress = formatProgress(a.status, a.current_section, a.uses_salesforce)
+
+            return (
+              <li
+                key={a.id}
+                className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/admin/assessments/${a.id}`}
+                      className="block truncate text-sm font-semibold text-gray-900 hover:text-blue-700"
+                    >
+                      {fullName}
+                    </Link>
+                    {a.contact_email && (
+                      <p className="mt-0.5 truncate text-xs text-gray-500">{a.contact_email}</p>
+                    )}
+                    {a.company_name && (
+                      <p className="mt-1 truncate text-sm text-gray-700">{a.company_name}</p>
+                    )}
+                  </div>
+                  <span
+                    className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ${statusClass}`}
+                  >
+                    {statusLabel}
+                  </span>
+                </div>
+
+                {(partnerName || progress) && (
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                    {partnerName && (
+                      <span className="truncate">
+                        <span className="text-gray-400">Partner: </span>
+                        {partnerName}
+                      </span>
+                    )}
+                    {progress && (
+                      <span className="truncate text-gray-500">
+                        {progress}
+                        {a.updated_at && (
+                          <>
+                            {' · '}
+                            <span className="text-gray-400">{formatTimeAgo(a.updated_at)}</span>
+                          </>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                  <ScoreTile label="AI" value={l1 ? l1.overall.toFixed(1) : null} />
+                  <ScoreTile
+                    label="SF"
+                    value={a.uses_salesforce && l2 ? l2.overall.toFixed(1) : null}
+                    muted={!a.uses_salesforce}
+                  />
+                  <div className="rounded-lg bg-gray-50 px-2 py-1.5">
+                    <p className="text-[10px] font-medium uppercase tracking-wider text-gray-400">
+                      Created
+                    </p>
+                    <p className="mt-0.5 text-xs font-medium text-gray-700">{created}</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`/assess/${a.token}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium hover:underline"
+                      style={{ color: '#EA580C' }}
+                    >
+                      Open link
+                    </a>
+                    <CopyLinkButton token={a.token} />
+                  </div>
+                  <Link
+                    href={`/admin/assessments/${a.id}`}
+                    className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                  >
+                    View →
+                  </Link>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+
+        {/* ── Desktop table ────────────────────────────────────────────── */}
+        <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm md:block">
           <table className="w-full divide-y divide-gray-200 table-fixed">
             <thead className="bg-gray-50">
               <tr>
@@ -300,7 +410,33 @@ export default function AssessmentsList({
             </tbody>
           </table>
         </div>
+        </>
       )}
     </>
+  )
+}
+
+function ScoreTile({
+  label,
+  value,
+  muted = false,
+}: {
+  label: string
+  value: string | null
+  muted?: boolean
+}) {
+  return (
+    <div className="rounded-lg bg-gray-50 px-2 py-1.5">
+      <p className="text-[10px] font-medium uppercase tracking-wider text-gray-400">
+        {label}
+      </p>
+      <p
+        className={`mt-0.5 text-sm font-semibold ${
+          muted ? 'text-gray-300' : value ? 'text-gray-900' : 'text-gray-400'
+        }`}
+      >
+        {value ?? '—'}
+      </p>
+    </div>
   )
 }

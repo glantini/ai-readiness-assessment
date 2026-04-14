@@ -188,7 +188,7 @@ function InlineAddPanel({
         </p>
       )}
       <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <input
             type="text"
             name="name"
@@ -200,7 +200,7 @@ function InlineAddPanel({
           <input type="email" name="email" required placeholder="Email *" className={inputCls} />
           <input type="text" name="company" placeholder="Company" className={inputCls} />
           <input type="text" name="city" placeholder="City" className={inputCls} />
-          <select name="sf_team_region" className={`${selectCls} col-span-2`}>
+          <select name="sf_team_region" className={`${selectCls} sm:col-span-2`}>
             <option value="">Salesforce team / region…</option>
             {SF_TEAM_REGIONS.map((r) => (
               <option key={r} value={r}>{r}</option>
