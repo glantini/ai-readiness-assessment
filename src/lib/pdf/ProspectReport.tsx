@@ -167,11 +167,11 @@ const SIDEBAR_CLOSING: Record<string, string> = {
 }
 
 const AGENTFORCE_CLOSING: Record<string, string> = {
-  CorePrereqs: 'Your implementation partner handles the technical work. You see results within 60 to 90 days.',
-  DataCloud: 'With Data Cloud, agents gain full context across every customer touchpoint. Many teams activate the free Salesforce Foundations tier to get started immediately.',
-  SalesCloud: 'With clean CRM data and defined workflows, an SDR Agent becomes a consistent, 24/7 extension of your sales team that reps actually trust.',
-  ServiceCloud: 'With a Knowledge Base in place, a Service Agent resolves the majority of routine inquiries automatically, freeing your team for the cases that need a human.',
-  MarketingCloud: 'With clean, consented, segmented data, AI-powered personalization scales relevance across every campaign. Data work is included in your deployment.',
+  CorePrereqs: 'Your implementation partner handles the technical work. Most clients are live with their first agent in under 60 days.',
+  DataCloud: 'Data Cloud gives every Agentforce agent full context across your clouds. Teams starting with the free Salesforce Foundations tier (100K Flex Credits) activate immediately, no net-new spend required.',
+  SalesCloud: 'SDR Agents with clean CRM data qualify leads ~40% more accurately and cut lead response time from hours to seconds. Data and workflow tuning are included in your deployment.',
+  ServiceCloud: 'Service Agents with access to your Knowledge Base resolve cases up to 3x faster and deflect 40 to 70% of routine inquiries autonomously. Your team focuses on the cases that need a human.',
+  MarketingCloud: 'Marketing Agents with consented, segmented data scale personalization across every campaign, driving higher engagement with less manual work. Data enablement is part of the rollout.',
 }
 
 // Category accent colors for sidebar borders
@@ -1147,36 +1147,55 @@ export function ProspectReport({
             <Text style={s.sectionLabel}>AGENTFORCE OPPORTUNITY</Text>
             <Text style={s.sectionTitle}>Here&apos;s What&apos;s Possible for You</Text>
 
-            <Text style={[s.bodyText, { marginBottom: 16 }]}>
+            <Text style={[s.bodyText, { marginBottom: 10 }]}>
               {isSalesforce
                 ? `Your ${edition} Salesforce environment${cloudCount > 0 ? ` across ${cloudList}` : ''} gives you the infrastructure to deploy Agentforce agents that directly address ${motivation.toLowerCase()}. Your implementation partner configures the agents while optimizing your data foundation in parallel, so you see measurable results within 60 to 90 days.`
                 : `Organizations with a readiness profile like yours are already deploying Agentforce to address ${motivation.toLowerCase()}. The outcomes below show what becomes possible when the right agents are matched to your capabilities.`}
             </Text>
 
+            {/* Urgency / competitive context */}
+            <View style={{
+              backgroundColor: '#FEF3C7',
+              borderLeftWidth: 4,
+              borderLeftColor: '#D97706',
+              borderRadius: 6,
+              paddingVertical: 10,
+              paddingHorizontal: 14,
+              marginBottom: 18,
+            }}>
+              <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.amberDark, marginBottom: 2 }}>
+                The competitive window is open now.
+              </Text>
+              <Text style={{ fontSize: 9, lineHeight: 1.5, color: COLORS.amberDark }}>
+                Organizations deploying AI agents this year are seeing 30 to 50% efficiency gains. Early adopters are pulling ahead. Waiting means falling behind.
+              </Text>
+            </View>
+
             {proofs.length > 0 && (
               <>
-                <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 8 }}>
-                  What Organizations Like Yours Have Already Achieved
+                <Text style={{ fontSize: 14, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 6 }}>
+                  Companies like {proofs.map((p) => p.company).slice(0, 3).join(', ').replace(/,([^,]*)$/, ' and$1')} are already seeing results
                 </Text>
                 <Text style={[s.bodyText, { marginBottom: 14 }]}>
-                  These published customer results map to the capabilities recommended for {companyName}. Competitors are already deploying Agentforce, and the organizations moving now are capturing the early gains.
+                  These published customer outcomes map directly to the capabilities recommended for {companyName}. Every result below came from an Agentforce deployment in the last 18 months.
                 </Text>
                 {proofs.map((p, i) => (
                   <View key={`${p.company}-${i}`} wrap={false} style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    backgroundColor: COLORS.gray50,
-                    border: `0.5pt solid ${COLORS.gray200}`,
+                    backgroundColor: '#EFF6FF',
+                    borderLeftWidth: 4,
+                    borderLeftColor: COLORS.primary,
                     borderRadius: 6,
-                    padding: 14,
+                    padding: 16,
                     marginBottom: 10,
                   }}>
-                    <Text style={{ fontSize: 18, fontFamily: 'Helvetica-Bold', color: COLORS.blueDark, minWidth: 150, marginRight: 16 }}>
+                    <Text style={{ fontSize: 22, fontFamily: 'Helvetica-Bold', color: COLORS.primaryDark, minWidth: 170, marginRight: 18 }}>
                       {p.result}
                     </Text>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>{p.company}</Text>
-                      <Text style={{ fontSize: 9, color: COLORS.gray500, marginTop: 2 }}>{p.metric}</Text>
+                      <Text style={{ fontSize: 13, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>{p.company}</Text>
+                      <Text style={{ fontSize: 10, color: COLORS.gray700, marginTop: 2 }}>{p.metric}</Text>
                     </View>
                   </View>
                 ))}
@@ -1210,39 +1229,48 @@ export function ProspectReport({
                 The IMG Agentforce Deployment Model
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-                {/* LAUNCH */}
+                {/* LAUNCH — Days 1–30 */}
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.primary, marginBottom: 4 }}>
+                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.primary, marginBottom: 2 }}>
                     LAUNCH
                   </Text>
+                  <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray700, marginBottom: 4 }}>
+                    Days 1–30
+                  </Text>
                   <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
-                    Kick off with a joint deployment plan. Your Salesforce AE and IMG align on the first agent, success metrics, and a named business owner in weeks, not months.
+                    Foundation setup and first agent configured. IMG and your Salesforce AE align on success metrics, name the business owner, and activate Salesforce Foundations. First quick wins land inside 30 days.
                   </Text>
                 </View>
                 {/* Arrow */}
                 <Text style={{ fontSize: 16, color: COLORS.gray400, paddingHorizontal: 6, paddingTop: 2 }}>
                   {'\u2192'}
                 </Text>
-                {/* DEPLOY */}
+                {/* OPTIMIZE — Days 30–60 */}
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.primary, marginBottom: 4 }}>
-                    DEPLOY
+                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.primary, marginBottom: 2 }}>
+                    OPTIMIZE
+                  </Text>
+                  <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray700, marginBottom: 4 }}>
+                    Days 30–60
                   </Text>
                   <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
-                    Your first agent goes live within 60 to 90 days while IMG optimizes data and automation in parallel. You see measurable results as the foundation strengthens.
+                    Your first agent goes live. Real usage informs refinement. Data and workflow work continues in parallel, so performance compounds week over week.
                   </Text>
                 </View>
                 {/* Arrow */}
                 <Text style={{ fontSize: 16, color: COLORS.gray400, paddingHorizontal: 6, paddingTop: 2 }}>
                   {'\u2192'}
                 </Text>
-                {/* EXPAND */}
+                {/* EXPAND — Days 60–90 */}
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.primary, marginBottom: 4 }}>
+                  <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.primary, marginBottom: 2 }}>
                     EXPAND
                   </Text>
+                  <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray700, marginBottom: 4 }}>
+                    Days 60–90
+                  </Text>
                   <Text style={{ fontSize: 8, lineHeight: 1.4, color: COLORS.gray500 }}>
-                    Layer in additional agents based on measured outcomes: task success rate, time saved, CSAT improvement. ROI compounds as you scale.
+                    Layer in additional agents based on measured outcomes: task success rate, time saved, CSAT. ROI compounds as you scale.
                   </Text>
                 </View>
               </View>
@@ -1268,10 +1296,7 @@ export function ProspectReport({
             <View style={{ flexDirection: 'row', gap: 12, marginBottom: 20 }}>
               <View style={[s.badge, { backgroundColor: COLORS.gray100 }]}>
                 <Text style={[s.badgeLabel, { color: COLORS.gray500 }]}>
-                  AGENTFORCE READINESS INDEX
-                </Text>
-                <Text style={[s.badgeScore, { color: COLORS.gray900 }]}>
-                  {l2Scores.overall.toFixed(1)}/5
+                  YOUR AGENTFORCE POSITION
                 </Text>
                 <TierBadge tier={layer2TierLabel(l2Scores.tier)} color={layer2TierColor(l2Scores.tier)} />
               </View>
@@ -1364,7 +1389,7 @@ export function ProspectReport({
                       </View>
 
                       <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, marginBottom: 2 }}>
-                        What You Can Expect:
+                        Expected Impact:
                       </Text>
                       <Text style={{ fontSize: 9, color: COLORS.gray700, marginBottom: 8 }}>
                         {rec.expectedOutcome}
@@ -1378,11 +1403,11 @@ export function ProspectReport({
                       </View>
 
                       <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, marginBottom: 4 }}>
-                        Included in Your Deployment:
+                        What&apos;s Included:
                       </Text>
                       {rec.conditions.map((cond, i) => (
                         <Text key={i} style={{ fontSize: 9, color: COLORS.gray700, marginBottom: 2, paddingLeft: 8 }}>
-                          {'\u2022'} {cond}
+                          {'\u2713'} {cond}
                         </Text>
                       ))}
                     </View>
@@ -1487,7 +1512,7 @@ export function ProspectReport({
             </Text>
 
             <View>
-              {/* Header row */}
+              {/* Header row — impact leads, SKU is last */}
               <View style={{
                 flexDirection: 'row',
                 borderTop: `0.5pt solid ${COLORS.gray200}`,
@@ -1495,22 +1520,22 @@ export function ProspectReport({
                 backgroundColor: COLORS.gray50,
                 paddingVertical: 6,
               }}>
+                <Text style={{ width: '30%', paddingHorizontal: 6, fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, letterSpacing: 0.6, textTransform: 'uppercase' }}>Impact for You</Text>
                 <Text style={{ width: '22%', paddingHorizontal: 6, fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, letterSpacing: 0.6, textTransform: 'uppercase' }}>Capability</Text>
-                <Text style={{ width: '22%', paddingHorizontal: 6, fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, letterSpacing: 0.6, textTransform: 'uppercase' }}>SKU</Text>
                 <Text style={{ width: '30%', paddingHorizontal: 6, fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, letterSpacing: 0.6, textTransform: 'uppercase' }}>What It Does</Text>
-                <Text style={{ width: '26%', paddingHorizontal: 6, fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, letterSpacing: 0.6, textTransform: 'uppercase' }}>Impact for You</Text>
+                <Text style={{ width: '18%', paddingHorizontal: 6, fontSize: 8, fontFamily: 'Helvetica-Bold', color: COLORS.gray500, letterSpacing: 0.6, textTransform: 'uppercase' }}>SKU</Text>
               </View>
               {caps.map((c) => (
                 <View key={c.id} wrap={false} style={{ flexDirection: 'row', borderBottom: `0.5pt solid ${COLORS.gray200}`, paddingVertical: 8 }}>
+                  <Text style={{ width: '30%', paddingHorizontal: 6, fontSize: 9, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, lineHeight: 1.45 }}>{c.businessImpact}</Text>
                   <View style={{ width: '22%', paddingHorizontal: 6 }}>
                     <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>{c.name}</Text>
                     <Text style={{ fontSize: 8, color: COLORS.gray500, marginTop: 2 }}>{c.group}</Text>
                   </View>
-                  <View style={{ width: '22%', paddingHorizontal: 6 }}>
+                  <Text style={{ width: '30%', paddingHorizontal: 6, fontSize: 9, color: COLORS.gray700, lineHeight: 1.45 }}>{c.whatItDoes}</Text>
+                  <View style={{ width: '18%', paddingHorizontal: 6 }}>
                     <Text style={{ fontSize: 9, color: COLORS.blueDark, fontFamily: 'Helvetica-Bold' }}>{c.sku}</Text>
                   </View>
-                  <Text style={{ width: '30%', paddingHorizontal: 6, fontSize: 9, color: COLORS.gray700, lineHeight: 1.45 }}>{c.whatItDoes}</Text>
-                  <Text style={{ width: '26%', paddingHorizontal: 6, fontSize: 9, color: COLORS.gray700, lineHeight: 1.45 }}>{c.businessImpact}</Text>
                 </View>
               ))}
             </View>
@@ -1520,46 +1545,60 @@ export function ProspectReport({
         )
       })()}
 
-      {/* ── Foundation Enhancements (included with deployment) ──────────── */}
+      {/* ── What's Included in Your Deployment ──────────────────────────── */}
       <Page size="LETTER" style={s.page}>
-        <Text style={s.sectionLabel}>FOUNDATION ENHANCEMENTS</Text>
-        <Text style={s.sectionTitle}>Included With Your Deployment</Text>
+        <Text style={s.sectionLabel}>WHAT&apos;S INCLUDED IN YOUR DEPLOYMENT</Text>
+        <Text style={s.sectionTitle}>Your Deployment Package</Text>
 
         <Text style={[s.bodyText, { marginBottom: 14 }]}>
-          Every Agentforce deployment includes a parallel foundation workstream. While your first agent goes live, IMG and your Salesforce AE optimize the data, platform, and governance layers alongside it, so quick wins compound into long-term performance.
+          Every Agentforce engagement runs as a single, integrated workstream. IMG and your Salesforce AE handle the technical lift while your first agent goes live, so quick wins compound into long-term performance.
         </Text>
 
-        {/* Enhancement products table */}
-        <View style={{ borderTop: `0.5pt solid ${COLORS.gray200}` }}>
+        {/* Checklist of what's included */}
+        <View style={{
+          backgroundColor: '#ECFDF5',
+          borderWidth: 1,
+          borderColor: '#6EE7B7',
+          borderRadius: 8,
+          paddingVertical: 16,
+          paddingHorizontal: 20,
+          marginBottom: 16,
+        }}>
+          <Text style={{ fontSize: 13, fontFamily: 'Helvetica-Bold', color: '#065F46', marginBottom: 10 }}>
+            Your Deployment Includes:
+          </Text>
           {[
-            {
-              name: 'Data Cloud',
-              why: 'Unlocks unified customer profiles across every cloud, giving each Agentforce agent full context for personalized responses. Think of this as the upgrade that makes every agent smarter.',
-              how: 'Many clients start with the free Salesforce Foundations tier (100K Flex Credits) to activate immediately. Full implementation scales as your usage grows.',
-            },
-            {
-              name: 'Einstein 1 Platform',
-              why: 'Delivers the Einstein Trust Layer for security, data masking, and compliance, giving IT and legal teams confidence that every agent operates within your guardrails.',
-              how: 'Included with Agentforce Add-ons and Agentforce 1 Editions. Your AE configures the trust settings as part of rollout.',
-            },
-            {
-              name: 'Enterprise Edition+',
-              why: 'Enterprise edition or higher unlocks the full Agentforce feature set across Sales Cloud, Service Cloud, and Industry Clouds. If you are already on Enterprise or Unlimited, you are ready to deploy.',
-              how: 'If an edition upgrade makes sense for your roadmap, your Salesforce AE can walk through the options and the fit.',
-            },
-          ].map((f) => (
-            <View key={f.name} wrap={false} style={{ flexDirection: 'row', borderBottom: `0.5pt solid ${COLORS.gray200}`, paddingVertical: 10 }}>
-              <View style={{ width: '24%', paddingHorizontal: 6 }}>
-                <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>{f.name}</Text>
-              </View>
-              <Text style={{ width: '42%', paddingHorizontal: 6, fontSize: 9, color: COLORS.gray700, lineHeight: 1.45 }}>
-                {f.why}
-              </Text>
-              <Text style={{ width: '34%', paddingHorizontal: 6, fontSize: 9, color: COLORS.gray700, lineHeight: 1.45 }}>
-                {f.how}
-              </Text>
+            'Data Cloud activation (free Salesforce Foundations tier available — 100K Flex Credits, no net-new spend to start)',
+            'Einstein Trust Layer configuration for security, data masking, and compliance',
+            'Data quality and workflow optimization across Lead, Contact, Account, and Opportunity',
+            'Agent configuration, guardrails, and sandbox testing before go-live',
+            'Team enablement and training, positioned as a productivity multiplier',
+            'Weekly transcript reviews and monthly prompt refinements to compound ROI',
+          ].map((item, i) => (
+            <View key={i} style={{ flexDirection: 'row', marginBottom: 5 }}>
+              <Text style={{ fontSize: 12, color: '#059669', marginRight: 8 }}>{'\u2713'}</Text>
+              <Text style={{ flex: 1, fontSize: 10, color: '#065F46', lineHeight: 1.5 }}>{item}</Text>
             </View>
           ))}
+        </View>
+
+        {/* Technical fit note */}
+        <View style={{
+          backgroundColor: COLORS.gray50,
+          borderLeftWidth: 3,
+          borderLeftColor: COLORS.primary,
+          borderRadius: 4,
+          paddingVertical: 10,
+          paddingHorizontal: 14,
+          marginBottom: 6,
+        }}>
+          <Text style={{ fontSize: 10, color: COLORS.gray700, lineHeight: 1.5 }}>
+            {assessment.salesforce_edition === 'Enterprise' || assessment.salesforce_edition === 'Unlimited'
+              ? `Your ${assessment.salesforce_edition} Salesforce edition already meets the technical requirements for Agentforce. You are ready to deploy.`
+              : isSalesforce
+                ? 'Your Salesforce AE can walk through any edition or add-on options that fit your deployment plan. Many configurations are ready to deploy today.'
+                : 'Your Salesforce AE can walk through the fastest path to activate Agentforce for your environment.'}
+          </Text>
         </View>
 
         {/* 90-Day enablement path */}
@@ -1580,9 +1619,9 @@ export function ProspectReport({
           ))}
         </View>
 
-        {/* What the deployment covers */}
+        {/* How we ensure success */}
         <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginTop: 18, marginBottom: 8 }}>
-          What&apos;s Covered by Your Deployment Team
+          How We Ensure Success
         </Text>
         {[
           { label: 'Data optimization',      body: 'IMG tunes field completion and cleans key objects (Lead, Contact, Account, Opportunity) alongside agent rollout, so quality keeps improving as agents deliver results.' },
@@ -1635,11 +1674,11 @@ export function ProspectReport({
         </Text>
 
         <View style={s.ctaBox}>
-          <Text style={s.ctaBold}>Schedule Your Deployment Planning Session</Text>
+          <Text style={s.ctaBold}>Ready to see results in 60 days?</Text>
           <Text style={s.ctaText}>
             {isSalesforce
-              ? 'Your Salesforce AE will connect you with an IMG Agentforce implementation specialist to walk through this report and lock in your 90-day deployment plan.'
-              : 'The IMG team is ready to translate these findings into a concrete implementation plan tailored to your organization and timeline.'}
+              ? `Schedule your deployment kickoff call this week. Your Salesforce AE and IMG will walk through this report and lock in your 90-day plan. Most clients move from this report to first agent live in under 60 days.`
+              : 'Schedule your discovery call this week. The IMG team will turn these findings into a concrete 90-day implementation plan tailored to your organization.'}
           </Text>
           <Text style={[s.ctaText, { marginTop: 16, fontFamily: 'Helvetica-Bold', color: COLORS.white }]}>
             Contact: gil@growwithimg.com
