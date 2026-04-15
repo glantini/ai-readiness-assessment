@@ -3,9 +3,6 @@
  *
  * Renders the ProspectReport as a downloadable PDF.
  * Requires authenticated @growwithimg.com user.
- *
- * Query params:
- *   ?type=ae  — returns the AE Intelligence PDF instead
  */
 
 export const dynamic = 'force-dynamic'
@@ -14,7 +11,6 @@ import { NextRequest } from 'next/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { ProspectReport } from '@/lib/pdf/ProspectReport'
-import { AEIntelligenceDoc } from '@/lib/pdf/AEIntelligence'
 import { getCheckedSymptoms } from '@/lib/reportGeneration'
 import type {
   Assessment,
@@ -27,11 +23,10 @@ import type {
 } from '@/types'
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } },
 ) {
   const assessmentId = params.id
-  const isAE = request.nextUrl.searchParams.get('type') === 'ae'
 
   // ── Auth check (IMG team only) ─────────────────────────────────────────────
   const authClient = createClient()
@@ -112,63 +107,29 @@ export async function GET(
     return Response.json({ error: 'Narrative not generated yet' }, { status: 400 })
   }
 
-  // Debug: confirm which recommendation format is being served in the PDF
-  const sampleCat = narrative.categories?.AIStrategy
-  console.log('[pdf/route] Rendering PDF with recommendation format:', {
-    assessmentId,
-    reportStatus: report.report_status,
-    sampleRecommendation: sampleCat?.recommendations?.[0],
-    isRichFormat: typeof sampleCat?.recommendations?.[0] === 'object',
-  })
-
-  // ── Render PDF ─────────────────────────────────────────────────────────────
-  let buffer: Buffer
-  let filename: string
   const companySlug = (a.company_name ?? 'report').replace(/[^a-zA-Z0-9]/g, '-')
 
-  if (isAE) {
-    // Build snapshot symptoms for AE doc
-    const snapshotMap: Record<string, boolean> = {}
-    for (const row of snapshotRows ?? []) {
-      snapshotMap[row.question_id] = row.value === true
-    }
-    const checkedSymptoms = getCheckedSymptoms(snapshotMap)
-
-    const aeDoc = AEIntelligenceDoc({
-      assessment: a,
-      l1Scores: l1,
-      l2Scores: l2,
-      productScores: ps,
-      narrative,
-      agentforceNarrative: afNarrative,
-      checkedSymptoms,
-    })
-    buffer = await renderToBuffer(aeDoc as unknown as React.ReactElement)
-    filename = `AE-Intelligence-${companySlug}.pdf`
-  } else {
-    // Build snapshot symptoms for prospect report
-    const prospectSnapshotMap: Record<string, boolean> = {}
-    for (const row of snapshotRows ?? []) {
-      prospectSnapshotMap[row.question_id] = row.value === true
-    }
-    const prospectSymptoms = getCheckedSymptoms(prospectSnapshotMap)
-
-    const reportDoc = ProspectReport({
-      assessment: a,
-      l1Scores: l1,
-      l2Scores: l2,
-      productScores: ps,
-      narrative,
-      agentforceNarrative: afNarrative,
-      checkedSymptoms: prospectSymptoms,
-      snapshotChecks: prospectSnapshotMap,
-      layer1QuestionCount: layer1Rows?.length ?? 0,
-      layer2QuestionCount: layer2Rows?.length ?? 0,
-      referralPartner,
-    })
-    buffer = await renderToBuffer(reportDoc as unknown as React.ReactElement)
-    filename = `AI-Readiness-Report-${companySlug}.pdf`
+  const prospectSnapshotMap: Record<string, boolean> = {}
+  for (const row of snapshotRows ?? []) {
+    prospectSnapshotMap[row.question_id] = row.value === true
   }
+  const prospectSymptoms = getCheckedSymptoms(prospectSnapshotMap)
+
+  const reportDoc = ProspectReport({
+    assessment: a,
+    l1Scores: l1,
+    l2Scores: l2,
+    productScores: ps,
+    narrative,
+    agentforceNarrative: afNarrative,
+    checkedSymptoms: prospectSymptoms,
+    snapshotChecks: prospectSnapshotMap,
+    layer1QuestionCount: layer1Rows?.length ?? 0,
+    layer2QuestionCount: layer2Rows?.length ?? 0,
+    referralPartner,
+  })
+  const buffer = await renderToBuffer(reportDoc as unknown as React.ReactElement)
+  const filename = `AI-Readiness-Report-${companySlug}.pdf`
 
   return new Response(new Uint8Array(buffer), {
     headers: {

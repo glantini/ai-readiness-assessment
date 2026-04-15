@@ -219,12 +219,21 @@ export interface RichRecommendation {
  * or a [RichRecommendation, RichRecommendation] tuple (new reports).
  */
 export interface CategoryNarrative {
+  /** One-sentence plain-English read of the score for a CEO. */
+  plainSummary?: string
   context?: string
   summary: string
   recommendations: [string, string] | [RichRecommendation, RichRecommendation]
 }
 
 export interface ReportNarrative {
+  /**
+   * Executive summary as a single string. New reports format it with three
+   * labeled sections answering "Am I ready for AI?", "What is holding me back?",
+   * and "What should I do first?" — separated by the EXECUTIVE_SUMMARY_SECTION
+   * markers defined in lib/reportGeneration so the PDF can render each answer
+   * in its own styled block. Legacy reports are a plain paragraph.
+   */
   executiveSummary: string
   criticalGap: {
     area: string

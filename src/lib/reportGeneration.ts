@@ -19,7 +19,19 @@ import { layer1Questions } from '@/lib/questions/layer1'
 
 // ─── System prompt ────────────────────────────────────────────────────────────
 
-export const REPORT_SYSTEM_PROMPT = `You are a senior AI strategy advisor writing a confidential readiness report for a business leader. Tone: professional, direct, practical. No vendor language. No filler phrases. Write as the most credible advisor in the room. Be specific, reference the company's industry, size, and stated motivations throughout. A 50-person professional services firm and a 500-person manufacturer at the same score have fundamentally different implementation realities. Reflect that. Never reference a specific fiscal year. Use "this fiscal year" or "the next 90 days" instead of naming a year. Never use em dashes in any output. Use commas, colons, or periods instead.
+export const REPORT_SYSTEM_PROMPT = `You are a senior AI strategy advisor writing a confidential readiness report for a CEO with limited AI experience. Your single most important job: make every sentence understandable to a business leader who has never worked in AI, machine learning, or data engineering. If a sentence would require the reader to know a technical concept to understand it, rewrite the sentence.
+
+AUDIENCE AND LANGUAGE RULES (apply to every field of Block 1 and Block 2):
+
+(1) Write for a CEO with limited AI experience. Assume they run the business, not the AI. They understand revenue, margin, customer retention, employee time, risk, and competitive positioning. They do not need to understand the technology.
+
+(2) Avoid all technical jargon. Banned terms (never use any of these or close paraphrases unless you immediately define them in plain words in the same sentence): "LLM", "large language model", "model", "inference", "embedding", "vector", "RAG", "fine-tune", "fine-tuning", "prompt engineering", "token", "API", "schema", "data pipeline", "ETL", "middleware", "data lake", "data warehouse", "ontology", "governance framework", "orchestration", "agentic", "foundation model", "MLOps", "NLP", "generative AI architecture", "trust layer" (without plain-English definition), "field-level security" (without plain-English definition), "permission set" (without plain-English definition). If you must reference a specific Salesforce tool by name, follow it immediately with a plain-English description of what it does for the business.
+
+(3) Frame every observation as a business outcome. Never describe a technical capability as the outcome. The outcome is always in the form of revenue gained, time saved, cost avoided, risk reduced, customers retained, employees freed up, or decisions made faster. "We improve data quality" is not an outcome. "Your sales team stops losing leads because every lead shows up with the right contact details" is an outcome.
+
+(4) Every score or finding must be translated into a practical business implication in the same section. Never leave the reader to infer "so what does this mean for my business?"
+
+Tone: professional, direct, practical. No vendor language. No filler phrases. Write as the most credible advisor in the room. Be specific, reference the company's industry, size, and stated motivations throughout. A 50-person professional services firm and a 500-person manufacturer at the same score have fundamentally different implementation realities. Reflect that. Never reference a specific fiscal year. Use "this fiscal year" or "the next 90 days" instead of naming a year. Never use em dashes in any output. Use commas, colons, or periods instead.
 
 AGENTFORCE TONE RULES (apply to every field of Block 2, the Agentforce narrative):
 
@@ -35,7 +47,7 @@ These rules apply ONLY to Block 2 (Agentforce narrative). Block 1 (Layer 1 narra
 
 For every recommendation, provide specific how-to guidance including named tools, concrete steps, and measurable thresholds where relevant. Never give generic advice. A recommendation without implementation detail is not useful to a business leader. Examples of good how-to guidance by category:
 
-Data Foundation: Name specific tools (Cloudingo, ZoomInfo, Clearbit), specific Salesforce reports to run (Duplicate Records report), specific field completion thresholds to target (aim for less than 20% null rate on Contact email, phone, and title fields).
+Unified customer data across systems (the category previously framed as "Data Foundation"): Frame this as "having one clear, unified view of our customer data across all systems." Name specific tools (Cloudingo, ZoomInfo, Clearbit) only when paired with a plain-English explanation of what they do for the business (e.g. "a tool that cleans duplicate contact records"). Reference specific Salesforce reports (Duplicate Records report) with a plain description of what the business gets from running it. When referencing thresholds like "less than 20% null rate on Contact email, phone, and title fields", translate immediately into the business consequence (e.g. "so your reps stop losing leads because a phone number was missing"). Never use the phrase "Data Cloud"; if you must reference that product, call it "unified customer data across systems" and describe the outcome it unlocks.
 
 Process Readiness: Reference specific process documentation formats (SIPOC diagrams, swimlane flowcharts), specific Salesforce tools (Flow Builder, Process Builder), specific metrics to measure (what percentage of cases are manually routed vs auto-routed).
 
@@ -48,6 +60,73 @@ AI Policies: Reference specific policy frameworks (NIST AI Risk Management Frame
 Agent Controls: Reference specific Salesforce tools (Agent Builder, permission sets, audit logs), specific metrics to track per agent (task success rate, escalation rate, user satisfaction score), specific stage-gate criteria for moving from sandbox to pilot to production.
 
 Always tie the why-it-matters to the company's specific industry, size, and stated primary motivation. A 50-person professional services firm and a 500-person manufacturer at the same score need fundamentally different implementation guidance. Never use em dashes in any output. Use commas, colons, or periods instead.`
+
+// ─── Executive summary section labels ─────────────────────────────────────────
+
+/**
+ * Labels used to split the single executiveSummary string into its three
+ * CEO-facing answers when rendering the PDF. The Claude prompt is required
+ * to emit these labels verbatim, each on its own line.
+ */
+export const EXECUTIVE_SUMMARY_SECTIONS = [
+  { key: 'amIReady', label: 'AM I READY FOR AI?', display: 'Am I ready for AI?' },
+  {
+    key: 'whatIsHoldingMeBack',
+    label: 'WHAT IS HOLDING ME BACK?',
+    display: 'What is holding me back?',
+  },
+  {
+    key: 'whatShouldIDoFirst',
+    label: 'WHAT SHOULD I DO FIRST?',
+    display: 'What should I do first?',
+  },
+] as const
+
+export interface ParsedExecutiveSummarySection {
+  key: string
+  display: string
+  body: string
+}
+
+/**
+ * Split the executiveSummary string into the three CEO-facing answers.
+ * Returns an empty array when no labels are present (legacy narratives stored
+ * as a plain paragraph), letting the caller fall back to rendering the string
+ * verbatim.
+ */
+export function parseExecutiveSummary(
+  raw: string | null | undefined,
+): ParsedExecutiveSummarySection[] {
+  if (!raw) return []
+  const labels = EXECUTIVE_SUMMARY_SECTIONS.map((s) => s.label)
+  const hasAny = labels.some((l) => raw.toUpperCase().includes(l))
+  if (!hasAny) return []
+
+  const out: ParsedExecutiveSummarySection[] = []
+  for (let i = 0; i < EXECUTIVE_SUMMARY_SECTIONS.length; i += 1) {
+    const section = EXECUTIVE_SUMMARY_SECTIONS[i]
+    const startRegex = new RegExp(
+      `${section.label.replace(/[?]/g, '\\?')}`,
+      'i',
+    )
+    const start = raw.search(startRegex)
+    if (start < 0) continue
+    const afterLabel = raw.slice(start + section.label.length)
+    let body = afterLabel
+    for (let j = i + 1; j < EXECUTIVE_SUMMARY_SECTIONS.length; j += 1) {
+      const nextLabel = EXECUTIVE_SUMMARY_SECTIONS[j].label
+      const nextIdx = afterLabel.search(
+        new RegExp(nextLabel.replace(/[?]/g, '\\?'), 'i'),
+      )
+      if (nextIdx >= 0) {
+        body = afterLabel.slice(0, nextIdx)
+        break
+      }
+    }
+    out.push({ key: section.key, display: section.display, body: body.trim() })
+  }
+  return out
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -177,8 +256,8 @@ This block is PROSPECT-FACING SALES CONTENT. The Agentforce tone rules in the sy
   "editionFlag": ${editionFlagValue},
   "dataCloudFlag": {
     "required": true,
-    "reason": "Frame Data Cloud as an unlock: adding it gives every Agentforce agent full context across every customer touchpoint. Tie it to the specific outcome it enables for this client's active clouds and motivation. Explicitly mention the free Salesforce Foundations tier (100K Flex Credits) as an immediate path to activate. Never use the words 'blocker', 'prerequisite', 'required', or 'gap'.",
-    "phase": "When Data Cloud activates inside the 90-day window, phrased as a partner action. Example: 'IMG activates Data Cloud alongside your first agent in days 1–30, so every agent launches with full customer context.'"
+    "reason": "Frame this as 'unified customer data across systems': a clear, single view of your customer data across every system. Describe the business outcome it unlocks for this client's active clouds and motivation (e.g. 'your sales and service teams see the same customer history in real time'). Explicitly mention the free Salesforce Foundations tier (100K Flex Credits) as an immediate path to activate, described in plain English. Never use the words 'Data Cloud', 'blocker', 'prerequisite', 'required', or 'gap'. Use 'unified customer data across systems' as the label and phrase the benefit as 'We have a clear, unified view of our customer data across all systems.'",
+    "phase": "When unified customer data activates inside the 90-day window, phrased as a partner action and a business outcome. Example: 'IMG turns on your unified customer view alongside your first agent in days 1 to 30, so every interaction is grounded in the same customer story.' Never use the words 'Data Cloud'."
   },
   "agentRecommendations": {
 ${agentRecs.length > 0 ? agentRecs : '    // No product clouds selected'}
@@ -233,14 +312,19 @@ ${salesforceSection}
 Generate the assessment report as ${isSalesforce ? 'two' : 'one'} JSON code block${isSalesforce ? 's' : ''}.
 
 BLOCK 1 (required for all respondents):
+
+The executiveSummary is a single string that answers, in order, three questions a CEO asks when they open this report: "Am I ready for AI?", "What is holding me back?", and "What should I do first?" Each answer is plain English. No scores. No jargon. Each answer must stand on its own as a complete thought a CEO could read aloud on a leadership call. Format the string EXACTLY as shown in the schema below, with the three section labels on their own lines, so the PDF layer can render each answer in its own styled block. Do not introduce, paraphrase, or localize the labels. Do not add content before the first label or between labels and their answers.
+
+Every category also includes a plainSummary field. This is a one-sentence, plain-English translation of what the score means for their business in practical terms. Grounded in business outcomes. No technical terms. Written for a CEO with limited AI experience. Example: "Your team is aware of AI but hasn't yet committed the resources needed to move forward." The plainSummary is distinct from context (which sets the industry frame) and summary (which is a deeper finding). The plainSummary is the fastest, simplest read of the score.
+
 \`\`\`json
 {
-  "executiveSummary": "3–4 sentence executive summary. Specific to this company, industry, and motivation. No generic phrases.",
+  "executiveSummary": "AM I READY FOR AI?\\n3-4 sentence plain-English answer. Give a direct verdict (e.g. 'You have the foundation in place, but you're not yet ready to deploy AI at scale'), then explain what that means for this specific company, industry, and motivation. Business outcomes only. No scores, no jargon.\\n\\nWHAT IS HOLDING ME BACK?\\n3-4 sentence plain-English answer. Name the single biggest obstacle in terms a CEO understands, and explain the business consequence of leaving it unaddressed. Reference the company's actual situation, not generic AI readiness gaps.\\n\\nWHAT SHOULD I DO FIRST?\\n3-4 sentence plain-English answer. One clear, concrete first move the CEO can make inside the next 30 days. Describe the outcome they will see from that move, not the mechanics of doing it.",
   "criticalGap": {
     "area": "The single category or capability most urgently blocking AI progress",
-    "finding": "2-3 sentence specific finding about what is weak or missing and why it matters for this company",
+    "finding": "2-3 sentence specific finding about what is weak or missing and why it matters for this company, written in plain English a CEO can act on",
     "recommendation": "The one concrete action leadership should take first to close this gap",
-    "impactIfUnaddressed": "2-3 sentences describing the specific business consequences if this gap is not closed in the next 6-12 months. Reference their industry and competitive landscape.",
+    "impactIfUnaddressed": "2-3 sentences describing the specific business consequences if this gap is not closed in the next 6-12 months. Reference their industry and competitive landscape. Business outcomes only.",
     "immediateNextStep": "One concrete, specific action the prospect can take this week to begin closing this gap. Make it actionable and time-bound."
   },
   "quickWins": [
@@ -250,18 +334,19 @@ BLOCK 1 (required for all respondents):
   ],
   "categories": {
     "AIStrategy": {
-      "context": "2-3 sentences personalized to the company's industry and size, explaining what this category means for their specific situation and why it matters right now.",
-      "summary": "2-3 sentences on what this company's AI Strategy score reveals. Be specific to their industry and motivation.",
+      "plainSummary": "One sentence in plain English describing what this company's AI Strategy score means for their business. No jargon. Grounded in business outcomes. Example tone: 'Your team is aware of AI but hasn't yet committed the resources needed to move forward.'",
+      "context": "2-3 sentences personalized to the company's industry and size, explaining what this category means for their specific situation and why it matters right now. Business-outcome framing, no technical jargon.",
+      "summary": "2-3 sentences on what this company's AI Strategy score reveals. Be specific to their industry and motivation. Translate any technical observation into a business outcome.",
       "recommendations": [
-        { "action": "Short headline of what to do", "howTo": "Specific steps, named tools, concrete examples, measurable thresholds. 3-5 sentences minimum.", "whyItMatters": "1-2 sentences tied specifically to their industry, size, and stated motivation" },
-        { "action": "Second recommendation headline", "howTo": "Specific implementation steps with named tools and measurable targets. 3-5 sentences minimum.", "whyItMatters": "1-2 sentences tied to their specific context" }
+        { "action": "Short headline of what to do, in business terms", "howTo": "Specific steps, named tools, concrete examples, measurable thresholds. 3-5 sentences minimum. When you name a tool, describe in plain English what the business gets from using it.", "whyItMatters": "1-2 sentences tied specifically to their industry, size, and stated motivation, expressed as a business outcome" },
+        { "action": "Second recommendation headline, in business terms", "howTo": "Specific implementation steps with named tools and measurable targets, each translated into a business outcome. 3-5 sentences minimum.", "whyItMatters": "1-2 sentences tied to their specific context, expressed as a business outcome" }
       ]
     },
-    "PeopleAndCulture": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
-    "DataFoundation": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
-    "ProcessReadiness": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
-    "AIPolicies": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
-    "AgentControls": { "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] }
+    "PeopleAndCulture": { "plainSummary": "One sentence plain-English read of this score for a CEO...", "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
+    "DataFoundation": { "plainSummary": "One sentence plain-English read of this score for a CEO, framed as how unified their customer data is across systems...", "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
+    "ProcessReadiness": { "plainSummary": "One sentence plain-English read of this score for a CEO...", "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
+    "AIPolicies": { "plainSummary": "One sentence plain-English read of this score for a CEO...", "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] },
+    "AgentControls": { "plainSummary": "One sentence plain-English read of this score for a CEO...", "context": "2-3 sentences personalized context...", "summary": "...", "recommendations": [{ "action": "...", "howTo": "...", "whyItMatters": "..." }, { "action": "...", "howTo": "...", "whyItMatters": "..." }] }
   }
 }
 \`\`\`

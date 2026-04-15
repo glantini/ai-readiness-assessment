@@ -39,6 +39,7 @@ import {
 } from '@/lib/agentforce/capabilities'
 import { selectROIProofPoints } from '@/lib/agentforce/roi'
 import { selectAgentforceRecommendations } from '@/lib/agentforce/recommend'
+import { parseExecutiveSummary } from '@/lib/reportGeneration'
 
 // ─── Colors ──────────────────────────────────────────────────────────────────
 
@@ -109,6 +110,59 @@ function tierFromScore(score: number): string {
   return 'Exploring'
 }
 
+// Plain-English descriptions of what each overall readiness tier means for a
+// CEO's business, rendered next to the tier label wherever it appears.
+const TIER_DESCRIPTIONS: Record<string, string> = {
+  Exploring:
+    'Exploring means AI is still a conversation inside your business, not a working capability. You have not yet committed the people, data, or funding needed to move.',
+  Building:
+    'Building means you have some of the pieces in place but the organization is not yet ready to run AI end to end. Early wins are possible, scale is not.',
+  Scaling:
+    'Scaling means the foundation is in place and early AI use is delivering real value. The next move is expanding what works across more of the business.',
+  Leading:
+    'Leading means AI is embedded in how your business runs. You are capturing measurable returns and setting the pace for peers in your industry.',
+  'Not Ready':
+    'Early Opportunity means you have not yet tuned Salesforce for Agentforce agents. Foundation work is handled alongside your first agent, so you can still start soon.',
+  'Getting Ready':
+    'Positioned for Quick Wins means you are close enough to start capturing value from Agentforce agents in the next 60 to 90 days, with tuning happening in parallel.',
+  'Nearly Ready':
+    'Nearly Ready means your Salesforce environment is well set up for Agentforce. Agents can go live quickly and start returning measurable results.',
+  'Ready to Deploy':
+    'Ready to Deploy means your Salesforce environment is a strong match for Agentforce today. You can launch agents with minimal preparation and start capturing value fast.',
+}
+
+function tierDescription(tier: string): string | null {
+  return TIER_DESCRIPTIONS[tier] ?? null
+}
+
+// Fallback plain-English summary for a category when the narrative predates
+// the plainSummary field. Gives the reader a CEO-friendly read of the score.
+function fallbackPlainSummary(category: string, score: number): string {
+  const tier = tierFromScore(score)
+  if (category === 'Data Foundation') {
+    switch (tier) {
+      case 'Leading':
+        return 'Your customer data is unified and reliable across systems, so AI can answer questions and take action without the team hunting for information.'
+      case 'Scaling':
+        return 'Your customer data is mostly unified, and AI can use it for real work with some targeted cleanup as agents go live.'
+      case 'Building':
+        return 'Your customer data is partially unified, so AI will deliver inconsistent results until your systems tell the same story about each customer.'
+      default:
+        return 'Your customer data is scattered across systems, which means AI cannot yet be trusted to answer customer questions or take action on its own.'
+    }
+  }
+  switch (tier) {
+    case 'Leading':
+      return `You are running ${category} the way leaders in your industry do, which means AI has room to compound on strengths already in place.`
+    case 'Scaling':
+      return `${category} is working well enough for AI to produce real results, with targeted improvements while agents are deployed.`
+    case 'Building':
+      return `${category} has enough in place for a first AI use case, but not enough to scale AI across the business without reinforcement.`
+    default:
+      return `${category} is still early, which means AI would struggle to produce reliable business results until this area catches up.`
+  }
+}
+
 // ─── Industry Benchmarks ────────────────────────────────────────────────────
 
 const INDUSTRY_BENCHMARKS: Record<string, Record<string, number>> = {
@@ -150,7 +204,7 @@ const EDUCATIONAL_SIDEBARS: Record<string, string> = {
 
 const AGENTFORCE_SIDEBARS: Record<string, string> = {
   CorePrereqs: 'Why Your Salesforce Investment Is a Head Start on Agentforce: Agentforce agents run natively inside your existing Salesforce org, reading records, triggering automations, and taking action on your behalf. Every record, process, and integration you have already built becomes fuel for your agents on day one, which is why Salesforce customers consistently see faster time to value than teams starting from scratch.',
-  DataCloud: 'What is Salesforce Data Cloud? Data Cloud is Salesforce\'s real-time data platform that unifies customer data from every source (CRM, website, support, marketing, and third-party systems) into a single customer profile. It is the unlock that gives every Agentforce agent full context for more personalized, more accurate responses.',
+  DataCloud: 'Unified customer data across systems: We have a clear, unified view of our customer data across all systems. That means every Agentforce agent, every sales rep, and every service rep sees the same customer story in real time, so responses are personalized, accurate, and consistent no matter where the customer started the conversation.',
   SalesCloud: 'What an AI Sales Agent Delivers: Agentforce SDR Agent autonomously qualifies inbound leads, follows up on open opportunities, and surfaces next best actions for your sales team, all inside Salesforce. The result is faster response times, consistent follow-through, and reps focused on closing rather than admin, typically within 60 to 90 days of deployment.',
   ServiceCloud: 'What an AI Service Agent Delivers: Agentforce Service Agent resolves routine customer inquiries autonomously across chat, email, and messaging, deflecting cases without human intervention and escalating complex issues with full context already captured. Companies deploying service agents report 30 to 40% reduction in handle time within the first 60 days.',
   MarketingCloud: 'What an AI Marketing Agent Delivers: Agentforce for Marketing automates audience segmentation, campaign optimization, and personalized journey triggers based on real-time customer behavior. Marketing teams using AI agents see higher engagement rates and significantly less time spent on manual campaign management.',
@@ -168,7 +222,7 @@ const SIDEBAR_CLOSING: Record<string, string> = {
 
 const AGENTFORCE_CLOSING: Record<string, string> = {
   CorePrereqs: 'Your implementation partner handles the technical work. Most clients are live with their first agent in under 60 days.',
-  DataCloud: 'Data Cloud gives every Agentforce agent full context across your clouds. Teams starting with the free Salesforce Foundations tier (100K Flex Credits) activate immediately, no net-new spend required.',
+  DataCloud: 'A unified customer view gives every Agentforce agent full context across your clouds. Teams starting with the free Salesforce Foundations tier (100K Flex Credits) activate immediately, no net-new spend required.',
   SalesCloud: 'SDR Agents with clean CRM data qualify leads ~40% more accurately and cut lead response time from hours to seconds. Data and workflow tuning are included in your deployment.',
   ServiceCloud: 'Service Agents with access to your Knowledge Base resolve cases up to 3x faster and deflect 40 to 70% of routine inquiries autonomously. Your team focuses on the cases that need a human.',
   MarketingCloud: 'Marketing Agents with consented, segmented data scale personalization across every campaign, driving higher engagement with less manual work. Data enablement is part of the rollout.',
@@ -632,6 +686,18 @@ export function ProspectReport({
             >
               {l1Scores.tier}
             </Text>
+            {tierDescription(l1Scores.tier) && (
+              <Text
+                style={{
+                  fontSize: 9,
+                  lineHeight: 1.45,
+                  color: '#bfdbfe',
+                  marginTop: 8,
+                }}
+              >
+                {tierDescription(l1Scores.tier)}
+              </Text>
+            )}
           </View>
 
           {isSalesforce && l2Scores && (
@@ -646,6 +712,18 @@ export function ProspectReport({
               >
                 {layer2TierLabel(l2Scores.tier)}
               </Text>
+              {tierDescription(l2Scores.tier) && (
+                <Text
+                  style={{
+                    fontSize: 9,
+                    lineHeight: 1.45,
+                    color: '#bfdbfe',
+                    marginTop: 8,
+                  }}
+                >
+                  {tierDescription(l2Scores.tier)}
+                </Text>
+              )}
             </View>
           )}
         </View>
@@ -737,7 +815,42 @@ export function ProspectReport({
       <Page size="LETTER" style={s.page}>
         <Text style={s.sectionLabel}>EXECUTIVE SUMMARY</Text>
         <Text style={s.sectionTitle}>Executive Summary</Text>
-        <Text style={s.bodyText}>{narrative.executiveSummary}</Text>
+
+        {(() => {
+          const sections = parseExecutiveSummary(
+            typeof narrative.executiveSummary === 'string' ? narrative.executiveSummary : '',
+          )
+          if (sections.length === 0) {
+            return <Text style={s.bodyText}>{narrative.executiveSummary}</Text>
+          }
+          return (
+            <View>
+              {sections.map((sec, i) => (
+                <View
+                  key={sec.key}
+                  style={{
+                    marginBottom: i === sections.length - 1 ? 0 : 12,
+                    paddingLeft: 14,
+                    borderLeftWidth: 3,
+                    borderLeftColor: COLORS.primary,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      fontFamily: 'Helvetica-Bold',
+                      color: COLORS.primaryDark,
+                      marginBottom: 4,
+                    }}
+                  >
+                    {i + 1}. {sec.display}
+                  </Text>
+                  <Text style={s.bodyText}>{sec.body}</Text>
+                </View>
+              ))}
+            </View>
+          )
+        })()}
 
         {/* ── Operations Snapshot Callout ── */}
         <View style={{
@@ -798,7 +911,7 @@ export function ProspectReport({
         <Text style={s.sectionTitle}>Your AI Readiness at a Glance</Text>
 
         {/* Overall score prominently displayed */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <View style={{
             backgroundColor: COLORS.gray100,
             borderRadius: 8,
@@ -814,6 +927,11 @@ export function ProspectReport({
           </View>
           <Text style={{ fontSize: 10, color: COLORS.gray500 }}>Overall AI Maturity</Text>
         </View>
+        {tierDescription(l1Scores.tier) && (
+          <Text style={{ fontSize: 10, lineHeight: 1.5, color: COLORS.gray700, marginBottom: 20 }}>
+            {tierDescription(l1Scores.tier)}
+          </Text>
+        )}
 
         {/* Section A: General AI Maturity bars */}
         <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900, marginBottom: 12 }}>
@@ -883,7 +1001,7 @@ export function ProspectReport({
           <>
             <View style={{ borderBottomWidth: 1, borderBottomColor: COLORS.gray200, marginBottom: 16 }} />
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
               <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: COLORS.gray900 }}>
                 Agentforce Readiness
               </Text>
@@ -894,6 +1012,11 @@ export function ProspectReport({
                 <TierBadge tier={l2Scores.tier} color={layer2TierColor(l2Scores.tier)} />
               </View>
             </View>
+            {tierDescription(l2Scores.tier) && (
+              <Text style={{ fontSize: 10, lineHeight: 1.5, color: COLORS.gray700, marginBottom: 12 }}>
+                {tierDescription(l2Scores.tier)}
+              </Text>
+            )}
 
             {l2Scores.edition_flag && (
               <View style={{ backgroundColor: COLORS.amberLight, borderRadius: 4, padding: 8, marginBottom: 12 }}>
@@ -1044,6 +1167,39 @@ export function ProspectReport({
               </View>
             )}
 
+            {/* Plain-English read of the score (shown before any score or bullet findings) */}
+            {(() => {
+              const plain =
+                catNarrative.plainSummary ?? fallbackPlainSummary(label, score)
+              return (
+                <View
+                  style={{
+                    backgroundColor: '#F8FAFC',
+                    borderLeftWidth: 3,
+                    borderLeftColor: accentColor,
+                    borderRadius: 4,
+                    padding: 10,
+                    marginBottom: 12,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 8,
+                      fontFamily: 'Helvetica-Bold',
+                      letterSpacing: 1,
+                      color: COLORS.gray500,
+                      marginBottom: 4,
+                    }}
+                  >
+                    WHAT THIS MEANS FOR YOUR BUSINESS
+                  </Text>
+                  <Text style={{ fontSize: 11, lineHeight: 1.5, color: COLORS.gray800 }}>
+                    {plain}
+                  </Text>
+                </View>
+              )
+            })()}
+
             {/* Context Paragraph */}
             {catNarrative.context && (
               <Text style={{ fontSize: 10, lineHeight: 1.6, color: COLORS.gray500, marginBottom: 14 }}>
@@ -1146,6 +1302,22 @@ export function ProspectReport({
           <Page size="LETTER" style={s.page}>
             <Text style={s.sectionLabel}>AGENTFORCE OPPORTUNITY</Text>
             <Text style={s.sectionTitle}>Here&apos;s What&apos;s Possible for You</Text>
+
+            <View
+              style={{
+                backgroundColor: '#EFF6FF',
+                borderLeftWidth: 4,
+                borderLeftColor: COLORS.primary,
+                borderRadius: 6,
+                paddingVertical: 10,
+                paddingHorizontal: 14,
+                marginBottom: 14,
+              }}
+            >
+              <Text style={{ fontSize: 10, lineHeight: 1.55, color: COLORS.gray800 }}>
+                The following results are specific to Salesforce Agentforce. This section is only relevant if you are exploring or currently using Agentforce.
+              </Text>
+            </View>
 
             <Text style={[s.bodyText, { marginBottom: 10 }]}>
               {isSalesforce
@@ -1293,7 +1465,7 @@ export function ProspectReport({
               </Text>
             </View>
 
-            <View style={{ flexDirection: 'row', gap: 12, marginBottom: 20 }}>
+            <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
               <View style={[s.badge, { backgroundColor: COLORS.gray100 }]}>
                 <Text style={[s.badgeLabel, { color: COLORS.gray500 }]}>
                   YOUR AGENTFORCE POSITION
@@ -1301,6 +1473,11 @@ export function ProspectReport({
                 <TierBadge tier={layer2TierLabel(l2Scores.tier)} color={layer2TierColor(l2Scores.tier)} />
               </View>
             </View>
+            {tierDescription(l2Scores.tier) && (
+              <Text style={{ fontSize: 10, lineHeight: 1.55, color: COLORS.gray700, marginBottom: 14 }}>
+                {tierDescription(l2Scores.tier)}
+              </Text>
+            )}
 
             <Text style={s.bodyText}>
               {agentforceNarrative.agentforceExecutiveSummary}
@@ -1320,10 +1497,13 @@ export function ProspectReport({
             {agentforceNarrative.dataCloudFlag && (
               <View style={[s.dataCloudCallout, { marginTop: agentforceNarrative.editionFlag ? 0 : 16 }]}>
                 <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: COLORS.blueDark, marginBottom: 4 }}>
-                  Data Cloud Opportunity
+                  Unified customer data across systems
+                </Text>
+                <Text style={{ fontSize: 9, lineHeight: 1.5, color: COLORS.blueDark, marginBottom: 4 }}>
+                  We have a clear, unified view of our customer data across all systems. That means every Agentforce agent, every sales rep, and every service rep sees the same customer story in real time, so responses stay personalized and accurate no matter where the conversation started.
                 </Text>
                 <Text style={{ fontSize: 9, lineHeight: 1.5, color: COLORS.blueDark }}>
-                  Adding Data Cloud unlocks unified customer profiles across all your clouds, giving every agent full context for personalized responses. {agentforceNarrative.dataCloudFlag.reason} Many clients start with the free Salesforce Foundations tier (100K Flex Credits) to activate immediately.
+                  {agentforceNarrative.dataCloudFlag.reason} Many clients start with the free Salesforce Foundations tier (100K Flex Credits) to activate immediately.
                 </Text>
                 <Text style={{ fontSize: 8, color: '#3b82f6', marginTop: 4 }}>
                   When it fits your deployment: {agentforceNarrative.dataCloudFlag.phase}
@@ -1568,7 +1748,7 @@ export function ProspectReport({
             Your Deployment Includes:
           </Text>
           {[
-            'Data Cloud activation (free Salesforce Foundations tier available — 100K Flex Credits, no net-new spend to start)',
+            'Unified customer data across systems — a clear, unified view of our customer data across all systems (free Salesforce Foundations tier available, 100K Flex Credits, no net-new spend to start)',
             'Einstein Trust Layer configuration for security, data masking, and compliance',
             'Data quality and workflow optimization across Lead, Contact, Account, and Opportunity',
             'Agent configuration, guardrails, and sandbox testing before go-live',
